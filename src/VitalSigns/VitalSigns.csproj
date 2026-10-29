@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>VitalSigns</AssemblyName>
+    <RootNamespace>VitalSigns</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <GameDir Condition="'$(GameDir)' == ''">D:\Games\Survival Log\Survival Log</GameDir>
+    <BepInExCore>$(GameDir)\BepInEx\core</BepInExCore>
+    <Interop>$(GameDir)\BepInEx\interop</Interop>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="$(BepInExCore)\BepInEx.Core.dll" Private="false" />
+    <Reference Include="$(BepInExCore)\BepInEx.Unity.IL2CPP.dll" Private="false" />
+    <Reference Include="$(BepInExCore)\0Harmony.dll" Private="false" />
+    <Reference Include="$(BepInExCore)\Il2CppInterop.Runtime.dll" Private="false" />
+    <Reference Include="$(BepInExCore)\Il2CppInterop.Common.dll" Private="false" />
+    <Reference Include="$(Interop)\HotUpdate.dll" Private="false" />
+    <Reference Include="$(Interop)\Il2Cppmscorlib.dll" Private="false" />
+    <Reference Include="$(Interop)\UnityEngine.CoreModule.dll" Private="false" />
+    <Reference Include="$(Interop)\UnityEngine.UIModule.dll" Private="false" />
+    <Reference Include="$(Interop)\UnityEngine.UI.dll" Private="false" />
+    <Reference Include="$(Interop)\Vuplex.WebView.dll" Private="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="vitalsigns.js" LogicalName="VitalSigns.vitalsigns.js" />
+  </ItemGroup>
+
+  <!-- What the Mod Manager's Mods screen shows about this mod. -->
+  <ItemGroup>
+    <AssemblyMetadata Include="ModManager.Name" Value="Vital Signs&#10;生命体征" />
+    <AssemblyMetadata Include="ModManager.Description" Value="Shows more about your stats on the HUD: each stat's gain multiplier and how its changes are scaled, the Well Fed lines on the Satiety bar, a timer stripe on each buff that ends, and the weight you carry on the Inventory button.&#10;在屏幕上显示更多属性信息：各项属性的增益倍率与增减倍率、「饱腹」条上的「饱腹富余」界线、每个有时限的状态上的计时条，以及「背包」按钮上的当前负重。" />
+    <AssemblyMetadata Include="ModManager.Author" Value="AnExiledDev" />
+    <AssemblyMetadata Include="ModManager.Category" Value="Interface" />
+    <AssemblyMetadata Include="ModManager.GameVersion" Value="1.1.19611" />
+    <AssemblyMetadata Include="ModManager.Settings" Value="Restart" />
+    <AssemblyMetadata Include="ModManager.GitHub" Value="AnExiledDev/SurvivalLog-VitalSigns" />
+    <AssemblyMetadata Include="ModManager.Changelog" Value="https://github.com/AnExiledDev/SurvivalLog-VitalSigns/blob/main/CHANGELOG.md" />
+  </ItemGroup>
+
+</Project>
