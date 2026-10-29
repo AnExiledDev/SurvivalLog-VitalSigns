@@ -14,8 +14,8 @@ public class PageDataTests
             new CarryWeight(12345, 20000, 16000),
             new WellFedLine(80, 60, 100));
 
-        Assert.Equal("{zh:false,stats:[[0.25,-0.5,0,0.1],[0,0,0,0],[0,0,0,0],[0,0,1,0]],buffs:[[1300,90000,21600],[4,95000,0]],"
-            + "weight:[12345,20000,16000],wellFed:[80,60,100],names:{wellFed:\"Well Fed\",overweight:\"Overweight\"}}", data);
+        Assert.Equal("{zh:false,stats:[[0.25,-0.5,0,0.1],[0,0,0,0],[0,0,0,0],[0,0,1,0]],buffs:[[1300,90000,21600,1,0],[4,95000,0,1,0]],"
+            + "weight:[12345,20000,16000],wellFed:[80,60,100],names:{wellFed:\"Well Fed\",overweight:\"Overweight\"},opt:[1,1,1,1,1]}", data);
     }
 
     [Fact]
@@ -59,5 +59,37 @@ public class PageDataTests
 
         Assert.StartsWith("{zh:true,", data);
         Assert.Contains("names:{wellFed:\"Well \\\"Fed\\\"\",overweight:\"超重\"}", data);
+    }
+
+    [Fact]
+    public void A_buff_carries_its_layers_and_whether_it_is_suppressed_and_an_untimed_one_ends_at_minus_one()
+    {
+        var data = Readings.Data(buffs: new[] { new BuffTime(1121, -1, 0, 3, true) });
+
+        Assert.Contains("buffs:[[1121,-1,0,3,1]]", data);
+    }
+
+    [Fact]
+    public void Each_option_turned_off_reaches_the_page_as_zero()
+    {
+        var data = Readings.Data(options: new Options(Weight: false, Stripes: true, Tooltips: false, GameText: true, Cures: false));
+
+        Assert.Contains(",opt:[0,1,0,1,0]", data);
+    }
+
+    [Fact]
+    public void Details_carry_maxima_coming_losses_buff_lines_cures_counts_and_food_names()
+    {
+        var rule = Readings.Rule(1111, "Cut", interval: 7200, every: new double[] { 0, 0, 0, -2 }, gain: new double[] { 0.5, 0, 0, 0 }, cures: new[] { 2400, 2401 },
+            suppressors: new[] { 2916 }, isSuppressible: true);
+        var coming = new IReadOnlyList<LossLine>[] { Array.Empty<LossLine>(), Array.Empty<LossLine>(), Array.Empty<LossLine>(), new[] { new LossLine(1111, 6.666, 9000) } };
+        var details = Readings.DetailsOf(new[] { rule }, coming, new[] { new ItemCount(2400, "Bandage", "Icons/bandage.png", 3) }, "Morphine",
+            new[] { "Meat", "Fruit" }, new[] { new FoodMod(0, 2, -0.25) }, new double[] { 100, 100, 120, 80 });
+
+        var data = Readings.Data(details: details);
+
+        Assert.EndsWith(",opt:[1,1,1,1,1],max:[100,100,120,80],coming:[[],[],[],[[1111,6.67,9000]]],"
+            + "info:{1111:[\"Cut\",0,2,[[\"e\",3,-2],[\"g\",0,0.5]],[2400,2401],[2916],1]},"
+            + "items:{2400:[\"Bandage\",\"Icons/bandage.png\",3]},by:\"Morphine\",foods:[\"Meat\",\"Fruit\"],food:[[0,2,-0.25]]}", data);
     }
 }

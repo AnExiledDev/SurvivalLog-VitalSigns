@@ -18,12 +18,14 @@ internal sealed class VsPage
     private readonly ReplySlot _replies = new();
     private readonly HeldData _held = new();
     private readonly Action<string> _log;
+    private readonly Options _options;
     private string? _script;
     private bool _isWeightLogged;
 
-    public VsPage(Action<string> log)
+    public VsPage(Action<string> log, Options options)
     {
         _log = log;
+        _options = options;
     }
 
     public void Tick(double now)
@@ -38,9 +40,9 @@ internal sealed class VsPage
 
         if (turn.Send == PageSend.Nothing) return;
 
-        var vitals = PlayerVitals.Read();
         var isChinese = GameLanguage.IsChinese();
-        var data = PageData.Of(vitals, GameTexts.Names(isChinese), isChinese);
+        var vitals = PlayerVitals.Read(_options, isChinese);
+        var data = PageData.Of(vitals, GameTexts.Names(isChinese), isChinese, _options);
         var clock = vitals?.Now ?? PlayerVitals.Now();
         var javaScript = turn.Send == PageSend.Install ? PageCalls.Install(Script(), clock, _held.ToInstall(data)) : PageCalls.Check(clock, _held.ToSend(data));
 

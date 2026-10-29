@@ -39,6 +39,21 @@ var FakeElement = class {
         return child;
     }
 
+    insertBefore(child, before) {
+        if (!before) return this.appendChild(child);
+
+        if (child.parentElement) child.parentElement.removeChild(child);
+
+        var at = this.children.indexOf(before);
+
+        if (at < 0) throw new Error('insertBefore: not a child of this element');
+
+        child.parentElement = this;
+        this.children.splice(at, 0, child);
+
+        return child;
+    }
+
     removeChild(child) {
         var at = this.children.indexOf(child);
 
@@ -90,8 +105,12 @@ function descendantsOf(root) {
     return found;
 }
 
+// Listeners the script adds to the document, by event name; hover() hands them a mouseover on a node.
+var listeners = {};
+
 var document = {
     documentElement: new FakeElement('html'),
+    addEventListener: function (name, listener) { (listeners[name] = listeners[name] || []).push(listener); },
     getElementById: function (id) {
         return descendantsOf(document.documentElement).filter(function (element) { return element.id === id; })[0] || null;
     },
@@ -105,7 +124,7 @@ document.body = document.documentElement.appendChild(new FakeElement('body'));
 
 // Draws the HUD as CoreUI1's template does: the stat panel with one row per attrList item (its buff badges on the
 // left, the bar on the right), and the tool column with the phone and bag buttons.
-// spec: { icons, buffs: [[configId, ...] per row], hasNoVue, hasNoBag, bagName }
+// spec: { icons, buffs: [[configId, ...] per row], values: [0 to 1 per row], names: [per row], hasNoVue, hasNoBag, bagName }
 function buildPage(spec) {
     var icons = spec.icons || ['\uD83C\uDF56', '\uD83E\uDDE0', '\u26A1', '\u2764'];
     var buffs = spec.buffs || [];
@@ -114,7 +133,7 @@ function buildPage(spec) {
     var container = app.appendChild(new FakeElement('div', 'bottom-right-container'));
     var panel = container.appendChild(new FakeElement('div', 'status-panel'));
     var attrList = icons.map(function (icon, r) {
-        return { attrIcon: icon, buffs: (buffs[r] || []).map(function (id) { return { buffConfigId: id }; }) };
+        return { attrIcon: icon, attrName: spec.names ? spec.names[r] : undefined, value: spec.values ? spec.values[r] : 0.5, buffs: (buffs[r] || []).map(function (id) { return { buffConfigId: id }; }) };
     });
 
     app.id = 'app';
@@ -131,7 +150,10 @@ function buildPage(spec) {
         (buffs[r] || []).forEach(function (id) { addBadge(badges, id); });
         row.appendChild(bar).setAttribute('data-interactive', '');
         mask.appendChild(new FakeElement('div', 'progress-fill'));
-        mask.appendChild(new FakeElement('div', 'progress-text'));
+        var text = mask.appendChild(new FakeElement('div', 'progress-text'));
+        var name = text.appendChild(new FakeElement('span', 'attr-name'));
+
+        name.appendChild(new FakeElement('span')).textContent = icon;
         tip.appendChild(new FakeElement('div', 'st-header'));
         tip.appendChild(new FakeElement('div', 'st-body'));
 
@@ -149,7 +171,10 @@ function addBadge(container, id) {
     var badge = container.appendChild(new FakeElement('div', 'buff buff-pos'));
 
     badge.textContent = 'buff ' + id;
-    badge.appendChild(new FakeElement('div', 'buff-tooltip bt-pos'));
+    var tip = badge.appendChild(new FakeElement('div', 'buff-tooltip bt-pos'));
+
+    tip.appendChild(new FakeElement('div', 'bt-header'));
+    tip.appendChild(new FakeElement('div', 'bt-body')).textContent = 'The game text.';
 
     return badge;
 }
@@ -184,4 +209,20 @@ function maskOf(row) {
 
 function tipOf(row) {
     return row.querySelector('.status-tooltip');
+}
+
+// A mouseover on the node, as the browser sends it to the document's listeners.
+function hover(node) {
+    (listeners.mouseover || []).forEach(function (listener) { listener({ target: node }); });
+}
+
+// The text of each row of our block in a tooltip, one per line, or '' when there is none.
+function blockText(tip, className) {
+    var block = childWith(tip, className);
+
+    return block ? block.children.map(function (row) { return row.textContent || row.children.map(function (c) { return c.textContent; }).filter(function (t) { return t; }).join(' '); }).join('\n') : '';
+}
+
+function buffTip(row, n) {
+    return row.querySelectorAll('.buff')[n].querySelector('.buff-tooltip');
 }

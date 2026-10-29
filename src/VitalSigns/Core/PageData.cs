@@ -13,11 +13,16 @@ public static class PageData
 {
     public const string NoPlayer = "null";
 
-    public static string Of(Vitals? vitals, GameNames names, bool isChinese)
+    /// <summary>Effect kinds as the page names them.</summary>
+    private const string Kinds = "esnmglvfo";
+
+    public static string Of(Vitals? vitals, GameNames names, bool isChinese, Options? options = null)
     {
         if (vitals == null) return NoPlayer;
 
-        var data = new StringBuilder(256);
+        options ??= new Options();
+
+        var data = new StringBuilder(1024);
 
         data.Append("{zh:").Append(isChinese ? "true" : "false");
         data.Append(",stats:[");
@@ -25,15 +30,66 @@ public static class PageData
             .Append(Ratio(stat.NaturalGain)).Append(',').Append(Ratio(stat.NaturalLoss)).Append(']'));
         data.Append("],buffs:[");
         AppendList(data, vitals.Buffs, (text, buff) => text.Append('[').Append(Whole(buff.ConfigId)).Append(',').Append(Whole(buff.EndsAt)).Append(',')
-            .Append(Whole(buff.Duration)).Append(']'));
+            .Append(Whole(buff.Duration)).Append(',').Append(Whole(System.Math.Max(1, buff.Layers))).Append(',').Append(buff.IsSuppressed ? '1' : '0').Append(']'));
         data.Append("],weight:");
         data.Append(vitals.Weight is { } weight ? $"[{Whole(weight.Carried)},{Whole(weight.Max)},{Whole(weight.Overweight)}]" : "null");
         data.Append(",wellFed:");
         data.Append(vitals.WellFed is { } wellFed ? $"[{Whole(wellFed.From)},{Whole(wellFed.Until)},{Whole(wellFed.Max)}]" : "null");
-        data.Append(",names:{wellFed:").Append(PageCalls.Quote(names.WellFed)).Append(",overweight:").Append(PageCalls.Quote(names.Overweight)).Append("}}");
+        data.Append(",names:{wellFed:").Append(PageCalls.Quote(names.WellFed)).Append(",overweight:").Append(PageCalls.Quote(names.Overweight)).Append('}');
+        data.Append(",opt:[").Append(Flag(options.Weight)).Append(',').Append(Flag(options.Stripes)).Append(',').Append(Flag(options.Tooltips)).Append(',')
+            .Append(Flag(options.GameText)).Append(',').Append(Flag(options.Cures)).Append(']');
 
-        return data.ToString();
+        if (vitals.Details is { } details) AppendDetails(data, details);
+
+        return data.Append('}').ToString();
     }
+
+    /// <summary>
+    /// max: each stat's maximum. coming: per stat, [buff, amount, last loss second]. info: per buff id, [name, is good,
+    /// interval in hours, effect lines [kind, stat or food, value for one layer], cure item ids, suppressor item ids,
+    /// is suppressible]. items: per item id, [name, icon, count]. by: the running suppressors. foods: food type names.
+    /// food: the player's own food modifiers, [stat, food type, ratio].
+    /// </summary>
+    private static void AppendDetails(StringBuilder data, Details details)
+    {
+        data.Append(",max:[");
+        AppendList(data, details.Max, (text, max) => text.Append(Ratio(max)));
+        data.Append("],coming:[");
+        AppendList(data, details.Coming, (text, stat) =>
+        {
+            text.Append('[');
+            AppendList(text, stat, (line, loss) => line.Append('[').Append(Whole(loss.BuffId)).Append(',').Append(Amount(loss.Amount)).Append(',')
+                .Append(Whole(loss.LastAt)).Append(']'));
+            text.Append(']');
+        });
+        data.Append("],info:{");
+        AppendList(data, details.Rules, (text, rule) =>
+        {
+            text.Append(Whole(rule.Id)).Append(":[").Append(PageCalls.Quote(rule.Name)).Append(',').Append(Flag(rule.IsGood)).Append(',')
+                .Append(Ratio(rule.Interval / 3600)).Append(",[");
+            AppendList(text, EffectLines.Of(rule, details.ColdFactor), (line, fx) => line.Append("[\"").Append(Kinds[(int)fx.Kind]).Append("\",")
+                .Append(Whole(fx.Index)).Append(',').Append(Ratio(fx.Value)).Append(']'));
+            text.Append("],[");
+            AppendList(text, rule.Cures, (line, id) => line.Append(Whole(id)));
+            text.Append("],[");
+            AppendList(text, rule.Suppressors, (line, id) => line.Append(Whole(id)));
+            text.Append("],").Append(Flag(rule.IsSuppressible)).Append(']');
+        });
+        data.Append("},items:{");
+        AppendList(data, details.Items, (text, item) => text.Append(Whole(item.Id)).Append(":[").Append(PageCalls.Quote(item.Name)).Append(',')
+            .Append(PageCalls.Quote(item.Icon)).Append(',').Append(Whole(item.Count)).Append(']'));
+        data.Append("},by:").Append(PageCalls.Quote(details.SuppressedBy)).Append(",foods:[");
+        AppendList(data, details.Foods, (text, name) => text.Append(PageCalls.Quote(name)));
+        data.Append("],food:[");
+        AppendList(data, details.FoodMods, (text, mod) => text.Append('[').Append(Whole(mod.Stat)).Append(',').Append(Whole(mod.Food)).Append(',')
+            .Append(Ratio(mod.Ratio)).Append(']'));
+        data.Append(']');
+    }
+
+    private static char Flag(bool value) => value ? '1' : '0';
+
+    /// <summary>Losses show to one place; two keep the shading smooth without float noise.</summary>
+    private static string Amount(double amount) => double.IsFinite(amount) ? (System.Math.Round(amount, 2) + 0.0).ToString("0.##", CultureInfo.InvariantCulture) : "0";
 
     private static void AppendList<T>(StringBuilder data, IReadOnlyList<T> items, System.Action<StringBuilder, T> append)
     {
