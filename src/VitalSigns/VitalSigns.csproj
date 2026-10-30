@@ -35,7 +35,7 @@
   <!-- What the Mod Manager's Mods screen shows about this mod. -->
   <ItemGroup>
     <AssemblyMetadata Include="ModManager.Name" Value="Vital Signs&#10;生命体征" />
-    <AssemblyMetadata Include="ModManager.Description" Value="Shows more about your stats on the HUD: each stat's gain multiplier, shading for the losses still to come, the Well Fed lines on the Satiety bar, a timer stripe on each buff that ends, buff effects and cures in the hover boxes, and the weight you carry on the Inventory button. The bar size can be set.&#10;在屏幕上显示更多属性信息：各项属性的增益倍率、即将扣除量的阴影、「饱腹」条上的「饱腹富余」界线、每个有时限的状态上的计时条、悬停提示里的状态效果与治疗物品，以及「背包」按钮上的当前负重。属性条大小可调。" />
+    <AssemblyMetadata Include="ModManager.Description" Value="Shows more about your stats on the HUD: each stat's gain multiplier, shading for the losses still to come, the Well Fed lines on the Satiety bar, a timer stripe on each buff that ends, buff effects and cures in the hover boxes, and the weight you carry on the Inventory button. The bar and buff sizes can be set.&#10;在屏幕上显示更多属性信息：各项属性的增益倍率、即将扣除量的阴影、「饱腹」条上的「饱腹富余」界线、每个有时限的状态上的计时条、悬停提示里的状态效果与治疗物品，以及「背包」按钮上的当前负重。属性条和状态大小可调。" />
     <AssemblyMetadata Include="ModManager.Author" Value="AnExiledDev" />
     <AssemblyMetadata Include="ModManager.Category" Value="Interface" />
     <AssemblyMetadata Include="ModManager.GameVersion" Value="1.1.20151" />

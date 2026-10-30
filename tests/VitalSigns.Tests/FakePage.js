@@ -30,6 +30,8 @@ var FakeElement = class {
 
     setAttribute(name, value) { this.attrs[name] = String(value); }
 
+    removeAttribute(name) { delete this.attrs[name]; }
+
     appendChild(child) {
         if (child.parentElement) child.parentElement.removeChild(child);
 
@@ -227,6 +229,18 @@ function blockText(tip, className) {
     var block = childWith(tip, className);
 
     return block ? block.children.map(function (row) { return row.textContent || row.children.map(function (c) { return c.textContent; }).filter(function (t) { return t; }).join(' '); }).join('\n') : '';
+}
+
+// What Vue does to a tooltip when it shows or hides it: the whole class is written again from its template.
+function vueRewritesClass(element, className) {
+    element.className = className;
+}
+
+// Every game tooltip that carries one of our marks.
+function markedTips() {
+    return document.querySelectorAll('.buff-tooltip').concat(document.querySelectorAll('.status-tooltip')).filter(function (tip) {
+        return tip.hasAttribute('data-vs-tip') || tip.hasAttribute('data-vs-timed') || tip.hasAttribute('data-vs-no-game-text');
+    });
 }
 
 function buffTip(row, n) {

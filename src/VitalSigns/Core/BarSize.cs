@@ -1,8 +1,9 @@
 namespace VitalSigns.Core;
 
 /// <summary>
-/// How big the stat bars and their buff badges are drawn, in percent of the game's own size. The page zooms each stat
-/// row by it, so the badges, stripes and hover boxes on that row shrink or grow with the bar.
+/// How big the stat bars (BarSize) and their buff badges (BuffSize) are drawn, in percent of the game's own size. Both
+/// settings share this default and range. The page zooms each bar by one and each row's badges, with their stripes and
+/// hover boxes, by the other.
 /// </summary>
 public static class BarSize
 {

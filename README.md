@@ -45,13 +45,13 @@ Delete `VitalSigns.dll` from the `BepInEx\plugins` folder. For a clean slate, al
 
 ## Configuration
 
-Settings live in `BepInEx\config\com.dev.survivallog.vitalsigns.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Changes take effect at the next game start. Each setting in the cfg file is explained in English and Simplified Chinese. Each part (the weight, the timer stripes, the hover box details, the game's own stat text and the cure lists) can be turned off, and `BarSize` sets how big the bars are drawn. See [CONFIG.md](CONFIG.md) for every setting.
+Settings live in `BepInEx\config\com.dev.survivallog.vitalsigns.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Changes take effect at the next game start. Each setting in the cfg file is explained in English and Simplified Chinese. Each part (the weight, the timer stripes, the hover box details, the game's own stat text and the cure lists) can be turned off, and `BarSize` and `BuffSize` set how big the bars and the buffs are drawn. See [CONFIG.md](CONFIG.md) for every setting.
 
 ## Troubleshooting
 
 Tested on Survival Log 1.1.20151 with BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.3.1 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
+Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.4.0 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
 
 Once a game has loaded, look for `page script sent to CoreUI1 (install 1): the stat bars show the readings`. A line ending `no stat bars on the HUD right now` means the mod could not find the stat bars.
 
@@ -65,6 +65,7 @@ To reach me directly, message `exiled.dev` on Discord; you can find me in the [o
 
 ## Changelog
 
+- **0.4.0**: Bigger buffs with their own BuffSize setting, and the old buff hover box no longer flashes up first.
 - **0.3.1**: The gain multiplier sits after the stat's name instead of on top of it.
 - **0.3.0**: Smaller bars by default with a BarSize setting, smaller buff badges and cleaner buff hover boxes.
 - **0.2.0**: Loss shading on the bars, buff effect and cure hover boxes, fuller stat hover boxes, a weight bar and settings for each part.

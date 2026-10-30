@@ -15,7 +15,7 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 [*][b]Well Fed lines on the Satiety bar[/b]: one line where Well Fed starts and a fainter one where it ends, read from the game's own rule.[/*]
 [*][b]Timer stripe on buffs[/b]: every buff or debuff that runs out gets a thin stripe that shrinks as its time runs down and turns amber near the end.[/*]
 [*][b]Weight on the Inventory button[/b]: the kilograms you carry, amber when you are close to Overweight and red past it. Hover the button for how much room you have left.[/*]
-[*][b]Bar size[/b]: the bars are drawn at 80% of the game's size by default, and the buffs shrink with them. Set any size from 50% to 150%.[/*]
+[*][b]Bar and buff size[/b]: the bars and the buffs next to them are drawn at 80% of the game's size by default. Set each one from 50% to 150%.[/*]
 [*][b]English or Chinese[/b]: follows the game's language.[/*]
 [*][b]Light on the game[/b]: reads your stats every couple of seconds and only redraws when something changed.[/*]
 [/list]
@@ -45,7 +45,7 @@ Values are read every couple of seconds, so a change can take that long to show.
 Delete [font=Courier New]VitalSigns.dll[/font] from the [font=Courier New]BepInEx\plugins[/font] folder.
 
 [size=5]Configuration[/size]
-Settings are in [font=Courier New]BepInEx\config\com.dev.survivallog.vitalsigns.cfg[/font] or on the Mod Manager's Mods screen, and take effect at the next game start. [font=Courier New]Enabled[/font] turns the mod on or off. Under Display you can turn off the weight, the timer stripes, the hover box details, the game's own stat text and the cure lists, and BarSize sets how big the bars are drawn (80% of the game's size by default).
+Settings are in [font=Courier New]BepInEx\config\com.dev.survivallog.vitalsigns.cfg[/font] or on the Mod Manager's Mods screen, and take effect at the next game start. [font=Courier New]Enabled[/font] turns the mod on or off. Under Display you can turn off the weight, the timer stripes, the hover box details, the game's own stat text and the cure lists, and BarSize and BuffSize set how big the bars and the buffs are drawn (80% of the game's size by default).
 
 [size=5]Feedback[/size]
 Found a bug or have an idea? Come say hi on the [url=https://discord.gg/trTsyxUFqg]Core Directive Discord[/url], or post in this page's Posts tab. For bugs, please include [font=Courier New]BepInEx\LogOutput.log[/font] and [font=Courier New]BepInEx\vital-signs.log[/font].
@@ -68,7 +68,7 @@ Open source under MIT: [url=https://github.com/AnExiledDev/SurvivalLog-VitalSign
 [*][b]「饱腹」条上的「饱腹富余」界线[/b]：一条线标出获得「饱腹富余」的位置，另一条较淡的线标出失去它的位置，数值来自游戏自身的规则。[/*]
 [*][b]状态计时条[/b]：每个会结束的增益或减益底部都有一条细条，随剩余时间缩短，快结束时变成琥珀色。[/*]
 [*][b]「背包」按钮上的负重[/b]：显示当前负重（千克），接近「超重」时变成琥珀色，超过后变成红色。鼠标悬停可查看距离「超重」还有多少余量。[/*]
-[*][b]属性条大小[/b]：属性条默认按游戏原尺寸的 80% 显示，旁边的状态也会一起缩小。大小可在 50% 到 150% 之间设置。[/*]
+[*][b]属性条与状态大小[/b]：属性条和旁边的状态默认按游戏原尺寸的 80% 显示，两者可分别在 50% 到 150% 之间设置。[/*]
 [*][b]中英文[/b]：跟随游戏语言。[/*]
 [*][b]不拖慢游戏[/b]：每隔几秒读取一次属性，只有变化时才重新绘制。[/*]
 [/list]
@@ -97,7 +97,7 @@ Vital Signs 只读取并显示你的属性，从不改动游戏数据，不会�
 从 [font=Courier New]BepInEx\plugins[/font] 文件夹中删除 [font=Courier New]VitalSigns.dll[/font]。
 
 [size=5]配置[/size]
-设置位于 [font=Courier New]BepInEx\config\com.dev.survivallog.vitalsigns.cfg[/font]，也可以在 Mod Manager 的「模组」界面修改，在下次启动游戏时生效。[font=Courier New]Enabled[/font] 用于开关模组。在 Display 分组里可以分别关闭负重显示、计时条、悬停提示详情、游戏自带的属性说明和治疗物品列表，BarSize 用于设置属性条的显示大小（默认为游戏原尺寸的 80%）。
+设置位于 [font=Courier New]BepInEx\config\com.dev.survivallog.vitalsigns.cfg[/font]，也可以在 Mod Manager 的「模组」界面修改，在下次启动游戏时生效。[font=Courier New]Enabled[/font] 用于开关模组。在 Display 分组里可以分别关闭负重显示、计时条、悬停提示详情、游戏自带的属性说明和治疗物品列表，BarSize 和 BuffSize 分别设置属性条和状态的显示大小（默认均为游戏原尺寸的 80%）。
 
 [size=5]反馈[/size]
 发现 bug 或有好点子？欢迎来 [url=https://discord.gg/trTsyxUFqg]Core Directive Discord[/url] 打个招呼，或在本页的「Posts」标签里发帖。报告 bug 时，请附上 [font=Courier New]BepInEx\LogOutput.log[/font] 和 [font=Courier New]BepInEx\vital-signs.log[/font]。

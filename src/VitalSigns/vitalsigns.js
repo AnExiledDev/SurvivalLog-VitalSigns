@@ -25,8 +25,11 @@
     // How far up from the hovered node a buff badge is looked for.
     var BADGE_DEPTH = 8;
     var DRAWN = ['vs-chip', 'vs-mark', 'vs-loss', 'vs-st', 'vs-timer', 'vs-bt', 'vs-btime', 'vs-weight', 'vs-wbar', 'vs-weight-tip'];
-    // Classes put on the game's own nodes, taken off again by clear.
-    var MARKED = ['vs-no-game-text', 'vs-tip', 'vs-timed'];
+    // Attributes put on the game's own tooltips, taken off again by clear. Attributes, not classes: Vue writes the whole
+    // class of a tooltip each time it shows or hides it, which wiped a class of ours and showed the game's own look until
+    // the next call drew it again. Vue leaves attributes it does not own alone.
+    var MARKS = ['data-vs-no-game-text', 'data-vs-tip', 'data-vs-timed'];
+    var MARKED_TIPS = ['buff-tooltip', 'status-tooltip'];
 
     var TEXTS = {
         en: {
@@ -107,7 +110,7 @@
         '.vs-loss{position:absolute;top:0;bottom:0;pointer-events:none;background:repeating-linear-gradient(135deg,rgba(0,0,0,.55) 0 2px,rgba(0,0,0,.25) 2px 4px)}',
         '.vs-st{margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,.15)}',
         '.vs-st:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}',
-        '.vs-no-game-text > .st-body:not(.vs-st){display:none}',
+        '.status-tooltip[data-vs-no-game-text] > .st-body:not(.vs-st){display:none}',
         '.vs-row{font-size:11px;line-height:1.5;color:#ccc}',
         '.vs-good{color:#a5d6a7}',
         '.vs-bad{color:#ff8a80}',
@@ -115,20 +118,21 @@
         '.vs-timer{position:absolute;left:0;right:0;bottom:0;height:2px;background:rgba(255,255,255,.75);transform-origin:left;transition:transform ' + STEP_SECONDS + 's linear;pointer-events:none}',
         '.vs-timer.vs-timer-low{background:#ffc107}',
         '.bf-leave-active .vs-timer{transition:none}',
-        // Badges a size smaller than the game's; the row zoom (BarSize) scales them again with the bar.
-        '.status-panel .buff-container{gap:3px;margin-right:4.5px}',
-        '.status-panel .buff{padding:2px 4.5px;font-size:9px;line-height:11px}',
+        // Badges near the bar's own label size, so at the same BuffSize and BarSize they sit in proportion to the bar.
+        // Their zoom (BuffSize) is set apart from the bar's.
+        '.status-panel .buff-container{gap:3.5px;margin-right:5.6px}',
+        '.status-panel .buff{padding:3px 6px;font-size:10.5px;line-height:13px}',
         // A buff tooltip with our block: the name and time on one line, then the effects, the cures and the game text
         // last in smaller type. The children are placed by order, because Vue adds the header and text after our block.
-        '.buff-tooltip.vs-tip{display:flex;flex-wrap:wrap;align-items:baseline;width:196px;padding:6px 8px 7px;background-color:rgba(14,16,19,.93);border-color:rgba(255,255,255,.14)}',
-        '.buff-tooltip.vs-tip::after{border-left-color:rgba(14,16,19,.93)}',
-        '.vs-tip > .bt-header{order:0;flex:1 1 0;min-width:0;margin:0;padding:0;border:0}',
-        '.vs-tip .bt-title{font-size:12px;line-height:15px;letter-spacing:.2px}',
-        '.vs-tip.vs-timed .bt-timer{display:none}',
+        '.buff-tooltip[data-vs-tip]{display:flex;flex-wrap:wrap;align-items:baseline;width:196px;padding:6px 8px 7px;background-color:rgba(14,16,19,.93);border-color:rgba(255,255,255,.14)}',
+        '.buff-tooltip[data-vs-tip]::after{border-left-color:rgba(14,16,19,.93)}',
+        '[data-vs-tip] > .bt-header{order:0;flex:1 1 0;min-width:0;margin:0;padding:0;border:0}',
+        '[data-vs-tip] .bt-title{font-size:12px;line-height:15px;letter-spacing:.2px}',
+        '[data-vs-tip][data-vs-timed] .bt-timer{display:none}',
         '.vs-btime{order:1;flex:0 0 auto;margin-left:8px;font-family:Consolas,monospace;font-size:10.5px;font-weight:bold;color:#eee}',
-        '.vs-tip > .vs-bt{order:2;flex:0 0 100%;margin-top:4px;padding-top:3px;border-top:1px solid rgba(255,255,255,.14)}',
-        '.vs-tip > .vs-bt.vs-bt-timed{margin-top:0;padding-top:0;border-top:0}',
-        '.vs-tip > .bt-body{order:3;flex:0 0 100%;margin-top:5px;padding-top:4px;border-top:1px dashed rgba(255,255,255,.16);font-size:10px;line-height:1.4;color:#a3abb4}',
+        '[data-vs-tip] > .vs-bt{order:2;flex:0 0 100%;margin-top:4px;padding-top:3px;border-top:1px solid rgba(255,255,255,.14)}',
+        '[data-vs-tip] > .vs-bt.vs-bt-timed{margin-top:0;padding-top:0;border-top:0}',
+        '[data-vs-tip] > .bt-body{order:3;flex:0 0 100%;margin-top:5px;padding-top:4px;border-top:1px dashed rgba(255,255,255,.16);font-size:10px;line-height:1.4;color:#a3abb4}',
         '.vs-bt .vs-row{font-size:10.5px;line-height:1.45}',
         '.vs-kv{display:flex;justify-content:space-between;align-items:baseline;gap:8px}',
         '.vs-kv .vs-k{min-width:0;color:#c4c9ce}',
@@ -182,7 +186,7 @@
             return 'noplayer';
         }
 
-        drawZoom(held.zoom);
+        drawZoom(held.zoom, held.buffZoom);
         drawWeight(held);
 
         var rows = document.querySelectorAll('.status-panel > .status-row');
@@ -357,7 +361,7 @@
         var isOn = isTooltipOn() && stat >= 0;
         var rows = isOn ? statRows(stat, item, ratios, wellFed) : [];
 
-        setClass(tip, 'vs-no-game-text', isOn && !isGameTextOn());
+        setMark(tip, 'data-vs-no-game-text', isOn && !isGameTextOn());
         drawBlock(tip, 'vs-st', 'div', 'st-body vs-st', rows, ownChild(tip, 'st-body'));
     }
 
@@ -545,8 +549,8 @@
 
         drawBlock(tip, 'vs-bt', 'div', 'vs-bt', rows, null);
         setOwnText(tip, 'vs-btime', 'span', 'vs-btime', isTimed ? duration(shown.copy[1] - clock) : '');
-        setClass(tip, 'vs-tip', true);
-        setClass(tip, 'vs-timed', isTimed);
+        setMark(tip, 'data-vs-tip', true);
+        setMark(tip, 'data-vs-timed', isTimed);
 
         var block = ownChild(tip, 'vs-bt');
 
@@ -556,8 +560,8 @@
     function undrawBuffTip(tip) {
         drawBlock(tip, 'vs-bt', 'div', 'vs-bt', [], null);
         setOwnText(tip, 'vs-btime', 'span', 'vs-btime', '');
-        setClass(tip, 'vs-tip', false);
-        setClass(tip, 'vs-timed', false);
+        setMark(tip, 'data-vs-tip', false);
+        setMark(tip, 'data-vs-timed', false);
     }
 
     // info: [name, is good, interval hours, effect lines, cure items, suppressor items, is suppressible]
@@ -843,10 +847,12 @@
             }
         }
 
-        for (var m = 0; m < MARKED.length; m++) {
-            var marked = document.querySelectorAll('.' + MARKED[m]);
+        for (var t = 0; t < MARKED_TIPS.length; t++) {
+            var tips = document.querySelectorAll('.' + MARKED_TIPS[t]);
 
-            for (var h = 0; h < marked.length; h++) marked[h].classList.remove(MARKED[m]);
+            for (var h = 0; h < tips.length; h++) {
+                for (var m = 0; m < MARKS.length; m++) setMark(tips[h], MARKS[m], false);
+            }
         }
 
         var zoom = document.getElementById(ZOOM_ID);
@@ -895,6 +901,13 @@
         else target.classList.remove(className);
     }
 
+    function setMark(target, name, isOn) {
+        if (target.hasAttribute(name) === isOn) return;
+
+        if (isOn) target.setAttribute(name, '');
+        else target.removeAttribute(name);
+    }
+
     function element(tagName, className) {
         var made = document.createElement(tagName);
 
@@ -903,9 +916,9 @@
         return made;
     }
 
-    // The stat rows drawn at BarSize: one rule in its own style node, rewritten only when the size changes.
-    function drawZoom(zoom) {
-        var size = zoom > 0 ? Number(zoom) : 1;
+    // The bars drawn at BarSize and the buffs beside them at BuffSize: rules in their own style node, rewritten only
+    // when a size changes. A size of 1 needs no rule.
+    function drawZoom(barZoom, buffZoom) {
         var style = document.getElementById(ZOOM_ID);
 
         if (!style) {
@@ -914,7 +927,13 @@
             document.head.appendChild(style);
         }
 
-        setText(style, size === 1 ? '' : '.status-panel > .status-row{zoom:' + size + '}');
+        setText(style, zoomRule('progress-bar-wrapper', barZoom) + zoomRule('buff-container', buffZoom));
+    }
+
+    function zoomRule(className, zoom) {
+        var size = zoom > 0 ? Number(zoom) : 1;
+
+        return size === 1 ? '' : '.status-panel > .status-row > .' + className + '{zoom:' + size + '}';
     }
 
     function addStyle() {

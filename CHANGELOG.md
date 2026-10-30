@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0
+
+- Buffs next to the bars are bigger, so they look in proportion to the bars.
+- The new BuffSize setting sets how big the buffs are drawn, from 50% to 150%, apart from the bars. It starts at 80%, the same as BarSize.
+- Fixed: hovering a buff showed the game's old hover box for a moment before the new one.
+
 ## 0.3.1
 
 - A stat's gain multiplier now sits right after the stat's name instead of on top of it.

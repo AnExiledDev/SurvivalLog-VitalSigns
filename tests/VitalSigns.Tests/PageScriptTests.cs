@@ -45,15 +45,17 @@ public class PageScriptTests
         page.Apply(0, Readings.Data(Readings.Stats(satiety: new StatRatios(0.5, 0.2, 0, 0)), new[] { new BuffTime(1300, 100, 100) },
             new CarryWeight(5000, 20000, 16000), WellFed, details: Readings.DetailsOf(new[] { Readings.Rule(1300) }, coming), options: new Options(GameText: false)));
         page.Run($"hover(buffTip({Satiety}, 0))");
-        Assert.True(page.Is("document.querySelectorAll('.vs-bt').length && document.querySelectorAll('.vs-loss').length && document.querySelectorAll('.vs-no-game-text').length"));
+        Assert.True(page.Is("document.querySelectorAll('.vs-bt').length && document.querySelectorAll('.vs-loss').length && markedTips().length >= 2"));
 
         Assert.True(page.Number("document.querySelectorAll('.vs-chip').length") > 0);
         Assert.Equal(PageAnswer.NoPlayer, page.Apply(10, PageData.NoPlayer));
 
-        foreach (var drawn in new[] { "vs-chip", "vs-mark", "vs-loss", "vs-st", "vs-timer", "vs-bt", "vs-weight", "vs-wbar", "vs-weight-tip", "vs-no-game-text", "vs-btime", "vs-tip", "vs-timed" })
+        foreach (var drawn in new[] { "vs-chip", "vs-mark", "vs-loss", "vs-st", "vs-timer", "vs-bt", "vs-weight", "vs-wbar", "vs-weight-tip", "vs-btime" })
         {
             Assert.Equal(0, page.Number($"document.querySelectorAll('.{drawn}').length"));
         }
+
+        Assert.Equal(0, page.Number("markedTips().length"));
 
         Assert.False(page.Is("document.getElementById('vs-zoom')"));
     }
@@ -368,11 +370,11 @@ public class PageScriptTests
         page.Apply(0, Readings.Data(Readings.Stats(satiety: new StatRatios(0.5, 0, 0, 0))));
 
         Assert.True(page.Is($"tipOf({Satiety}).children.indexOf(childWith(tipOf({Satiety}), 'vs-st')) < tipOf({Satiety}).children.indexOf(tipOf({Satiety}).querySelectorAll('.st-body')[1])"));
-        Assert.False(page.Is($"tipOf({Satiety}).classList.contains('vs-no-game-text')"));
+        Assert.False(page.Is($"tipOf({Satiety}).hasAttribute('data-vs-no-game-text')"));
 
         page.Apply(2, Readings.Data(Readings.Stats(satiety: new StatRatios(0.5, 0, 0, 0)), options: new Options(GameText: false)));
 
-        Assert.True(page.Is($"tipOf({Satiety}).classList.contains('vs-no-game-text')"));
+        Assert.True(page.Is($"tipOf({Satiety}).hasAttribute('data-vs-no-game-text')"));
     }
 
     [Fact]
@@ -428,7 +430,7 @@ public class PageScriptTests
         page.Run($"hover(buffTip({Life}, 0))");
 
         Assert.Equal("1h", page.Text($"childWith(buffTip({Life}, 0), 'vs-btime').textContent"));
-        Assert.True(page.Is($"buffTip({Life}, 0).classList.contains('vs-tip') && buffTip({Life}, 0).classList.contains('vs-timed')"));
+        Assert.True(page.Is($"buffTip({Life}, 0).hasAttribute('data-vs-tip') && buffTip({Life}, 0).hasAttribute('data-vs-timed')"));
         Assert.True(page.Is($"childWith(buffTip({Life}, 0), 'vs-bt').classList.contains('vs-bt-timed')"));
     }
 
@@ -440,9 +442,51 @@ public class PageScriptTests
         page.Apply(0, Readings.Data(buffs: new[] { new BuffTime(1111, -1, 0) }, details: Readings.DetailsOf(new[] { Cut })));
         page.Run($"hover(buffTip({Life}, 0))");
 
-        Assert.True(page.Is($"buffTip({Life}, 0).classList.contains('vs-tip')"));
-        Assert.False(page.Is($"buffTip({Life}, 0).classList.contains('vs-timed')"));
+        Assert.True(page.Is($"buffTip({Life}, 0).hasAttribute('data-vs-tip')"));
+        Assert.False(page.Is($"buffTip({Life}, 0).hasAttribute('data-vs-timed')"));
         Assert.False(page.Is($"childWith(buffTip({Life}, 0), 'vs-btime')"));
+    }
+
+    [Fact]
+    public void The_new_look_survives_the_game_showing_its_tooltip()
+    {
+        var page = PageScript.On("{buffs:[[], [], [], [1111]]}");
+
+        page.Apply(0, Readings.Data(buffs: new[] { new BuffTime(1111, 3600, 7200) }, details: Readings.DetailsOf(new[] { Cut })));
+        page.Run($"hover(buffTip({Life}, 0))");
+        // The game shows the box right after the hover, writing its class again; no call from the plugin comes between.
+        page.Run($"vueRewritesClass(buffTip({Life}, 0), 'buff-tooltip bt-pos bt-show')");
+
+        Assert.True(page.Is($"buffTip({Life}, 0).hasAttribute('data-vs-tip') && buffTip({Life}, 0).hasAttribute('data-vs-timed')"));
+        Assert.Equal("1h", page.Text($"childWith(buffTip({Life}, 0), 'vs-btime').textContent"));
+    }
+
+    [Fact]
+    public void The_stat_tooltip_keeps_the_game_text_hidden_when_the_game_rewrites_its_class()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Readings.Data(Readings.Stats(satiety: new StatRatios(0.5, 0, 0, 0)), options: new Options(GameText: false)));
+        page.Run($"vueRewritesClass(tipOf({Satiety}), 'status-tooltip last-row-fix')");
+
+        Assert.True(page.Is($"tipOf({Satiety}).hasAttribute('data-vs-no-game-text')"));
+    }
+
+    [Fact]
+    public void The_new_tooltip_look_hangs_on_marks_the_game_never_rewrites()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Readings.Data());
+
+        var css = page.Text("document.getElementById('vs-style').textContent");
+
+        Assert.Contains(".buff-tooltip[data-vs-tip]{", css);
+        Assert.Contains("[data-vs-tip][data-vs-timed] .bt-timer{display:none}", css);
+        Assert.Contains(".status-tooltip[data-vs-no-game-text] > .st-body", css);
+        Assert.DoesNotContain(".vs-tip", css);
+        Assert.DoesNotContain(".vs-timed", css);
+        Assert.DoesNotContain(".vs-no-game-text", css);
     }
 
     [Fact]
@@ -454,7 +498,7 @@ public class PageScriptTests
         page.Run($"hover(buffTip({Satiety}, 0))");
         page.Run($"hover(buffTip({Satiety}, 1))");
 
-        Assert.False(page.Is($"buffTip({Satiety}, 0).classList.contains('vs-tip') || buffTip({Satiety}, 0).classList.contains('vs-timed')"));
+        Assert.False(page.Is($"buffTip({Satiety}, 0).hasAttribute('data-vs-tip') || buffTip({Satiety}, 0).hasAttribute('data-vs-timed')"));
         Assert.False(page.Is($"childWith(buffTip({Satiety}, 0), 'vs-btime')"));
     }
 
@@ -574,27 +618,50 @@ public class PageScriptTests
 
     // ===== Bar size =====
 
+    private const string BarRule = ".status-panel > .status-row > .progress-bar-wrapper{zoom:";
+    private const string BuffRule = ".status-panel > .status-row > .buff-container{zoom:";
+
     [Fact]
-    public void The_stat_rows_are_drawn_at_the_bar_size()
+    public void Bars_and_buffs_start_at_the_same_size()
     {
         var page = PageScript.On();
 
         page.Apply(0, Readings.Data());
 
-        Assert.Equal(".status-panel > .status-row{zoom:0.8}", page.Text("document.getElementById('vs-zoom').textContent"));
-
-        page.Apply(2, Readings.Data(options: new Options(BarSize: 120)));
-
-        Assert.Equal(".status-panel > .status-row{zoom:1.2}", page.Text("document.getElementById('vs-zoom').textContent"));
+        Assert.Equal(BarRule + "0.8}" + BuffRule + "0.8}", page.Text("document.getElementById('vs-zoom').textContent"));
     }
 
     [Fact]
-    public void At_the_game_size_the_rows_are_left_unzoomed()
+    public void The_bar_size_no_longer_scales_the_buffs()
     {
         var page = PageScript.On();
 
-        page.Apply(0, Readings.Data(options: new Options(BarSize: 100)));
+        page.Apply(0, Readings.Data(options: new Options(BarSize: 120)));
+
+        Assert.Equal(BarRule + "1.2}" + BuffRule + "0.8}", page.Text("document.getElementById('vs-zoom').textContent"));
+    }
+
+    [Fact]
+    public void The_buff_size_scales_only_the_buffs()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Readings.Data(options: new Options(BuffSize: 130)));
+
+        Assert.Equal(BarRule + "0.8}" + BuffRule + "1.3}", page.Text("document.getElementById('vs-zoom').textContent"));
+    }
+
+    [Fact]
+    public void At_the_game_size_nothing_is_zoomed()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Readings.Data(options: new Options(BarSize: 100, BuffSize: 100)));
 
         Assert.Equal("", page.Text("document.getElementById('vs-zoom').textContent"));
+
+        page.Apply(2, Readings.Data(options: new Options(BarSize: 100, BuffSize: 60)));
+
+        Assert.Equal(BuffRule + "0.6}", page.Text("document.getElementById('vs-zoom').textContent"));
     }
 }

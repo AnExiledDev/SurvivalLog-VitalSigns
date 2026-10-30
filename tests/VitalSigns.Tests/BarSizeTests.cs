@@ -14,6 +14,13 @@ public class BarSizeTests
     }
 
     [Fact]
+    public void Buffs_default_to_the_same_size_as_the_bars()
+    {
+        Assert.Equal(80, new Options().BuffSize);
+        Assert.Equal(new Options().BarSize, new Options().BuffSize);
+    }
+
+    [Fact]
     public void A_size_inside_the_range_is_used_as_it_is()
     {
         Assert.Equal(0.5, BarSize.Zoom(50));

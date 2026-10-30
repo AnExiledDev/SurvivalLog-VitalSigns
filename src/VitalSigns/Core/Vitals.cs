@@ -41,8 +41,9 @@ public readonly record struct FoodMod(int Stat, int Food, double Ratio);
 public sealed record Details(IReadOnlyList<double> Max, IReadOnlyList<IReadOnlyList<LossLine>> Coming, IReadOnlyList<BuffRule> Rules, double ColdFactor,
     IReadOnlyList<ItemCount> Items, string SuppressedBy, IReadOnlyList<string> Foods, IReadOnlyList<FoodMod> FoodMods);
 
-/// <summary>Which parts the player turned on in the config, and how big the stat bars are drawn (percent).</summary>
-public sealed record Options(bool Weight = true, bool Stripes = true, bool Tooltips = true, bool GameText = true, bool Cures = true, int BarSize = Core.BarSize.Default);
+/// <summary>Which parts the player turned on in the config, and how big the stat bars and their buffs are drawn (percent).</summary>
+public sealed record Options(bool Weight = true, bool Stripes = true, bool Tooltips = true, bool GameText = true, bool Cures = true, int BarSize = Core.BarSize.Default,
+    int BuffSize = Core.BarSize.Default);
 
 /// <summary>Game names the page quotes, in the game's current language.</summary>
 public sealed record GameNames(string WellFed, string Overweight);
