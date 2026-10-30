@@ -18,4 +18,5 @@ Each setting takes effect at the next game start.
 | `TimeStripes` | `true` | Shows a stripe under each buff that ends, shrinking as its time runs out. It turns amber in the last 15%. |
 | `ExtendedTooltips` | `true` | Adds details to the stat and buff hover boxes: effect values, time left, layers, scaled gains and losses, food modifiers and the losses still to come. The multipliers and loss shading on the bars stay either way. |
 | `StatTooltipGameText` | `true` | Keeps the game's own description at the bottom of the stat hover boxes. Only applies when `ExtendedTooltips` is on. |
+| `BarSize` | `80` | How big the Satiety, Morale, Stamina and Life bars are drawn, in percent of the game's size, from 50 to 150. The buffs next to each bar and their hover boxes grow and shrink with it. `100` is the game's size. |
 | `CuresInTooltips` | `true` | Lists the items that cure or suppress a debuff in its hover box, with how many of each you have. Only applies when `ExtendedTooltips` is on. |

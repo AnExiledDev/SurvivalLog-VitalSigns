@@ -50,10 +50,12 @@ public class PageScriptTests
         Assert.True(page.Number("document.querySelectorAll('.vs-chip').length") > 0);
         Assert.Equal(PageAnswer.NoPlayer, page.Apply(10, PageData.NoPlayer));
 
-        foreach (var drawn in new[] { "vs-chip", "vs-mark", "vs-loss", "vs-st", "vs-timer", "vs-bt", "vs-weight", "vs-wbar", "vs-weight-tip", "vs-no-game-text" })
+        foreach (var drawn in new[] { "vs-chip", "vs-mark", "vs-loss", "vs-st", "vs-timer", "vs-bt", "vs-weight", "vs-wbar", "vs-weight-tip", "vs-no-game-text", "vs-btime", "vs-tip", "vs-timed" })
         {
             Assert.Equal(0, page.Number($"document.querySelectorAll('.{drawn}').length"));
         }
+
+        Assert.False(page.Is("document.getElementById('vs-zoom')"));
     }
 
     // ===== Stat bars =====
@@ -406,13 +408,53 @@ public class PageScriptTests
         page.Apply(0, Readings.Data(buffs: new[] { new BuffTime(1111, 3600, 7200, 2) }, details: Readings.DetailsOf(new[] { Cut }, items: Items)));
         page.Run($"hover(buffTip({Life}, 0).querySelector('.bt-body'))");
 
-        Assert.Equal("Life every 2h -4\nSatiety gain +100%\nLayers: 2\n1h left\n\nCure with:\nGauze x2\nHerbs x1\nBandage x0\nSuppress with:\nMorphine x0",
+        // The first row is the time bar, which has no text; the time itself sits on the header line.
+        Assert.Equal("\nLife every 2h -4\nSatiety gain +100%\nLayers 2\nCure with\nGauze x2\nHerbs x1\nBandage x0\nSuppress with\nMorphine x0",
             page.Text($"blockText(buffTip({Life}, 0), 'vs-bt')"));
         Assert.Equal("50.00%", page.Text($"childWith(buffTip({Life}, 0), 'vs-bt').querySelector('.vs-tfill').style.width"));
         Assert.True(page.Is($"childWith(buffTip({Life}, 0), 'vs-bt').querySelectorAll('.vs-item')[2].classList.contains('vs-none')"));
         Assert.False(page.Is($"childWith(buffTip({Life}, 0), 'vs-bt').querySelectorAll('.vs-item')[0].classList.contains('vs-none')"));
         Assert.Equal("Icons/gauze.png", page.Text($"childWith(buffTip({Life}, 0), 'vs-bt').querySelectorAll('.vs-item')[0].children[0].attrs.src"));
         Assert.True(page.Is($"childWith(buffTip({Life}, 0), 'bt-body')"));
+    }
+
+    [Fact]
+    public void A_timed_buff_shows_its_time_on_the_header_line_in_place_of_the_game_timer()
+    {
+        var page = PageScript.On("{buffs:[[], [], [], [1111]]}");
+
+        page.Apply(0, Readings.Data(buffs: new[] { new BuffTime(1111, 3600, 7200) }, details: Readings.DetailsOf(new[] { Cut })));
+        page.Run($"hover(buffTip({Life}, 0))");
+
+        Assert.Equal("1h", page.Text($"childWith(buffTip({Life}, 0), 'vs-btime').textContent"));
+        Assert.True(page.Is($"buffTip({Life}, 0).classList.contains('vs-tip') && buffTip({Life}, 0).classList.contains('vs-timed')"));
+        Assert.True(page.Is($"childWith(buffTip({Life}, 0), 'vs-bt').classList.contains('vs-bt-timed')"));
+    }
+
+    [Fact]
+    public void An_untimed_buff_keeps_the_game_timer_and_gets_no_time_of_ours()
+    {
+        var page = PageScript.On("{buffs:[[], [], [], [1111]]}");
+
+        page.Apply(0, Readings.Data(buffs: new[] { new BuffTime(1111, -1, 0) }, details: Readings.DetailsOf(new[] { Cut })));
+        page.Run($"hover(buffTip({Life}, 0))");
+
+        Assert.True(page.Is($"buffTip({Life}, 0).classList.contains('vs-tip')"));
+        Assert.False(page.Is($"buffTip({Life}, 0).classList.contains('vs-timed')"));
+        Assert.False(page.Is($"childWith(buffTip({Life}, 0), 'vs-btime')"));
+    }
+
+    [Fact]
+    public void Moving_off_a_tooltip_takes_our_marks_off_it()
+    {
+        var page = PageScript.On("{buffs:[[1111, 1111]]}");
+
+        page.Apply(0, Readings.Data(buffs: new[] { new BuffTime(1111, 3600, 7200), new BuffTime(1111, -1, 0) }, details: Readings.DetailsOf(new[] { Cut })));
+        page.Run($"hover(buffTip({Satiety}, 0))");
+        page.Run($"hover(buffTip({Satiety}, 1))");
+
+        Assert.False(page.Is($"buffTip({Satiety}, 0).classList.contains('vs-tip') || buffTip({Satiety}, 0).classList.contains('vs-timed')"));
+        Assert.False(page.Is($"childWith(buffTip({Satiety}, 0), 'vs-btime')"));
     }
 
     [Fact]
@@ -527,5 +569,31 @@ public class PageScriptTests
         page.Apply(2, Readings.Data(weight: new CarryWeight(12_340, 20_000, 16_000), options: new Options(Weight: false)));
 
         Assert.Equal(0, page.Number("document.querySelectorAll('.vs-weight').length + document.querySelectorAll('.vs-wbar').length + document.querySelectorAll('.vs-weight-tip').length"));
+    }
+
+    // ===== Bar size =====
+
+    [Fact]
+    public void The_stat_rows_are_drawn_at_the_bar_size()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Readings.Data());
+
+        Assert.Equal(".status-panel > .status-row{zoom:0.8}", page.Text("document.getElementById('vs-zoom').textContent"));
+
+        page.Apply(2, Readings.Data(options: new Options(BarSize: 120)));
+
+        Assert.Equal(".status-panel > .status-row{zoom:1.2}", page.Text("document.getElementById('vs-zoom').textContent"));
+    }
+
+    [Fact]
+    public void At_the_game_size_the_rows_are_left_unzoomed()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Readings.Data(options: new Options(BarSize: 100)));
+
+        Assert.Equal("", page.Text("document.getElementById('vs-zoom').textContent"));
     }
 }

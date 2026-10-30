@@ -11,7 +11,7 @@ namespace VitalSigns;
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.vitalsigns";
-    private const string Version = "0.2.0";
+    private const string Version = "0.3.0";
 
     public override void Load()
     {
@@ -53,7 +53,12 @@ public sealed class Plugin : BasePlugin
             "List the items that cure or suppress a debuff in its tooltip, with how many of each you have. Only applies when ExtendedTooltips is on.",
             "在负面状态的提示中列出可以治愈或压制它的物品，以及你拥有的数量。仅在开启 ExtendedTooltips 时生效。");
 
-        return new Options(weight, stripes, tooltips, gameText, cures);
+        var barSize = Config.Bind("Display", "BarSize", BarSize.Default, new ConfigDescription(
+            "How big the Satiety, Morale, Stamina and Life bars are drawn, in percent of the game's size, from 50 to 150. The buffs next to each bar and their hover boxes grow and shrink with it. 100 is the game's size.\n" +
+            "「饱腹」「心情」「体力」「生命」属性条的显示大小，为游戏原尺寸的百分比，范围 50 到 150。属性条旁的状态和它们的悬停提示会一起缩放。100 为游戏原尺寸。",
+            new AcceptableValueRange<int>(BarSize.Min, BarSize.Max), "ModManager.Restart")).Value;
+
+        return new Options(weight, stripes, tooltips, gameText, cures, barSize);
 
         bool Bind(string key, string english, string chinese) =>
             Config.Bind("Display", key, true, new ConfigDescription(english + "\n" + chinese, null, "ModManager.Restart")).Value;

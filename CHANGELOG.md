@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0
+
+- The bars are drawn at 80% of the game's size by default, and the buffs next to them shrink with them. The new BarSize setting sets the size, from 50% to 150%.
+- Buff badges and their text are smaller, so a long list of buffs takes less room.
+- Buff hover boxes are smaller and easier to read: the name and time left share the top line, each effect has its value lined up on the right, and the cure and suppress lists have their own headings.
+- The game's description sits at the bottom of the buff hover box in smaller, softer text, and the box is darker so the HUD behind it no longer shows through.
+- Updated for Survival Log 1.1.20151.
+
 ## 0.2.0
 
 - Each stat bar shades the part that running debuffs will still take before they end.

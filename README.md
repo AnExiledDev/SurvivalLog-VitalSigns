@@ -9,10 +9,11 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 - **Gain multiplier on each bar**: when something scales how much a stat gains, the bar shows it, for example `x1.25` in green or `x0.5` in red.
 - **Coming losses shaded on each bar**: the part of a bar that running debuffs will still take before they end is shaded, so you can see where the stat will land. It counts each debuff's layers, cold resistance and how losses are scaled.
 - **More in the bar's hover box**: the exact value, every scaled change as a percentage (such as `Losses -25%` or `Natural recovery +50%`), your food modifiers, and each loss still coming with how long it takes. The game's own text can be hidden.
-- **Buff hover boxes**: what a buff or debuff does to each stat for the layers you have, how much time is left with a bar, and for debuffs the items that cure or suppress them with how many you have. Items you have come first. A suppressed debuff says what is holding it back.
+- **Buff hover boxes**: a compact box with the name and time left on one line, what a buff or debuff does to each stat for the layers you have with the values lined up, a bar for the time left, and for debuffs the items that cure or suppress them with how many you have. Items you have come first. A suppressed debuff says what is holding it back.
 - **Well Fed lines on the Satiety bar**: one line where Well Fed starts and a fainter one where it ends, read from the game's own rule. The Satiety hover box says the two values.
 - **Timer stripe on buffs**: every buff or debuff that runs out gets a thin stripe along its bottom edge that shrinks as its time runs down and turns amber near the end. Buffs that last until something removes them get none.
 - **Weight on the Inventory button**: the kilograms you carry and a bar with a mark where Overweight starts, amber when you are close to Overweight and red past it. Hover the button to see your carried weight, the most you can carry, where Overweight starts and how much room you have left.
+- **Bar size**: the bars are drawn at 80% of the game's size by default, and the buffs next to them shrink with them. Set any size from 50% to 150%.
 - **Any language**: the lines are in English, or in Simplified Chinese when the game is set to Chinese. Buff names come from the game.
 - **Survives reloads**: the HUD can reload after a scene change; the mod notices within a couple of seconds and draws everything again.
 - **Light on the game**: the mod reads your stats every couple of seconds and only sends them to the HUD when something changed.
@@ -28,7 +29,7 @@ Vital Signs only reads your stats and draws them. It never writes the game's sta
 
 ## Requirements
 
-- Survival Log 1.1.19611. Built and tested on this version; a game update can break it until the mod is updated.
+- Survival Log 1.1.20151. Built and tested on this version; a game update can break it until the mod is updated.
 - The [BepInEx Pack for Survival Log](https://www.nexusmods.com/survivallog/mods/12), the BepInEx 6 (IL2CPP) build for the game.
 
 ## Install
@@ -44,13 +45,13 @@ Delete `VitalSigns.dll` from the `BepInEx\plugins` folder. For a clean slate, al
 
 ## Configuration
 
-Settings live in `BepInEx\config\com.dev.survivallog.vitalsigns.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Changes take effect at the next game start. Each setting in the cfg file is explained in English and Simplified Chinese. Each part (the weight, the timer stripes, the hover box details, the game's own stat text and the cure lists) can be turned off. See [CONFIG.md](CONFIG.md) for every setting.
+Settings live in `BepInEx\config\com.dev.survivallog.vitalsigns.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Changes take effect at the next game start. Each setting in the cfg file is explained in English and Simplified Chinese. Each part (the weight, the timer stripes, the hover box details, the game's own stat text and the cure lists) can be turned off, and `BarSize` sets how big the bars are drawn. See [CONFIG.md](CONFIG.md) for every setting.
 
 ## Troubleshooting
 
-Tested on Survival Log 1.1.19611 with BepInEx `6.0.0-be.788`.
+Tested on Survival Log 1.1.20151 with BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.2.0 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
+Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.3.0 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
 
 Once a game has loaded, look for `page script sent to CoreUI1 (install 1): the stat bars show the readings`. A line ending `no stat bars on the HUD right now` means the mod could not find the stat bars.
 
@@ -64,6 +65,7 @@ To reach me directly, message `exiled.dev` on Discord; you can find me in the [o
 
 ## Changelog
 
+- **0.3.0**: Smaller bars by default with a BarSize setting, smaller buff badges and cleaner buff hover boxes.
 - **0.2.0**: Loss shading on the bars, buff effect and cure hover boxes, fuller stat hover boxes, a weight bar and settings for each part.
 - **0.1.0**: First version.
 

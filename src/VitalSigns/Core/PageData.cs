@@ -38,6 +38,7 @@ public static class PageData
         data.Append(",names:{wellFed:").Append(PageCalls.Quote(names.WellFed)).Append(",overweight:").Append(PageCalls.Quote(names.Overweight)).Append('}');
         data.Append(",opt:[").Append(Flag(options.Weight)).Append(',').Append(Flag(options.Stripes)).Append(',').Append(Flag(options.Tooltips)).Append(',')
             .Append(Flag(options.GameText)).Append(',').Append(Flag(options.Cures)).Append(']');
+        data.Append(",zoom:").Append(Ratio(BarSize.Zoom(options.BarSize)));
 
         if (vitals.Details is { } details) AppendDetails(data, details);
 

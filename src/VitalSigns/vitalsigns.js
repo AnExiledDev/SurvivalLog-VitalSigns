@@ -7,6 +7,7 @@
     if (window.__slvitals) return;
 
     var STYLE_ID = 'vs-style';
+    var ZOOM_ID = 'vs-zoom';
     // How attrList marks each row, in the order the plugin sends the stats: Satiety, Morale, Stamina, Life.
     var ICONS = ['\uD83C\uDF56', '\uD83E\uDDE0', '\u26A1', '\u2764'];
     var SATIETY = 0;
@@ -23,7 +24,9 @@
     var MOST_ITEMS = 10;
     // How far up from the hovered node a buff badge is looked for.
     var BADGE_DEPTH = 8;
-    var DRAWN = ['vs-chip', 'vs-mark', 'vs-loss', 'vs-st', 'vs-timer', 'vs-bt', 'vs-weight', 'vs-wbar', 'vs-weight-tip'];
+    var DRAWN = ['vs-chip', 'vs-mark', 'vs-loss', 'vs-st', 'vs-timer', 'vs-bt', 'vs-btime', 'vs-weight', 'vs-wbar', 'vs-weight-tip'];
+    // Classes put on the game's own nodes, taken off again by clear.
+    var MARKED = ['vs-no-game-text', 'vs-tip', 'vs-timed'];
 
     var TEXTS = {
         en: {
@@ -36,21 +39,20 @@
             food: function (food, change) { return food + ' ' + change; },
             coming: function (name, amount, time) { return name + ': ' + amount + ' over ' + time; },
             wellFed: function (name, from, until) { return name + ' at ' + from + ' or more, lost below ' + until + '.'; },
-            every: function (stat, hours, change) { return stat + (hours === 1 ? ' each hour ' : ' every ' + hours + 'h ') + change; },
-            start: function (stat, change) { return stat + ' when it starts ' + change; },
-            end: function (stat, change) { return stat + ' when it ends ' + change; },
-            max: function (stat, change) { return 'Max ' + stat + ' ' + change; },
-            gainFx: function (stat, change) { return stat + ' gain ' + change; },
-            lossFx: function (stat, change) { return stat + ' loss ' + change; },
-            speed: function (change) { return 'Move speed ' + change; },
-            satietyFood: function (food, change) { return food + ' satiety ' + change; },
-            moraleFood: function (food, change) { return food + ' morale ' + change; },
-            layers: function (count) { return 'Layers: ' + count; },
-            timeLeft: function (time) { return time + ' left'; },
+            every: function (stat, hours) { return stat + (hours === 1 ? ' each hour' : ' every ' + hours + 'h'); },
+            start: function (stat) { return stat + ' when it starts'; },
+            end: function (stat) { return stat + ' when it ends'; },
+            max: function (stat) { return 'Max ' + stat; },
+            gainFx: function (stat) { return stat + ' gain'; },
+            lossFx: function (stat) { return stat + ' loss'; },
+            speed: 'Move speed',
+            satietyFood: function (food) { return food + ' satiety'; },
+            moraleFood: function (food) { return food + ' morale'; },
+            layers: 'Layers',
             suppressed: function (by) { return 'Suppressed by ' + by; },
             suppressor: 'Analgesia',
-            cureWith: 'Cure with:',
-            suppressWith: 'Suppress with:',
+            cureWith: 'Cure with',
+            suppressWith: 'Suppress with',
             days: 'd',
             hours: 'h',
             minutes: 'm',
@@ -69,21 +71,20 @@
             food: function (food, change) { return food + ' ' + change; },
             coming: function (name, amount, time) { return '「' + name + '」：' + time + '内 ' + amount; },
             wellFed: function (name, from, until) { return '饱腹达到' + from + '获得「' + name + '」，低于' + until + '失去。'; },
-            every: function (stat, hours, change) { return stat + (hours === 1 ? '每小时 ' : '每' + hours + '小时 ') + change; },
-            start: function (stat, change) { return '开始时' + stat + ' ' + change; },
-            end: function (stat, change) { return '结束时' + stat + ' ' + change; },
-            max: function (stat, change) { return stat + '上限 ' + change; },
-            gainFx: function (stat, change) { return stat + '增加 ' + change; },
-            lossFx: function (stat, change) { return stat + '减少 ' + change; },
-            speed: function (change) { return '移动速度 ' + change; },
-            satietyFood: function (food, change) { return food + '饱腹 ' + change; },
-            moraleFood: function (food, change) { return food + '心情 ' + change; },
-            layers: function (count) { return '层数：' + count; },
-            timeLeft: function (time) { return '剩余 ' + time; },
+            every: function (stat, hours) { return stat + (hours === 1 ? '每小时' : '每' + hours + '小时'); },
+            start: function (stat) { return '开始时' + stat; },
+            end: function (stat) { return '结束时' + stat; },
+            max: function (stat) { return stat + '上限'; },
+            gainFx: function (stat) { return stat + '增加'; },
+            lossFx: function (stat) { return stat + '减少'; },
+            speed: '移动速度',
+            satietyFood: function (food) { return food + '饱腹'; },
+            moraleFood: function (food) { return food + '心情'; },
+            layers: '层数',
             suppressed: function (by) { return '已被「' + by + '」压制'; },
             suppressor: '镇痛',
-            cureWith: '治愈：',
-            suppressWith: '压制：',
+            cureWith: '治愈',
+            suppressWith: '压制',
             days: '天',
             hours: '小时',
             minutes: '分',
@@ -106,23 +107,40 @@
         '.vs-st{margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,.15)}',
         '.vs-st:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}',
         '.vs-no-game-text > .st-body:not(.vs-st){display:none}',
-        '.vs-row{font-size:12px;line-height:1.5;color:#ccc}',
+        '.vs-row{font-size:11px;line-height:1.5;color:#ccc}',
         '.vs-good{color:#a5d6a7}',
         '.vs-bad{color:#ff8a80}',
         '.vs-head{color:#eee;margin-top:4px}',
         '.vs-timer{position:absolute;left:0;right:0;bottom:0;height:2px;background:rgba(255,255,255,.75);transform-origin:left;transition:transform ' + STEP_SECONDS + 's linear;pointer-events:none}',
         '.vs-timer.vs-timer-low{background:#ffc107}',
         '.bf-leave-active .vs-timer{transition:none}',
-        '.buff-tooltip{display:flex;flex-direction:column}',
-        '.buff-tooltip > .bt-header{order:0}',
-        '.buff-tooltip > .vs-bt{order:1;margin-bottom:6px}',
-        '.buff-tooltip > .bt-body{order:2}',
-        '.vs-tbar{height:3px;margin:3px 0 2px;background:rgba(255,255,255,.15)}',
+        // Badges a size smaller than the game's; the row zoom (BarSize) scales them again with the bar.
+        '.status-panel .buff-container{gap:3px;margin-right:4.5px}',
+        '.status-panel .buff{padding:2px 4.5px;font-size:9px;line-height:11px}',
+        // A buff tooltip with our block: the name and time on one line, then the effects, the cures and the game text
+        // last in smaller type. The children are placed by order, because Vue adds the header and text after our block.
+        '.buff-tooltip.vs-tip{display:flex;flex-wrap:wrap;align-items:baseline;width:196px;padding:6px 8px 7px;background-color:rgba(14,16,19,.93);border-color:rgba(255,255,255,.14)}',
+        '.buff-tooltip.vs-tip::after{border-left-color:rgba(14,16,19,.93)}',
+        '.vs-tip > .bt-header{order:0;flex:1 1 0;min-width:0;margin:0;padding:0;border:0}',
+        '.vs-tip .bt-title{font-size:12px;line-height:15px;letter-spacing:.2px}',
+        '.vs-tip.vs-timed .bt-timer{display:none}',
+        '.vs-btime{order:1;flex:0 0 auto;margin-left:8px;font-family:Consolas,monospace;font-size:10.5px;font-weight:bold;color:#eee}',
+        '.vs-tip > .vs-bt{order:2;flex:0 0 100%;margin-top:4px;padding-top:3px;border-top:1px solid rgba(255,255,255,.14)}',
+        '.vs-tip > .vs-bt.vs-bt-timed{margin-top:0;padding-top:0;border-top:0}',
+        '.vs-tip > .bt-body{order:3;flex:0 0 100%;margin-top:5px;padding-top:4px;border-top:1px dashed rgba(255,255,255,.16);font-size:10px;line-height:1.4;color:#a3abb4}',
+        '.vs-bt .vs-row{font-size:10.5px;line-height:1.45}',
+        '.vs-kv{display:flex;justify-content:space-between;align-items:baseline;gap:8px}',
+        '.vs-kv .vs-k{min-width:0;color:#c4c9ce}',
+        '.vs-kv .vs-v{flex-shrink:0;font-family:Consolas,monospace;font-weight:bold;color:#eee}',
+        '.vs-kv.vs-good .vs-v{color:#a5d6a7}',
+        '.vs-kv.vs-bad .vs-v{color:#ff8a80}',
+        '.vs-bt .vs-head{margin-top:5px;font-size:9.5px;line-height:1.4;letter-spacing:.4px;text-transform:uppercase;color:#8f98a1}',
+        '.vs-tbar{height:2px;margin:4px 0;background:rgba(255,255,255,.15)}',
         '.vs-tfill{height:100%;background:rgba(255,255,255,.75)}',
         '.vs-tbar.vs-timer-low .vs-tfill{background:#ffc107}',
-        '.vs-item{display:flex;align-items:center;gap:5px;font-size:12px;line-height:1.5;color:#ddd}',
-        '.vs-item img{width:16px;height:16px;object-fit:contain;flex-shrink:0}',
-        '.vs-item .vs-count{margin-left:auto;font-family:Consolas,monospace;color:#eee}',
+        '.vs-item{display:flex;align-items:center;gap:4px;font-size:10.5px;line-height:1.5;color:#ddd}',
+        '.vs-item img{width:13px;height:13px;object-fit:contain;flex-shrink:0}',
+        '.vs-item .vs-count{margin-left:auto;font-family:Consolas,monospace;font-size:10px;color:#eee}',
         '.vs-item.vs-none{opacity:.45}',
         '.vs-weight{position:absolute;left:0;right:0;bottom:4px;font-size:9px;line-height:10px;text-align:center;color:#cfd3d5;pointer-events:none;font-variant-numeric:tabular-nums}',
         '.vs-weight.vs-near{color:#ffc107}',
@@ -163,6 +181,7 @@
             return 'noplayer';
         }
 
+        drawZoom(held.zoom);
         drawWeight(held);
 
         var rows = document.querySelectorAll('.status-panel > .status-row');
@@ -504,35 +523,56 @@
     function drawBuffTip(badge, names) {
         var tip = ownChild(badge, 'buff-tooltip');
 
-        if (drawnTip && drawnTip !== tip) drawBlock(drawnTip, 'vs-bt', 'div', 'vs-bt', [], null);
+        if (drawnTip && drawnTip !== tip) undrawBuffTip(drawnTip);
 
         drawnTip = tip;
 
         if (!tip) return;
 
         var shown = badge.__vs;
-        var info = shown && held.info ? held.info[shown.id] : null;
+        var info = shown && held.info && isTooltipOn() ? held.info[shown.id] : null;
 
-        drawBlock(tip, 'vs-bt', 'div', 'vs-bt', info && isTooltipOn() ? buffRows(info, shown, names) : [], null);
+        if (!info) {
+            undrawBuffTip(tip);
+
+            return;
+        }
+
+        var isTimed = !!shown.copy && shown.copy[1] >= 0;
+        var rows = buffRows(info, shown, names);
+
+        drawBlock(tip, 'vs-bt', 'div', 'vs-bt', rows, null);
+        setOwnText(tip, 'vs-btime', 'span', 'vs-btime', isTimed ? duration(shown.copy[1] - clock) : '');
+        setClass(tip, 'vs-tip', true);
+        setClass(tip, 'vs-timed', isTimed);
+
+        var block = ownChild(tip, 'vs-bt');
+
+        if (block) setClass(block, 'vs-bt-timed', isTimed);
+    }
+
+    function undrawBuffTip(tip) {
+        drawBlock(tip, 'vs-bt', 'div', 'vs-bt', [], null);
+        setOwnText(tip, 'vs-btime', 'span', 'vs-btime', '');
+        setClass(tip, 'vs-tip', false);
+        setClass(tip, 'vs-timed', false);
     }
 
     // info: [name, is good, interval hours, effect lines, cure items, suppressor items, is suppressible]
     // copy: [id, end, length, layers, is suppressed]
+    // The time left goes on the header line; its bar opens the block, under the name.
     function buffRows(info, shown, names) {
         var text = say();
         var copy = shown.copy;
         var layers = copy ? Math.max(1, copy[3]) : 1;
         var rows = [];
 
+        if (copy && copy[1] >= 0) rows.push({ bar: shown.part });
+
         if (copy && copy[4]) rows.push([text.suppressed(held.by || text.suppressor), 'vs-good']);
         else addEffects(rows, info, layers, names);
 
-        if (layers > 1) rows.push([text.layers(layers)]);
-
-        if (copy && copy[1] >= 0) {
-            rows.push([text.timeLeft(duration(copy[1] - clock))]);
-            rows.push({ bar: shown.part });
-        }
+        if (layers > 1) rows.push({ k: text.layers, v: String(layers) });
 
         if (!info[1] && isCureOn()) {
             addItems(rows, text.cureWith, info[4]);
@@ -551,20 +591,23 @@
             var at = lines[i][1];
             var value = lines[i][2] * layers;
             var stat = names[at] || '';
-            var row = null;
+            var amount = signed(number(value));
+            var label = null;
 
-            if (kind === 'e') row = text.every(stat, number(info[2]), signed(number(value)));
-            else if (kind === 's') row = text.start(stat, signed(number(value)));
-            else if (kind === 'n') row = text.end(stat, signed(number(value)));
-            else if (kind === 'm') row = text.max(stat, signed(number(value)));
-            else if (kind === 'g') row = text.gainFx(stat, percentChange(value));
-            else if (kind === 'l') row = text.lossFx(stat, percentChange(value));
-            else if (kind === 'v') row = text.speed(percentChange(value));
-            else if (kind === 'f') row = text.satietyFood(foodName(at), percentChange(value));
-            else if (kind === 'o') row = text.moraleFood(foodName(at), percentChange(value));
+            if (kind === 'e') label = text.every(stat, number(info[2]));
+            else if (kind === 's') label = text.start(stat);
+            else if (kind === 'n') label = text.end(stat);
+            else if (kind === 'm') label = text.max(stat);
+            else if (kind === 'g') label = text.gainFx(stat);
+            else if (kind === 'l') label = text.lossFx(stat);
+            else if (kind === 'v') label = text.speed;
+            else if (kind === 'f') label = text.satietyFood(foodName(at));
+            else if (kind === 'o') label = text.moraleFood(foodName(at));
+
+            if ('glvfo'.indexOf(kind) >= 0) amount = percentChange(value);
 
             // A bigger loss ratio is bad; for everything else up is good.
-            if (row) rows.push([row, (value > 0) !== (kind === 'l') ? 'vs-good' : 'vs-bad']);
+            if (label) rows.push({ k: label, v: amount, c: (value > 0) !== (kind === 'l') ? 'vs-good' : 'vs-bad' });
         }
     }
 
@@ -590,7 +633,8 @@
 
     // ===== Blocks of rows =====
 
-    // Our block in a tooltip, before the given node (or last). Rows are [text, class] or { bar } or { item }; the block
+    // Our block in a tooltip, before the given node (or last). Rows are [text, class], { k: label, v: value, c: class },
+    // { bar } or { item }; the block
     // is rebuilt only when what it shows changed, and removed when there is nothing to show.
     function drawBlock(parent, marker, tagName, className, rows, before) {
         var box = ownChild(parent, marker);
@@ -627,6 +671,15 @@
             fill.style.width = percent(Math.max(0, row.bar));
 
             return bar;
+        }
+
+        if (row.k !== undefined) {
+            var pair = element('div', 'vs-row vs-kv' + (row.c ? ' ' + row.c : ''));
+
+            pair.appendChild(element('span', 'vs-k')).textContent = row.k;
+            pair.appendChild(element('span', 'vs-v')).textContent = row.v;
+
+            return pair;
         }
 
         if (row.item) {
@@ -788,9 +841,15 @@
             }
         }
 
-        var hidden = document.querySelectorAll('.vs-no-game-text');
+        for (var m = 0; m < MARKED.length; m++) {
+            var marked = document.querySelectorAll('.' + MARKED[m]);
 
-        for (var h = 0; h < hidden.length; h++) hidden[h].classList.remove('vs-no-game-text');
+            for (var h = 0; h < marked.length; h++) marked[h].classList.remove(MARKED[m]);
+        }
+
+        var zoom = document.getElementById(ZOOM_ID);
+
+        if (zoom && zoom.parentElement) zoom.parentElement.removeChild(zoom);
 
         lengths = {};
         drawnTip = null;
@@ -840,6 +899,20 @@
         if (className) made.className = className;
 
         return made;
+    }
+
+    // The stat rows drawn at BarSize: one rule in its own style node, rewritten only when the size changes.
+    function drawZoom(zoom) {
+        var size = zoom > 0 ? Number(zoom) : 1;
+        var style = document.getElementById(ZOOM_ID);
+
+        if (!style) {
+            style = document.createElement('style');
+            style.id = ZOOM_ID;
+            document.head.appendChild(style);
+        }
+
+        setText(style, size === 1 ? '' : '.status-panel > .status-row{zoom:' + size + '}');
     }
 
     function addStyle() {
