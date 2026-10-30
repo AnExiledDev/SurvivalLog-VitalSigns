@@ -12,6 +12,7 @@
     <GameDir Condition="'$(GameDir)' == ''">D:\Games\Survival Log\Survival Log</GameDir>
     <BepInExCore>$(GameDir)\BepInEx\core</BepInExCore>
     <Interop>$(GameDir)\BepInEx\interop</Interop>
+    <ToolkitDll Condition="'$(ToolkitDll)' == ''">D:\devnew\game-mods\SurvivalLog\mods\sl-exiled-toolkit\src\ExiledToolkit\bin\Release\ExiledToolkit.dll</ToolkitDll>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,16 +27,18 @@
     <Reference Include="$(Interop)\UnityEngine.UIModule.dll" Private="false" />
     <Reference Include="$(Interop)\UnityEngine.UI.dll" Private="false" />
     <Reference Include="$(Interop)\Vuplex.WebView.dll" Private="false" />
+    <Reference Include="$(ToolkitDll)" Private="false" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="vitalsigns.js" LogicalName="VitalSigns.vitalsigns.js" />
+    <EmbeddedResource Include="timers.js" LogicalName="VitalSigns.timers.js" />
   </ItemGroup>
 
   <!-- What the Mod Manager's Mods screen shows about this mod. -->
   <ItemGroup>
     <AssemblyMetadata Include="ModManager.Name" Value="Vital Signs&#10;生命体征" />
-    <AssemblyMetadata Include="ModManager.Description" Value="Shows more about your stats on the HUD: each stat's gain multiplier, shading for the losses still to come, the Well Fed lines on the Satiety bar, a timer stripe on each buff that ends, buff effects and cures in the hover boxes, and the weight you carry on the Inventory button. The bar and buff sizes can be set.&#10;在屏幕上显示更多属性信息：各项属性的增益倍率、即将扣除量的阴影、「饱腹」条上的「饱腹富余」界线、每个有时限的状态上的计时条、悬停提示里的状态效果与治疗物品，以及「背包」按钮上的当前负重。属性条和状态大小可调。" />
+    <AssemblyMetadata Include="ModManager.Description" Value="Shows more about your stats on the HUD: each stat's gain multiplier, shading for the losses still to come, the Well Fed lines on the Satiety bar, a timer stripe on each buff that ends, buff effects and cures in the hover boxes, and the weight you carry on the Inventory button. The bar and buff sizes can be set. Also makes buffs and debuffs last longer or shorter, set in its own Timers tab.&#10;在屏幕上显示更多属性信息：各项属性的增益倍率、即将扣除量的阴影、「饱腹」条上的「饱腹富余」界线、每个有时限的状态上的计时条、悬停提示里的状态效果与治疗物品，以及「背包」按钮上的当前负重。属性条和状态大小可调。还能让增益和负面状态持续更久或更短，在专属的「计时」标签页中设置。" />
     <AssemblyMetadata Include="ModManager.Author" Value="AnExiledDev" />
     <AssemblyMetadata Include="ModManager.Category" Value="Interface" />
     <AssemblyMetadata Include="ModManager.GameVersion" Value="1.1.20151" />

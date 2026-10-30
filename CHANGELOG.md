@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0
+
+- New: make buffs and debuffs last longer or shorter, from 0.1x to 100x. Good buffs and bad buffs each have their own multiplier.
+- New: each buff category can have its own multiplier, which replaces the good and bad ones for that category.
+- New: any single buff can have its own multiplier, set in the Timers tab on the Mod Manager's page for Vital Signs.
+- The Timers tab lists every buff with a timer, how long it lasts in the game, and how long it lasts with your multipliers, in game time and in real minutes.
+- Changing a multiplier also changes buffs that are already running, and talents that make buffs last longer are multiplied along with the buff.
+- With every multiplier at 1, the default, every buff keeps the game's own time.
+
 ## 0.4.0
 
 - Buffs next to the bars are bigger, so they look in proportion to the bars.

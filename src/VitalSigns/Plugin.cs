@@ -1,23 +1,43 @@
 using System.IO;
+using System.Linq;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Unity.IL2CPP;
+using HarmonyLib;
 using VitalSigns.Adapters;
 using VitalSigns.Core;
+using VitalSigns.Timers.Adapters;
+using VitalSigns.Timers.Core;
 
 namespace VitalSigns;
 
 [BepInPlugin(Guid, "Vital Signs", Version)]
+[BepInDependency(OptionalLive.ToolkitGuid, BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency(ModManagerGuid, BepInDependency.DependencyFlags.SoftDependency)]
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.vitalsigns";
-    private const string Version = "0.4.0";
+    private const string Version = "0.5.0";
+    private const string ModManagerGuid = "com.dev.survivallog.modmanager";
+    private const string TimersFileName = "VitalSigns.Timers.json";
+
+    // BuffDisplayType 0 to 6. The game has no names for these; they are ours, from the buffs in each.
+    private static readonly (string Key, string English, string Chinese)[] Categories =
+    {
+        ("Calm", "calm buffs (Tranquility, Steady Focus)", "平静类状态（如「宁静」）"),
+        ("FoodAndSickness", "food and sickness buffs (Satiety, sweets, poisoning, diarrhea)", "饮食与疾病类状态（如「饱腹」、甜食、中毒、腹泻）"),
+        ("Mood", "mood buffs (Vim and Vigor, Wish Fulfilled, Lonely)", "心态类状态（如「孤独」）"),
+        ("EnergyAndSleep", "energy and sleep buffs (Sweet Dreams, Sore Muscles, Energy Drink)", "精力与睡眠类状态（如「肌肉酸痛」、「功能饮料-兴奋」）"),
+        ("ExerciseAndWeather", "exercise and weather buffs (Athlete, Vigorous Exercise, Drowned Rat)", "运动与天气类状态（如「活力运动」、「暴雨潮湿」）"),
+        ("HealthAndInjury", "health and injury buffs (Bleeding, Severely Infected, Wind Chill)", "健康与伤病类状态（如「受伤流血」、「重度感染」、「风寒」）"),
+        ("Exploration", "exploration buffs (Knuckle Down, Rest and Recovery, Fine Haul)", "探索类状态（如「休养生息」）"),
+    };
 
     public override void Load()
     {
         var isEnabled = Config.Bind("VitalSigns", "Enabled", true, new ConfigDescription(
-            "Show more on the HUD: how each stat's gains and losses are scaled, shading for the losses still to come, the Well Fed lines on the Satiety bar, a timer stripe on each buff that ends, buff effects and cures in the tooltips, and the weight you carry on the Inventory button. Off: the mod does nothing. Takes effect at the next game start.\n" +
-            "在屏幕上显示更多信息：各项属性的增减倍率、即将扣除数值的阴影、「饱腹」条上的「饱腹富余」界线、每个有时限的状态上的计时条、提示中的状态效果与解药，以及「背包」按钮上的当前负重。关闭后本模组不做任何改动。下次启动游戏时生效。", null, "ModManager.Restart")).Value;
+            "Show more on the HUD: how each stat's gains and losses are scaled, shading for the losses still to come, the Well Fed lines on the Satiety bar, a timer stripe on each buff that ends, buff effects and cures in the tooltips, and the weight you carry on the Inventory button. Also applies the buff time multipliers. Off: the mod does nothing and every buff keeps the game's own time. Takes effect at the next game start.\n" +
+            "在屏幕上显示更多信息：各项属性的增减倍率、即将扣除数值的阴影、「饱腹」条上的「饱腹富余」界线、每个有时限的状态上的计时条、提示中的状态效果与解药，以及「背包」按钮上的当前负重。同时应用状态持续时间倍数。关闭后本模组不做任何改动，所有状态使用游戏原本的时间。下次启动游戏时生效。", null, "ModManager.Restart")).Value;
         var log = new VsLog(Log, Path.Combine(Paths.BepInExRootPath, "vital-signs.log"));
 
         if (!isEnabled)
@@ -33,7 +53,41 @@ public sealed class Plugin : BasePlugin
         VsTicker.Page = new VsPage(log.Write, ReadOptions());
 
         AddComponent<VsTicker>();
+        StartTimers(log.Write);
     }
+
+    /// <summary>The buff time multipliers and their Timers tab. If the buff hooks cannot all go in, the HUD part still runs.</summary>
+    private void StartTimers(System.Action<string> log)
+    {
+        if (!OptionalLive.IsToolkitInstalled) log(OptionalLive.MissingNote);
+
+        var good = Global("GlobalGood", "good buffs", "增益状态");
+        var bad = Global("GlobalBad", "bad buffs (debuffs)", "负面状态");
+        var categories = Categories.Select(c => Category(c.Key, c.English, c.Chinese)).ToList();
+        var settings = new Multipliers(good, bad, categories, Path.Combine(Paths.ConfigPath, TimersFileName), log);
+
+        // Its own Harmony id: if the buff hooks cannot all go in, they take out only themselves.
+        if (!BuffHooks.Apply(new Harmony(Guid + ".buffs"), log)) return;
+
+        OptionalLive.Watch(settings.Apply, settings.Entries.ToArray());
+        PageMessages.Apply(new Harmony(Guid + ".timers"), log);
+        TabTicker.Page = new WebPage(log);
+        TabTicker.Settings = settings;
+        TabTicker.Log = log;
+        AddComponent<TabTicker>();
+    }
+
+    private ConfigEntry<float> Global(string key, string english, string chinese) =>
+        Config.Bind("Timers", key, (float)Limits.Default, new ConfigDescription(
+            $"Multiplies how long {english} last. 1 is the game's time, 2 doubles it, 0.5 halves it. A category or buff given its own multiplier uses that instead. Buffs already running change too.\n" +
+            $"{chinese}的持续时间乘以这个倍数。1 为游戏原本的时间，2 为两倍，0.5 为一半。设置了自己倍数的类别或状态改用自己的倍数。正在生效的状态也会随之改变。",
+            new AcceptableValueRange<float>((float)Limits.Min, (float)Limits.Max)));
+
+    private ConfigEntry<float> Category(string key, string english, string chinese) =>
+        Config.Bind("TimerCategories", key, (float)Limits.UseAbove, new ConfigDescription(
+            $"Multiplies how long {english} last, in place of GlobalGood and GlobalBad. 0 uses the global multipliers. A buff given its own multiplier uses that instead.\n" +
+            $"{chinese}的持续时间乘以这个倍数，取代全局倍数。0 为使用全局倍数。设置了自己倍数的状态改用自己的倍数。",
+            new AcceptableValueRange<float>((float)Limits.UseAbove, (float)Limits.Max)));
 
     private Options ReadOptions()
     {
