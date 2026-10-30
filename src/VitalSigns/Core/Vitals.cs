@@ -23,10 +23,11 @@ public readonly record struct WellFedLine(int From, int Until, int Max);
 
 /// <summary>
 /// Everything the HUD needs from the player in one reading. Stats are in the HUD's row order: Satiety, Morale,
-/// Stamina, Life. Now is the game clock in game seconds, which the buff ends are measured on.
+/// Stamina, Life. Now is the game clock in game seconds, which the buff ends are measured on. Levels are the stats'
+/// current values in the same order, for the warnings only: the page reads those from the game's own bars.
 /// </summary>
 public sealed record Vitals(IReadOnlyList<StatRatios> Stats, IReadOnlyList<BuffTime> Buffs, int Now, CarryWeight? Weight, WellFedLine? WellFed,
-    Details? Details = null, FitnessReading? Fitness = null);
+    Details? Details = null, FitnessReading? Fitness = null, IReadOnlyList<StatLevel>? Levels = null);
 
 /// <summary>
 /// The player's Fitness as the game would draw it on a bar: the value rounded to a whole number, and the maximum. In the

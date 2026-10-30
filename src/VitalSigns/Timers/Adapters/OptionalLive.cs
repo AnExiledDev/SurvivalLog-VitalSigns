@@ -8,16 +8,17 @@ using BepInEx.Unity.IL2CPP;
 namespace VitalSigns.Timers.Adapters;
 
 /// <summary>
-/// Applies settings through Exiled's Toolkit when it is installed, so a change on the Mod Manager's Mods screen takes
-/// effect at once. Without the Toolkit, or with one older than 0.4.0, each setting is applied once at start and a
-/// change waits for the next game start. Only <see cref="WatchWithToolkit"/> names a Toolkit type, so the mod loads
-/// without it.
+/// Applies settings through Exiled's Toolkit, so a change on the Mod Manager's Mods screen takes effect at once. The
+/// mod requires the Toolkit (its warnings are Toolkit toasts); if its live settings still cannot start, each setting
+/// is applied once at start and the reason is logged.
 /// </summary>
 internal static class OptionalLive
 {
     public const string ToolkitGuid = "com.dev.survivallog.exiledtoolkit";
 
-    public const string MissingNote = "Exiled's Toolkit is not installed, so settings are read once at start. Install Toolkit 0.4.0 or newer to change settings in game without a restart.";
+    /// <summary>The oldest Toolkit the mod loads with: its toasts and live settings come from it.</summary>
+    public const string ToolkitVersion = ">=0.11.0";
+
 
     private static readonly Lazy<ManualLogSource> Log = new(() => Logger.CreateLogSource(typeof(OptionalLive).Assembly.GetName().Name ?? "Settings"));
 

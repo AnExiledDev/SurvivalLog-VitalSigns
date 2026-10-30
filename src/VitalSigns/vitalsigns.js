@@ -78,7 +78,8 @@
             fitAbout: 'High Fitness lowers your chance of getting sick. Below 30 you become Weakened. Staying Hungry or Fatigued for too long lowers it. Food that gives Fitness raises it.',
             weakened: 'Below 30, so you are Weakened.',
             nearWeakened: function (left) { return 'Close to Weakened: ' + left + ' more lost and it drops below 30.'; },
-            aboveWeakened: function (above) { return above + ' above 30, where Weakened starts.'; }
+            aboveWeakened: function (above) { return above + ' above 30, where Weakened starts.'; },
+            otherFitnessBar: 'The Fitness Bar mod is also installed, so you see two Fitness bars. Remove FitnessBar.dll from BepInEx/plugins.'
         },
         zh: {
             stats: ['饱腹', '心情', '体力', '生命'],
@@ -115,7 +116,8 @@
             fitAbout: '良好的健康可以降低生病的概率。低于30会陷入「亚健康」。长期「饥饿」或「疲劳」会降低健康。食用带有健康加成的食物可以提高健康。',
             weakened: '低于30，你处于「亚健康」状态。',
             nearWeakened: function (left) { return '接近「亚健康」：再降低 ' + left + ' 点就会低于30。'; },
-            aboveWeakened: function (above) { return '比「亚健康」的界线30高 ' + above + ' 点。'; }
+            aboveWeakened: function (above) { return '比「亚健康」的界线30高 ' + above + ' 点。'; },
+            otherFitnessBar: '同时安装了 Fitness Bar 模组，所以会显示两个健康条。请从 BepInEx/plugins 中删除 FitnessBar.dll。'
         }
     };
 
@@ -131,7 +133,7 @@
         '.vs-loss{position:absolute;top:0;bottom:0;pointer-events:none;background:repeating-linear-gradient(135deg,rgba(0,0,0,.55) 0 2px,rgba(0,0,0,.25) 2px 4px)}',
         '.vs-st{margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,.15)}',
         '.vs-st:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}',
-        '.status-tooltip[data-vs-no-game-text] > .st-body:not(.vs-st){display:none}',
+        '.status-tooltip[data-vs-no-game-text] > .st-body:not(.vs-st):not(.vs-fit-dup){display:none}',
         '.vs-row{font-size:11px;line-height:1.5;color:#ccc}',
         '.vs-good{color:#a5d6a7}',
         '.vs-bad{color:#ff8a80}',
@@ -483,7 +485,7 @@
         else if (panel.children[panel.children.length - 1] !== row) panel.appendChild(row);
 
         setMark(panel, FIT_MARK, true);
-        drawFitnessBar(ownChild(row, 'progress-bar-wrapper'), reading[0], reading[1]);
+        drawFitnessBar(ownChild(row, 'progress-bar-wrapper'), reading[0], reading[1], reading[2] === 1);
 
         if (isNew) syncClicks();
     }
@@ -515,7 +517,7 @@
         return row;
     }
 
-    function drawFitnessBar(bar, value, max) {
+    function drawFitnessBar(bar, value, max, isOther) {
         var text = say();
         var level = fitnessLevel(value);
         var fill = bar.querySelector('.progress-fill');
@@ -537,6 +539,8 @@
         setText(about, text.fitAbout);
         setMark(tip, 'data-vs-no-game-text', isTooltipOn() && !isGameTextOn());
         drawBlock(tip, 'vs-st', 'div', 'st-body vs-st', isTooltipOn() ? [state] : [], about);
+        // Shown whatever the tooltip settings: with the old mod in too, the player sees two bars and should know why.
+        drawBlock(tip, 'vs-fit-dup', 'div', 'st-body vs-fit-dup', isOther ? [[text.otherFitnessBar, 'vs-warn']] : [], ownChild(tip, 'vs-st') || about);
     }
 
     function fitnessLevel(value) {

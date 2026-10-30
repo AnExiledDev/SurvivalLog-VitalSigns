@@ -11,6 +11,9 @@ public sealed class HeldData
     private string? _inFlight;
     private bool _isAwaiting;
 
+    /// <summary>Whether the page answered for exactly this reading, the last one it took.</summary>
+    public bool Holds(string data) => _held == data && !_isAwaiting;
+
     /// <summary>The reading to put in this call, or null when the page already holds it.</summary>
     public string? ToSend(string data)
     {

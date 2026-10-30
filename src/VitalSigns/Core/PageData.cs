@@ -16,7 +16,8 @@ public static class PageData
     /// <summary>Effect kinds as the page names them.</summary>
     private const string Kinds = "esnmglvfo";
 
-    public static string Of(Vitals? vitals, GameNames names, bool isChinese, Options? options = null)
+    /// <param name="hasOtherFitnessBar">The Fitness Bar mod is installed too: the Fitness reading carries a third value, 1, and the bar's hover box says so.</param>
+    public static string Of(Vitals? vitals, GameNames names, bool isChinese, Options? options = null, bool hasOtherFitnessBar = false)
     {
         if (vitals == null) return NoPlayer;
 
@@ -41,7 +42,7 @@ public static class PageData
         data.Append(",zoom:").Append(Ratio(BarSize.Zoom(options.BarSize))).Append(",buffZoom:").Append(Ratio(BarSize.Zoom(options.BuffSize)))
             .Append(",tipZoom:").Append(Ratio(BarSize.Zoom(options.TooltipSize)));
         data.Append(",fit:");
-        data.Append(options.Fitness && vitals.Fitness is { } fitness ? $"[{Whole(fitness.Value)},{Whole(fitness.Max)}]" : "null");
+        data.Append(options.Fitness && vitals.Fitness is { } fitness ? $"[{Whole(fitness.Value)},{Whole(fitness.Max)}{(hasOtherFitnessBar ? ",1" : "")}]" : "null");
 
         if (vitals.Details is { } details) AppendDetails(data, details);
 

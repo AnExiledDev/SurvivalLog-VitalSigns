@@ -12,13 +12,15 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 - **Buff hover boxes**: a compact box with the name and time left on one line, what a buff or debuff does to each stat for the layers you have with the values lined up, a bar for the time left, and for debuffs the items that cure or suppress them with how many you have. Items you have come first. A suppressed debuff says what is holding it back.
 - **Well Fed lines on the Satiety bar**: one line where Well Fed starts and a fainter one where it ends, read from the game's own rule. The Satiety hover box says the two values.
 - **Timer stripe on buffs**: every buff or debuff that runs out gets a thin stripe along its bottom edge that shrinks as its time runs down and turns amber near the end. Buffs that last until something removes them get none.
-- **Fitness bar**: a bar under Life shows your Fitness, a stat the game keeps but never shows. It is green when fine, amber within 10 of Weakened and red below 30, where Weakened starts. Its hover box says what Fitness does and how close you are to Weakened. This replaces the Fitness Bar mod; remove `FitnessBar.dll` if you have it.
+- **Fitness bar**: a bar under Life shows your Fitness, a stat the game keeps but never shows. It is green when fine, amber within 10 of Weakened and red below 30, where Weakened starts. Its hover box says what Fitness does and how close you are to Weakened. This replaces the Fitness Bar mod; remove `FitnessBar.dll` if you have it. With both installed, the Fitness hover box says so.
+- **Low stat warnings**: a pop-up when Satiety, Morale, Stamina or Life drops to 20% of its maximum, where the game turns the bar red, and when Fitness drops below 40, close to Weakened, and below 30, where you become Weakened. Each warns once per drop, and again only after the stat climbs a little back. Set the line and turn each one off in the Alerts settings.
 - **Weight on the Inventory button**: the kilograms you carry and a bar with a mark where Overweight starts, amber when you are close to Overweight and red past it. Hover the button to see your carried weight, the most you can carry, where Overweight starts and how much room you have left.
 - **Sizes**: the bars and the buffs next to them are drawn at 80% of the game's size by default, and the bars' hover boxes at the game's own size so their text stays easy to read. Set each from 50% to 150%.
 - **Darker hover boxes**: the stat hover boxes are as dark as the buff ones, so the HUD behind them no longer shows through.
 - **Any language**: the lines are in English, or in Simplified Chinese when the game is set to Chinese. Buff names come from the game.
 - **Survives reloads**: the HUD can reload after a scene change; the mod notices within a couple of seconds and draws everything again.
 - **Light on the game**: the mod reads your stats every couple of seconds and only sends them to the HUD when something changed.
+- **Settings apply at once**: every setting changed on the Mod Manager's Mods screen takes effect right away, with no restart. Turning the mod off takes away everything it draws and puts every buff back on the game's own time.
 - **Log file**: the mod writes what it did at startup and what the HUD answered to `BepInEx\vital-signs.log`.
 - **Buff times**: make buffs and debuffs last longer or shorter, from 0.1x to 100x. Set one multiplier for good buffs and one for bad, one per category, or one for any single buff.
 - **Timers tab**: the Mod Manager's page for Vital Signs has a Timers tab that lists every buff with a timer, how long it lasts in the game, and how long it lasts with your multipliers, in game time and in real minutes. Changes there take effect at once.
@@ -34,7 +36,9 @@ The HUD part only reads your stats and draws them. With every multiplier at 1, t
 - Values are read every couple of seconds, so a change can take that long to show.
 - The loss shading is an estimate from the debuffs running now. Natural drain, new debuffs and anything you eat or use are not in it.
 - Stats UI draws much of the same; use one or the other.
-- Fitness Bar draws the same Fitness bar. With both installed you get two; remove `FitnessBar.dll`.
+- Fitness Bar draws the same Fitness bar. With both installed you get two, and the Fitness hover box says to remove `FitnessBar.dll`.
+- A warning comes when a stat drops past its line while you play. Loading a save with a stat already low does not warn.
+- With the mod turned off, an open Timers tab stays until the Mod Manager page reloads.
 - A buff made to last a very long time shows a large hour count in its hover box, such as `12000:00` for 500 days. The game shows buff times in hours and minutes only.
 - Multipliers changed while the game is closed apply to new buffs only. Buffs already running in a save keep the time they had when the game was saved.
 
@@ -43,14 +47,15 @@ The HUD part only reads your stats and draws them. With every multiplier at 1, t
 - Survival Log 1.1.20151. Built and tested on this version; a game update can break it until the mod is updated.
 - The [BepInEx Pack for Survival Log](https://www.nexusmods.com/survivallog/mods/12), the BepInEx 6 (IL2CPP) build for the game.
 - Optional: [Mod Manager](https://www.nexusmods.com/survivallog/mods/73). The Timers tab, where you see every buff and set single buffs, is on this mod's page in the Mod Manager. Without it, set the buff multipliers in the config files.
-- Optional: [Exiled's Toolkit](https://github.com/AnExiledDev/SurvivalLog-ExiledToolkit) 0.4.0 or newer. With it, buff multipliers changed on the Mod Manager's Mods screen take effect without restarting the game. The Timers tab does not need it.
+- [Exiled's Toolkit](https://www.nexusmods.com/survivallog/mods/61) 0.11.0 or newer. The low stat warnings are its pop-ups, and settings changed on the Mod Manager's Mods screen take effect at once through it.
 
 ## Install
 
 1. Install the [BepInEx Pack for Survival Log](https://www.nexusmods.com/survivallog/mods/12) (if no other mods were installed before, start the game once so BepInEx finishes setup, then quit).
-2. Optional, for the Timers tab: install [Mod Manager](https://www.nexusmods.com/survivallog/mods/73) the same way.
-3. Download `VitalSigns-x.y.z.zip` from the [latest release](https://github.com/AnExiledDev/SurvivalLog-VitalSigns/releases/latest).
-4. Extract the zip into the game folder (the folder with `SurvivalLog.exe`). It holds a `BepInEx` folder, so the DLL lands in the right place. When asked, merge the folders. The result should be:
+2. Install [Exiled's Toolkit](https://www.nexusmods.com/survivallog/mods/61) 0.11.0 or newer.
+3. Optional, for the Timers tab: install [Mod Manager](https://www.nexusmods.com/survivallog/mods/73) the same way.
+4. Download `VitalSigns-x.y.z.zip` from the [latest release](https://github.com/AnExiledDev/SurvivalLog-VitalSigns/releases/latest).
+5. Extract the zip into the game folder (the folder with `SurvivalLog.exe`). It holds a `BepInEx` folder, so the DLL lands in the right place. When asked, merge the folders. The result should be:
    `C:\Program Files (x86)\Steam\steamapps\common\Survival Log\BepInEx\plugins\VitalSigns.dll`
 
 ## Uninstall
@@ -59,7 +64,7 @@ Delete `VitalSigns.dll` from the `BepInEx\plugins` folder. For a clean slate, al
 
 ## Configuration
 
-Settings live in `BepInEx\config\com.dev.survivallog.vitalsigns.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Changes take effect at the next game start. Each setting in the cfg file is explained in English and Simplified Chinese. Each part (the Fitness bar, the weight, the timer stripes, the hover box details, the game's own stat text and the cure lists) can be turned off, and `BarSize`, `BuffSize` and `BarTooltipSize` set how big the bars, the buffs and the bars' hover boxes are drawn. See [CONFIG.md](CONFIG.md) for every setting.
+Settings live in `BepInEx\config\com.dev.survivallog.vitalsigns.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Changes made on the Mods screen take effect at once. Each setting in the cfg file is explained in English and Simplified Chinese. Each part (the Fitness bar, the weight, the timer stripes, the hover box details, the game's own stat text and the cure lists) can be turned off, and `BarSize`, `BuffSize` and `BarTooltipSize` set how big the bars, the buffs and the bars' hover boxes are drawn. Under Alerts, each low stat warning can be turned off, and `LowAt` sets how low a stat gets before it warns. See [CONFIG.md](CONFIG.md) for every setting.
 
 For buff times, open the Mod Manager, go to Vital Signs and pick the Timers tab. Set the good and bad multipliers and the category ones at the top, and a single buff's multiplier in its row, then press Save. The changes take effect at once, on buffs already running too. The good, bad and category multipliers are also in the cfg file, and single buffs are in `BepInEx\config\VitalSigns.Timers.json`.
 
@@ -67,9 +72,11 @@ For buff times, open the Mod Manager, go to Vital Signs and pick the Timers tab.
 
 Tested on Survival Log 1.1.20151 with BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.6.0 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
+Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.7.0 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
 
 Once a game has loaded, look for `page script sent to CoreUI1 (install 1): the stat bars show the readings`. A line ending `no stat bars on the HUD right now` means the mod could not find the stat bars.
+
+Each warning writes a line such as `warning: Satiety Low at 18/100`. A line ending `the toast was not shown` means Exiled's Toolkit could not show it.
 
 For buff times, look for `buff time hooks in`. A line starting with `could not hook buff times` means buff times cannot be changed on this game version; the HUD part still works.
 
@@ -83,6 +90,7 @@ To reach me directly, message `exiled.dev` on Discord; you can find me in the [o
 
 ## Changelog
 
+- **0.7.0**: Low stat warnings, every setting applies at once, and a note in the Fitness hover box when the Fitness Bar mod is also installed. Exiled's Toolkit 0.11.0 is now required.
 - **0.6.0**: A Fitness bar under Life, which replaces the Fitness Bar mod, a separate size for the bars' hover boxes, and darker stat hover boxes.
 - **0.5.0**: Set how long buffs and debuffs last, with a Timers tab in the Mod Manager that lists every buff.
 - **0.4.0**: Bigger buffs with their own BuffSize setting, and the old buff hover box no longer flashes up first.

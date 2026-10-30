@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.0
+
+- New: warnings when a stat runs low. Satiety, Morale, Stamina and Life warn at 20% of their maximum, where the game turns the bar red, and Fitness warns below 40 and again below 30, where you become Weakened.
+- Each warning comes once per drop, and again only after the stat climbs a little back. The new Alerts settings turn each one off and set the line.
+- Every setting now takes effect at once, with no restart. Turning the mod off takes away everything it draws and puts every buff back on the game's own time.
+- With the Fitness Bar mod also installed, the Fitness hover box says to remove it.
+- Exiled's Toolkit 0.11.0 or newer is now required.
+
 ## 0.6.0
 
 - New: a Fitness bar under the Life bar. Fitness is a stat the game keeps but never shows; it lowers your chance of getting sick, and below 30 you become Weakened.

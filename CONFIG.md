@@ -1,16 +1,14 @@
 # Vital Signs settings
 
-Settings live in `BepInEx\config\com.dev.survivallog.vitalsigns.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. The VitalSigns and Display settings take effect at the next game start; for the buff multipliers, see Timers below. Delete the file to get the defaults back.
+Settings live in `BepInEx\config\com.dev.survivallog.vitalsigns.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Changes made on the Mods screen take effect at once. Delete the file to get the defaults back.
 
 ## VitalSigns
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| `Enabled` | `true` | Shows the multipliers, loss shading, Well Fed lines, buff timers, hover box details, Fitness bar and carried weight on the HUD. `false` turns the mod off and the HUD stays as the game draws it. Takes effect at the next game start. |
+| `Enabled` | `true` | Shows the multipliers, loss shading, Well Fed lines, buff timers, hover box details, Fitness bar and carried weight on the HUD. `false` turns the mod off: everything it draws goes away, no warnings show and every buff goes back to the game's own time. |
 
 ## Display
-
-Each setting takes effect at the next game start.
 
 | Setting | Default | What it does |
 | --- | --- | --- |
@@ -24,9 +22,22 @@ Each setting takes effect at the next game start.
 | `BuffSize` | `80` | How big the buffs next to the bars are drawn, in percent of the game's size, from 50 to 150. Their hover boxes grow and shrink with them. At the same number as `BarSize` they sit in proportion to the bars. `100` is the game's size. |
 | `CuresInTooltips` | `true` | Lists the items that cure or suppress a debuff in its hover box, with how many of each you have. Only applies when `ExtendedTooltips` is on. |
 
+## Alerts
+
+A warning pops up once when a stat drops past its line, and again only after the stat climbs back over it: 5 percent of its maximum for Satiety, Morale, Stamina and Life, 2 points for Fitness. Loading a save with a stat already low does not warn.
+
+| Setting | Default | What it does |
+| --- | --- | --- |
+| `Satiety` | `true` | Shows a warning when Satiety drops to `LowAt` percent of its maximum. |
+| `Morale` | `true` | Shows a warning when Morale drops to `LowAt` percent of its maximum. |
+| `Stamina` | `true` | Shows a warning when Stamina drops to `LowAt` percent of its maximum. |
+| `Life` | `true` | Shows a warning when Life drops to `LowAt` percent of its maximum. |
+| `Fitness` | `true` | Shows a warning when Fitness drops below 40, close to Weakened, and again below 30, where you become Weakened. |
+| `LowAt` | `20` | How low Satiety, Morale, Stamina or Life gets before it warns, in percent of the stat's maximum, from 5 to 90. `20` is where the game turns the bar red. |
+
 ## Timers
 
-A multiplier changes how long a buff lasts: `1` is the game's own time, `2` makes it last twice as long, `0.5` half as long. Every multiplier goes from `0.1` to `100`. Change them in the Timers tab on the Mod Manager's page for Vital Signs, on the Mods screen, or in the file while the game is closed. Changes made in the Timers tab take effect at once. Changes made on the Mods screen take effect at once with Exiled's Toolkit installed, and at the next game start without it.
+A multiplier changes how long a buff lasts: `1` is the game's own time, `2` makes it last twice as long, `0.5` half as long. Every multiplier goes from `0.1` to `100`. Change them in the Timers tab on the Mod Manager's page for Vital Signs, on the Mods screen, or in the file while the game is closed. Changes made in the Timers tab or on the Mods screen take effect at once.
 
 Each buff uses the most specific multiplier it has: its own multiplier first, then its category's, then the good or bad one. Only buffs you can see on your character and that have a timer are changed. Hidden buffs and buffs that last until something removes them keep the game's own behavior.
 

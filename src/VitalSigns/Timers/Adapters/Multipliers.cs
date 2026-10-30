@@ -35,7 +35,10 @@ internal sealed class Multipliers
 
     public IEnumerable<ConfigEntryBase> Entries => new ConfigEntryBase[] { _good, _bad }.Concat(_categories);
 
-    public MultiplierPlan Current() => new(_good.Value, _bad.Value, _categories.Select(c => (double?)c.Value).ToList(), _buffs);
+    /// <summary>VitalSigns/Enabled: off, the plan leaves every buff's time as the game's, whatever is set.</summary>
+    public bool IsOn { get; set; } = true;
+
+    public MultiplierPlan Current() => IsOn ? new(_good.Value, _bad.Value, _categories.Select(c => (double?)c.Value).ToList(), _buffs) : MultiplierPlan.Unchanged;
 
     public void Apply()
     {

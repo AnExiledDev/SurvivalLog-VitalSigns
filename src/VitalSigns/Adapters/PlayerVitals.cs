@@ -44,7 +44,24 @@ internal static class PlayerVitals
         var now = clock.GetTotalSeconds();
 
         return new Vitals(stats, buffs, now, Weight(AgentTools.GetAgentComponent<BagComponent>(role)), WellFed(attributes),
-            Details(world!, attributes, component, stats, buffs, now, options, isChinese), Fitness(attributes));
+            Details(world!, attributes, component, stats, buffs, now, options, isChinese), Fitness(attributes), Levels(attributes));
+    }
+
+    private static readonly AttrName[] ValueRows = { AttrName.Satiety, AttrName.Morale, AttrName.Stamina, AttrName.Vitality };
+
+    /// <summary>Each stat's value and maximum, for the warnings. A stat the player lacks reads 0 of 0, which never warns.</summary>
+    private static List<StatLevel> Levels(AttributeComponent attributes)
+    {
+        var levels = new List<StatLevel>(ValueRows.Length);
+
+        for (var i = 0; i < ValueRows.Length; i++)
+        {
+            var hasStat = attributes.AttrDict.ContainsKey(ValueRows[i]) && attributes.AttrDict.ContainsKey(MaxRows[i]);
+
+            levels.Add(hasStat ? new StatLevel(attributes.GetTotalValue_Float(ValueRows[i]), attributes.GetTotalValue_Float(MaxRows[i])) : new StatLevel(0, 0));
+        }
+
+        return levels;
     }
 
     /// <summary>Fitness the way the game reads its own bars (LeadingRole.SyncAttr2UI): the value rounded from its float total, the maximum a whole number.</summary>

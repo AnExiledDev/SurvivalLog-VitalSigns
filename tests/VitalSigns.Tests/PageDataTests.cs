@@ -112,6 +112,7 @@ public class PageDataTests
     public void Fitness_reaches_the_page_as_its_value_and_maximum()
     {
         Assert.Contains(",fit:[42,100]", Readings.Data(fitness: new FitnessReading(42, 100)));
+        Assert.Contains(",fit:[42,100,1]", Readings.Data(fitness: new FitnessReading(42, 100), hasOtherFitnessBar: true));
     }
 
     [Fact]

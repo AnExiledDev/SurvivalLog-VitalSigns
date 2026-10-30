@@ -86,4 +86,17 @@ public class HeldDataTests
 
         Assert.Equal(Reading, held.ToInstall(Reading));
     }
+
+    [Fact]
+    public void The_page_holds_a_reading_only_once_it_answered_for_it()
+    {
+        var held = new HeldData();
+
+        held.ToSend(Reading);
+        Assert.False(held.Holds(Reading));
+
+        held.Answered(PageAnswer.Ok);
+        Assert.True(held.Holds(Reading));
+        Assert.False(held.Holds(Other));
+    }
 }

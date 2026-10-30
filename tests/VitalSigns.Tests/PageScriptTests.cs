@@ -809,4 +809,93 @@ public class PageScriptTests
         Assert.Equal("健康", page.Text($"{FitBar}.querySelector('.vs-fit-name').textContent"));
         Assert.Equal("接近「亚健康」：再降低 6 点就会低于30。", page.Text($"blockText({FitTip}, 'vs-st')"));
     }
+
+    [Fact]
+    public void With_the_Fitness_Bar_mod_also_in_the_Fitness_box_says_to_remove_it()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Readings.Data(fitness: new FitnessReading(60, 100), hasOtherFitnessBar: true));
+
+        Assert.Contains("Remove FitnessBar.dll", page.Text($"blockText({FitTip}, 'vs-fit-dup')"));
+        Assert.True(page.Is($"childWith({FitTip}, 'vs-fit-dup').children[0].classList.contains('vs-warn')"));
+    }
+
+    [Fact]
+    public void The_Fitness_Bar_warning_shows_with_the_extra_tooltips_and_game_text_off()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Readings.Data(fitness: new FitnessReading(60, 100), options: new Options(Tooltips: false, GameText: false), hasOtherFitnessBar: true));
+
+        Assert.Contains("Remove FitnessBar.dll", page.Text($"blockText({FitTip}, 'vs-fit-dup')"));
+    }
+
+    [Fact]
+    public void Without_the_Fitness_Bar_mod_there_is_no_warning()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Fit(60));
+
+        Assert.False(page.Is($"childWith({FitTip}, 'vs-fit-dup')"));
+    }
+
+    // ===== Settings changed while playing =====
+
+    private static string Everything(Options options) => Readings.Data(Readings.Stats(satiety: new StatRatios(0.5, 0.2, 0, 0)), new[] { new BuffTime(1300, 100, 100) },
+        new CarryWeight(5000, 20000, 16000), WellFed, details: Readings.DetailsOf(new[] { Readings.Rule(1300) }), options: options, fitness: new FitnessReading(60, 100));
+
+    [Theory]
+    [InlineData("Weight", "vs-weight,vs-wbar,vs-weight-tip")]
+    [InlineData("Stripes", "vs-timer")]
+    [InlineData("Tooltips", "vs-st,vs-bt")]
+    [InlineData("Fitness", "vs-fit-row")]
+    public void A_display_setting_turned_off_takes_away_what_it_drew(string setting, string classes)
+    {
+        var page = PageScript.On("{buffs:[[1300]]}");
+        var off = setting switch
+        {
+            "Weight" => new Options(Weight: false),
+            "Stripes" => new Options(Stripes: false),
+            "Tooltips" => new Options(Tooltips: false),
+            _ => new Options(Fitness: false)
+        };
+
+        page.Apply(0, Everything(new Options()));
+        page.Run($"hover(buffTip({Satiety}, 0))");
+
+        foreach (var drawn in classes.Split(','))
+        {
+            Assert.True(page.Number($"document.querySelectorAll('.{drawn}').length") > 0, drawn + " drawn while on");
+        }
+
+        page.Apply(2, Everything(off));
+        page.Run($"hover(buffTip({Satiety}, 0))");
+
+        foreach (var drawn in classes.Split(','))
+        {
+            Assert.Equal(0, page.Number($"document.querySelectorAll('.{drawn}').length"));
+        }
+
+        page.Apply(4, Everything(new Options()));
+        page.Run($"hover(buffTip({Satiety}, 0))");
+
+        foreach (var drawn in classes.Split(','))
+        {
+            Assert.True(page.Number($"document.querySelectorAll('.{drawn}').length") > 0, drawn + " back when on again");
+        }
+    }
+
+    [Fact]
+    public void A_size_changed_while_playing_redraws_at_the_new_size()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Readings.Data(options: new Options(BarSize: 120)));
+        Assert.StartsWith(BarRule + "1.2}", page.Text("document.getElementById('vs-zoom').textContent"));
+
+        page.Apply(2, Readings.Data(options: new Options(BarSize: 100, BuffSize: 100, TooltipSize: 100)));
+        Assert.Equal("", page.Text("document.getElementById('vs-zoom').textContent"));
+    }
 }

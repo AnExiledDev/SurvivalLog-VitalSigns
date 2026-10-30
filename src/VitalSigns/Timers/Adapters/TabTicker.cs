@@ -15,6 +15,9 @@ public sealed class TabTicker : MonoBehaviour
     internal static WebPage? Page;
     internal static Multipliers? Settings;
     internal static Action<string> Log = _ => { };
+
+    /// <summary>VitalSigns/Enabled. Off, the tab is not put back after the page reloads; messages from one still up are answered.</summary>
+    internal static bool IsOn = true;
     private static bool _hasReportedFailure;
 
     public TabTicker(IntPtr pointer) : base(pointer)
@@ -27,7 +30,7 @@ public sealed class TabTicker : MonoBehaviour
 
         try
         {
-            Page.KeepInstalled(Time.unscaledTime);
+            if (IsOn) Page.KeepInstalled(Time.unscaledTime);
 
             while (PageMessages.TryTake(out var command)) Answer(command, Page, Settings);
         }
