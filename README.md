@@ -6,7 +6,7 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 
 ## Features
 
-- **Gain multiplier on each bar**: when something scales how much a stat gains, the bar shows it, for example `x1.25` in green or `x0.5` in red.
+- **Gain multiplier on each bar**: when something scales how much a stat gains, the bar shows it after the stat's name, for example `x1.25` in green or `x0.5` in red.
 - **Coming losses shaded on each bar**: the part of a bar that running debuffs will still take before they end is shaded, so you can see where the stat will land. It counts each debuff's layers, cold resistance and how losses are scaled.
 - **More in the bar's hover box**: the exact value, every scaled change as a percentage (such as `Losses -25%` or `Natural recovery +50%`), your food modifiers, and each loss still coming with how long it takes. The game's own text can be hidden.
 - **Buff hover boxes**: a compact box with the name and time left on one line, what a buff or debuff does to each stat for the layers you have with the values lined up, a bar for the time left, and for debuffs the items that cure or suppress them with how many you have. Items you have come first. A suppressed debuff says what is holding it back.
@@ -51,7 +51,7 @@ Settings live in `BepInEx\config\com.dev.survivallog.vitalsigns.cfg`, created th
 
 Tested on Survival Log 1.1.20151 with BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.3.0 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
+Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.3.1 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
 
 Once a game has loaded, look for `page script sent to CoreUI1 (install 1): the stat bars show the readings`. A line ending `no stat bars on the HUD right now` means the mod could not find the stat bars.
 
@@ -65,6 +65,7 @@ To reach me directly, message `exiled.dev` on Discord; you can find me in the [o
 
 ## Changelog
 
+- **0.3.1**: The gain multiplier sits after the stat's name instead of on top of it.
 - **0.3.0**: Smaller bars by default with a BarSize setting, smaller buff badges and cleaner buff hover boxes.
 - **0.2.0**: Loss shading on the bars, buff effect and cure hover boxes, fuller stat hover boxes, a weight bar and settings for each part.
 - **0.1.0**: First version.

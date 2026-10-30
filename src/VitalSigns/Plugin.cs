@@ -11,7 +11,7 @@ namespace VitalSigns;
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.vitalsigns";
-    private const string Version = "0.3.0";
+    private const string Version = "0.3.1";
 
     public override void Load()
     {

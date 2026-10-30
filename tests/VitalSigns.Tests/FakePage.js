@@ -154,6 +154,7 @@ function buildPage(spec) {
         var name = text.appendChild(new FakeElement('span', 'attr-name'));
 
         name.appendChild(new FakeElement('span')).textContent = icon;
+        name.appendChild(new FakeElement('span')).textContent = 'Stat ' + r;
         tip.appendChild(new FakeElement('div', 'st-header'));
         tip.appendChild(new FakeElement('div', 'st-body'));
 
@@ -194,6 +195,11 @@ function toolButton(tools, name) {
 }
 
 // A child of the element with the class, or null.
+// A stat row's gain multiplier, which sits in the name's line after the name.
+function chipOf(row) {
+    return childWith(maskOf(row).querySelector('.attr-name'), 'vs-chip');
+}
+
 function childWith(element, className) {
     return element.children.filter(function (child) { return child.classList.contains(className); })[0] || null;
 }

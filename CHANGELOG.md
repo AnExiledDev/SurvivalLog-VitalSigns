@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+
+- A stat's gain multiplier now sits right after the stat's name instead of on top of it.
+
 ## 0.3.0
 
 - The bars are drawn at 80% of the game's size by default, and the buffs next to them shrink with them. The new BarSize setting sets the size, from 50% to 150%.

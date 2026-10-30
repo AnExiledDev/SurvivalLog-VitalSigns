@@ -27,7 +27,7 @@ public class PageScriptTests
         page.Apply(0, Readings.Data(Readings.Stats(satiety: new StatRatios(0.5, 0, 0, 0))));
 
         Assert.Equal(PageAnswer.Ok, page.Apply(2));
-        Assert.Equal("x1.5", page.Text($"childWith(maskOf({Satiety}), 'vs-chip').textContent"));
+        Assert.Equal("x1.5", page.Text($"chipOf({Satiety}).textContent"));
     }
 
     [Fact]
@@ -67,11 +67,12 @@ public class PageScriptTests
 
         page.Apply(0, Readings.Data(Readings.Stats(satiety: new StatRatios(0.25, 0, 0, 0), morale: new StatRatios(-0.5, 0, 0, 0), life: new StatRatios(0, 0.3, 0, 0))));
 
-        Assert.Equal("x1.25", page.Text($"childWith(maskOf({Satiety}), 'vs-chip').textContent"));
-        Assert.True(page.Is($"childWith(maskOf({Satiety}), 'vs-chip').classList.contains('vs-chip-up')"));
-        Assert.Equal("x0.5", page.Text($"childWith(maskOf({Morale}), 'vs-chip').textContent"));
-        Assert.True(page.Is($"childWith(maskOf({Morale}), 'vs-chip').classList.contains('vs-chip-down')"));
-        Assert.False(page.Is($"childWith(maskOf({Life}), 'vs-chip')"));
+        Assert.Equal("x1.25", page.Text($"chipOf({Satiety}).textContent"));
+        Assert.True(page.Is($"chipOf({Satiety}).classList.contains('vs-chip-up')"));
+        Assert.Equal("x0.5", page.Text($"chipOf({Morale}).textContent"));
+        Assert.True(page.Is($"chipOf({Morale}).classList.contains('vs-chip-down')"));
+        Assert.False(page.Is($"chipOf({Life})"));
+        Assert.Equal(2, page.Number($"maskOf({Satiety}).querySelector('.attr-name').children.indexOf(chipOf({Satiety}))"));
     }
 
     [Fact]
@@ -82,7 +83,7 @@ public class PageScriptTests
         page.Apply(0, Readings.Data(Readings.Stats(satiety: new StatRatios(0.25, 0, 0, 0))));
         page.Apply(2, Readings.Data());
 
-        Assert.False(page.Is($"childWith(maskOf({Satiety}), 'vs-chip')"));
+        Assert.False(page.Is($"chipOf({Satiety})"));
     }
 
     [Fact]
@@ -116,9 +117,9 @@ public class PageScriptTests
 
         page.Apply(0, Readings.Data(Readings.Stats(satiety: new StatRatios(0.5, 0, 0, 0)), wellFed: WellFed));
 
-        Assert.Equal("x1.5", page.Text("childWith(maskOf(page.rows[3]), 'vs-chip').textContent"));
+        Assert.Equal("x1.5", page.Text("chipOf(page.rows[3]).textContent"));
         Assert.Equal(2, page.Number("maskOf(page.rows[3]).querySelectorAll('.vs-mark').length"));
-        Assert.False(page.Is("childWith(maskOf(page.rows[0]), 'vs-chip')"));
+        Assert.False(page.Is("chipOf(page.rows[0])"));
     }
 
     [Fact]
@@ -383,7 +384,7 @@ public class PageScriptTests
             details: Readings.DetailsOf(new[] { Cut }, Coming(0, new LossLine(1111, 10, 900)), Items), options: new Options(Tooltips: false)));
         page.Run($"hover(buffTip({Satiety}, 0))");
 
-        Assert.True(page.Is($"childWith(maskOf({Satiety}), 'vs-chip')"));
+        Assert.True(page.Is($"chipOf({Satiety})"));
         Assert.True(page.Is($"childWith(maskOf({Satiety}), 'vs-loss')"));
         Assert.Equal(0, page.Number("document.querySelectorAll('.vs-st').length + document.querySelectorAll('.vs-bt').length"));
     }

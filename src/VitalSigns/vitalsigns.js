@@ -98,7 +98,8 @@
     // Under the game's own look: the chip, lines and shading sit inside its bar, the tooltip blocks use its text styles.
     var CSS = [
         '.status-panel .progress-text{text-shadow:-.6px -.6px 0 rgba(0,0,0,.85),.6px -.6px 0 rgba(0,0,0,.85),-.6px .6px 0 rgba(0,0,0,.85),.6px .6px 0 rgba(0,0,0,.85)}',
-        '.vs-chip{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:0 3px;border-radius:2px;background:rgba(0,0,0,.45);font-size:8.5px;line-height:11px;font-weight:bold;pointer-events:none;text-shadow:.7px .7px 1.4px #000}',
+        // In the name's own line, after the name, so it can never sit over or under the label.
+        '.vs-chip{flex-shrink:0;margin-left:2px;padding:0 3px;border-radius:2px;background:rgba(0,0,0,.45);font-size:8.5px;line-height:11px;font-weight:bold;pointer-events:none;text-shadow:.7px .7px 1.4px #000}',
         '.vs-chip-up{color:#a5d6a7}',
         '.vs-chip-down{color:#ff8a80}',
         '.vs-mark{position:absolute;top:0;bottom:0;width:1px;margin-left:-.5px;background:rgba(255,255,255,.6);pointer-events:none}',
@@ -276,15 +277,16 @@
 
     function drawChip(mask, gain) {
         var text = scaleText(gain);
-        var chip = ownChild(mask, 'vs-chip');
+        var line = mask.querySelector('.attr-name') || mask;
+        var chip = ownChild(line, 'vs-chip');
 
         if (!text) {
-            if (chip) mask.removeChild(chip);
+            if (chip) line.removeChild(chip);
 
             return;
         }
 
-        if (!chip) chip = mask.appendChild(element('div', 'vs-chip'));
+        if (!chip) chip = line.appendChild(element('span', 'vs-chip'));
 
         setClass(chip, 'vs-chip-up', gain > 0);
         setClass(chip, 'vs-chip-down', gain < 0);
