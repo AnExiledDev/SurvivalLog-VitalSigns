@@ -20,6 +20,14 @@ public class BarSizeTests
         Assert.Equal(new Options().BarSize, new Options().BuffSize);
     }
 
+    /// <summary>The hover boxes keep the game's own size by default: at the 80% bar size their text was too small.</summary>
+    [Fact]
+    public void Hover_boxes_default_to_the_game_size_whatever_the_bar_size()
+    {
+        Assert.Equal(100, new Options().TooltipSize);
+        Assert.Equal(100, new Options(BarSize: 60).TooltipSize);
+    }
+
     [Fact]
     public void A_size_inside_the_range_is_used_as_it_is()
     {

@@ -1,7 +1,7 @@
 // Vital Signs: more about the player's stats on the HUD (the CoreUI1 page). Each stat bar gets its gain multiplier,
 // shading for the losses still to come and a fuller tooltip; the Satiety bar gets the Well Fed lines; each buff with
 // an end gets a timer stripe and each buff tooltip its effects, time and cures; the Inventory button shows the weight
-// carried. The plugin calls apply every couple of seconds with the game clock, and with a new reading only when it
+// carried; a Fitness bar, which the game never shows, goes under the stat rows. The plugin calls apply every couple of seconds with the game clock, and with a new reading only when it
 // changed. Reads and draws only; nothing the game keeps is changed.
 (function () {
     if (window.__slvitals) return;
@@ -24,7 +24,18 @@
     var MOST_ITEMS = 10;
     // How far up from the hovered node a buff badge is looked for.
     var BADGE_DEPTH = 8;
-    var DRAWN = ['vs-chip', 'vs-mark', 'vs-loss', 'vs-st', 'vs-timer', 'vs-bt', 'vs-btime', 'vs-weight', 'vs-wbar', 'vs-weight-tip'];
+    // The game's own line: below 30 Fitness the player is Weakened. A warning comes before it.
+    var WEAKENED_BELOW = 30;
+    var LOW_FITNESS_BELOW = 40;
+    var FIT_ROW = 'vs-fit-row';
+    var FIT_ICON = '\u271A';
+    // Put on the stat panel while the Fitness row is in it, so the row above keeps the hover boxes that open upward.
+    var FIT_MARK = 'data-vs-fit';
+    // What BarSize, BuffSize and BarTooltipSize zoom.
+    var BAR_BOXES = '.status-panel > .status-row > .progress-bar-wrapper,.status-panel > .' + FIT_ROW + ' > .progress-bar-wrapper';
+    var BUFF_BOXES = '.status-panel > .status-row > .buff-container';
+    var BAR_TIPS = '.status-panel .progress-bar-wrapper > .status-tooltip';
+    var DRAWN = ['vs-chip', 'vs-mark', 'vs-loss', 'vs-st', 'vs-timer', 'vs-bt', 'vs-btime', 'vs-weight', 'vs-wbar', 'vs-weight-tip', FIT_ROW];
     // Attributes put on the game's own tooltips, taken off again by clear. Attributes, not classes: Vue writes the whole
     // class of a tooltip each time it shows or hides it, which wiped a class of ours and showed the game's own look until
     // the next call drew it again. Vue leaves attributes it does not own alone.
@@ -62,7 +73,12 @@
             carrying: function (carried, max) { return 'Carrying ' + carried + ' / ' + max + ' kg'; },
             line: function (name, at) { return name + ' above ' + at + ' kg'; },
             left: function (name, left) { return left + ' kg left before ' + name; },
-            over: function (name, over) { return name + ': ' + over + ' kg over'; }
+            over: function (name, over) { return name + ': ' + over + ' kg over'; },
+            fitness: 'Fitness',
+            fitAbout: 'High Fitness lowers your chance of getting sick. Below 30 you become Weakened. Staying Hungry or Fatigued for too long lowers it. Food that gives Fitness raises it.',
+            weakened: 'Below 30, so you are Weakened.',
+            nearWeakened: function (left) { return 'Close to Weakened: ' + left + ' more lost and it drops below 30.'; },
+            aboveWeakened: function (above) { return above + ' above 30, where Weakened starts.'; }
         },
         zh: {
             stats: ['饱腹', '心情', '体力', '生命'],
@@ -94,7 +110,12 @@
             carrying: function (carried, max) { return '负重 ' + carried + ' / ' + max + ' 千克'; },
             line: function (name, at) { return '超过 ' + at + ' 千克即「' + name + '」'; },
             left: function (name, left) { return '距离「' + name + '」还有 ' + left + ' 千克'; },
-            over: function (name, over) { return '「' + name + '」：已超出 ' + over + ' 千克'; }
+            over: function (name, over) { return '「' + name + '」：已超出 ' + over + ' 千克'; },
+            fitness: '健康',
+            fitAbout: '良好的健康可以降低生病的概率。低于30会陷入「亚健康」。长期「饥饿」或「疲劳」会降低健康。食用带有健康加成的食物可以提高健康。',
+            weakened: '低于30，你处于「亚健康」状态。',
+            nearWeakened: function (left) { return '接近「亚健康」：再降低 ' + left + ' 点就会低于30。'; },
+            aboveWeakened: function (above) { return '比「亚健康」的界线30高 ' + above + ' 点。'; }
         }
     };
 
@@ -114,6 +135,22 @@
         '.vs-row{font-size:11px;line-height:1.5;color:#ccc}',
         '.vs-good{color:#a5d6a7}',
         '.vs-bad{color:#ff8a80}',
+        '.vs-warn{color:#ffc107}',
+        // The stat hover boxes as dark as the buff ones, so the HUD behind them does not show through.
+        '.status-panel .status-tooltip{background-color:rgba(14,16,19,.93);border-color:rgba(255,255,255,.14)}',
+        '.status-panel .status-tooltip::after{border-left-color:rgba(14,16,19,.93)}',
+        // The Fitness row is built like the game's own bars, so the game's styles draw it. It is the panel's last child,
+        // so the game's last-row rules (hover boxes that open upward, to stay on screen) are given to it and to the row
+        // above it, which they no longer reach.
+        '.' + FIT_ROW + '{display:flex;align-items:center;justify-content:flex-end}',
+        '.' + FIT_ROW + ' .status-tooltip{top:auto;bottom:0;transform:none}',
+        '.' + FIT_ROW + ' .status-tooltip::after{top:auto;bottom:6px;transform:none}',
+        '.' + FIT_ROW + ' .progress-bar-wrapper:hover .status-tooltip{transform:translateX(-5px)}',
+        '.status-panel[' + FIT_MARK + '] > .status-row:nth-last-child(2) .buff .buff-tooltip{top:auto;bottom:-4px;transform:none}',
+        '.status-panel[' + FIT_MARK + '] > .status-row:nth-last-child(2) .buff .buff-tooltip::after{top:auto;bottom:8px;transform:none}',
+        '.status-panel[' + FIT_MARK + '] > .status-row:nth-last-child(2) .progress-bar-wrapper .status-tooltip{top:auto;bottom:0;transform:none}',
+        '.status-panel[' + FIT_MARK + '] > .status-row:nth-last-child(2) .progress-bar-wrapper .status-tooltip::after{top:auto;bottom:6px;transform:none}',
+        '.status-panel[' + FIT_MARK + '] > .status-row:nth-last-child(2) .progress-bar-wrapper:hover .status-tooltip{transform:translateX(-5px)}',
         '.vs-head{color:#eee;margin-top:4px}',
         '.vs-timer{position:absolute;left:0;right:0;bottom:0;height:2px;background:rgba(255,255,255,.75);transform-origin:left;transition:transform ' + STEP_SECONDS + 's linear;pointer-events:none}',
         '.vs-timer.vs-timer-low{background:#ffc107}',
@@ -186,12 +223,16 @@
             return 'noplayer';
         }
 
-        drawZoom(held.zoom, held.buffZoom);
+        drawZoom(held.zoom, held.buffZoom, held.tipZoom);
         drawWeight(held);
 
         var rows = document.querySelectorAll('.status-panel > .status-row');
 
-        if (!rows.length) return 'nobar';
+        if (!rows.length) {
+            dropFitness();
+
+            return 'nobar';
+        }
 
         var list = attrList();
         var isListed = !!list && list.length === rows.length;
@@ -204,6 +245,7 @@
         }
 
         drawTimers(rows, isListed ? list : null, held.buffs, now);
+        drawFitness(rows[rows.length - 1].parentElement);
 
         if (hovered) drawBuffTip(hovered, names);
 
@@ -419,6 +461,119 @@
 
     function foodName(type) {
         return held.foods && held.foods[type - 1] ? held.foods[type - 1] : '#' + type;
+    }
+
+    // ===== Fitness =====
+
+    // The Fitness row sits in the stat panel after the rows Vue draws. Vue puts a new row before it, and the row is
+    // moved back to the end if anything ever lands after it.
+    function drawFitness(panel) {
+        var reading = held.fit;
+
+        if (!(reading && reading[1] > 0 && reading[0] >= 0)) {
+            dropFitness();
+
+            return;
+        }
+
+        var row = ownChild(panel, FIT_ROW);
+        var isNew = !row;
+
+        if (isNew) row = panel.appendChild(fitnessRow());
+        else if (panel.children[panel.children.length - 1] !== row) panel.appendChild(row);
+
+        setMark(panel, FIT_MARK, true);
+        drawFitnessBar(ownChild(row, 'progress-bar-wrapper'), reading[0], reading[1]);
+
+        if (isNew) syncClicks();
+    }
+
+    // The game's bar, as its template draws one: the mask with the fill, the name and the value, then the hover box.
+    function fitnessRow() {
+        var row = element('div', FIT_ROW);
+        var bar = row.appendChild(element('div', 'progress-bar-wrapper'));
+        var mask = bar.appendChild(element('div', 'bar-mask'));
+        var text = element('div', 'progress-text');
+        var name = element('span', 'attr-name');
+        var tip = element('div', 'status-tooltip last-row-fix');
+        var header = tip.appendChild(element('div', 'st-header'));
+
+        // The page hands the game only the areas marked this way, so the pointer over the bar is not taken as a click
+        // on the world behind it.
+        bar.setAttribute('data-interactive', '');
+        mask.appendChild(element('div', 'progress-fill'));
+        mask.appendChild(text);
+        text.appendChild(name);
+        name.appendChild(element('span', '')).textContent = FIT_ICON;
+        name.appendChild(element('span', 'vs-fit-name'));
+        text.appendChild(element('span', 'vs-fit-value'));
+        header.appendChild(element('div', 'st-title'));
+        header.appendChild(element('div', 'st-value'));
+        tip.appendChild(element('div', 'st-body vs-fit-about'));
+        bar.appendChild(tip);
+
+        return row;
+    }
+
+    function drawFitnessBar(bar, value, max) {
+        var text = say();
+        var level = fitnessLevel(value);
+        var fill = bar.querySelector('.progress-fill');
+        var tip = ownChild(bar, 'status-tooltip');
+        var about = ownChild(tip, 'vs-fit-about');
+        var state = level === 'weak' ? [text.weakened, 'vs-bad']
+            : level === 'low' ? [text.nearWeakened(value - WEAKENED_BELOW + 1), 'vs-warn']
+            : [text.aboveWeakened(value - WEAKENED_BELOW)];
+
+        // The game's own colors, and the pulsing red it gives a bar that is nearly empty for Weakened.
+        setClass(bar, 'is-low', level === 'weak');
+        setClass(fill, 'bar-green', level === 'ok');
+        setClass(fill, 'bar-yellow', level === 'low');
+        setStyle(fill, 'transform', 'scaleX(' + Math.max(0, Math.min(1, value / max)).toFixed(4) + ')');
+        setText(bar.querySelector('.vs-fit-name'), text.fitness);
+        setText(bar.querySelector('.vs-fit-value'), String(value));
+        setText(tip.querySelector('.st-title'), text.fitness);
+        setText(tip.querySelector('.st-value'), value + '/' + max);
+        setText(about, text.fitAbout);
+        setMark(tip, 'data-vs-no-game-text', isTooltipOn() && !isGameTextOn());
+        drawBlock(tip, 'vs-st', 'div', 'st-body vs-st', isTooltipOn() ? [state] : [], about);
+    }
+
+    function fitnessLevel(value) {
+        if (value < WEAKENED_BELOW) return 'weak';
+        if (value < LOW_FITNESS_BELOW) return 'low';
+
+        return 'ok';
+    }
+
+    function dropFitness() {
+        var rows = document.querySelectorAll('.' + FIT_ROW);
+        var panels = document.querySelectorAll('.status-panel');
+        var i;
+
+        for (i = 0; i < rows.length; i++) {
+            if (rows[i].parentElement) rows[i].parentElement.removeChild(rows[i]);
+        }
+
+        for (i = 0; i < panels.length; i++) setMark(panels[i], FIT_MARK, false);
+
+        if (rows.length) syncClicks();
+    }
+
+    // The page's click-through measures the marked areas again after a change of layout; without this the Fitness
+    // bar's area is learned only at the page's next own redraw.
+    function syncClicks() {
+        var core = pageGlobal('core');
+
+        if (core && core.clickThrough && typeof core.clickThrough.syncNowAfterReflow === 'function') core.clickThrough.syncNowAfterReflow();
+    }
+
+    function pageGlobal(name) {
+        try {
+            return (0, eval)(name);
+        } catch (e) {
+            return undefined;
+        }
     }
 
     // ===== Buff timers =====
@@ -839,6 +994,8 @@
     }
 
     function clear() {
+        dropFitness();
+
         for (var i = 0; i < DRAWN.length; i++) {
             var nodes = document.querySelectorAll('.' + DRAWN[i]);
 
@@ -916,9 +1073,10 @@
         return made;
     }
 
-    // The bars drawn at BarSize and the buffs beside them at BuffSize: rules in their own style node, rewritten only
-    // when a size changes. A size of 1 needs no rule.
-    function drawZoom(barZoom, buffZoom) {
+    // The bars drawn at BarSize, the buffs beside them at BuffSize and the bars' hover boxes at BarTooltipSize: rules in
+    // their own style node, rewritten only when a size changes. A size of 1 needs no rule. A hover box sits inside its
+    // zoomed bar and zoom multiplies, so the box's own zoom is its size over the bar's.
+    function drawZoom(barZoom, buffZoom, tipZoom) {
         var style = document.getElementById(ZOOM_ID);
 
         if (!style) {
@@ -927,13 +1085,18 @@
             document.head.appendChild(style);
         }
 
-        setText(style, zoomRule('progress-bar-wrapper', barZoom) + zoomRule('buff-container', buffZoom));
+        var barSize = sizeOf(barZoom);
+        var tipSize = Math.round(sizeOf(tipZoom) / barSize * 10000) / 10000;
+
+        setText(style, zoomRule(BAR_BOXES, barSize) + zoomRule(BUFF_BOXES, sizeOf(buffZoom)) + zoomRule(BAR_TIPS, tipSize));
     }
 
-    function zoomRule(className, zoom) {
-        var size = zoom > 0 ? Number(zoom) : 1;
+    function sizeOf(zoom) {
+        return zoom > 0 ? Number(zoom) : 1;
+    }
 
-        return size === 1 ? '' : '.status-panel > .status-row > .' + className + '{zoom:' + size + '}';
+    function zoomRule(selector, size) {
+        return size === 1 ? '' : selector + '{zoom:' + size + '}';
     }
 
     function addStyle() {

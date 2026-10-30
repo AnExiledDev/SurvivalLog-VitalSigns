@@ -26,7 +26,13 @@ public readonly record struct WellFedLine(int From, int Until, int Max);
 /// Stamina, Life. Now is the game clock in game seconds, which the buff ends are measured on.
 /// </summary>
 public sealed record Vitals(IReadOnlyList<StatRatios> Stats, IReadOnlyList<BuffTime> Buffs, int Now, CarryWeight? Weight, WellFedLine? WellFed,
-    Details? Details = null);
+    Details? Details = null, FitnessReading? Fitness = null);
+
+/// <summary>
+/// The player's Fitness as the game would draw it on a bar: the value rounded to a whole number, and the maximum. In the
+/// game's code this stat is Health (AttrName 4, its maximum AttrName 104); players see it as Fitness.
+/// </summary>
+public readonly record struct FitnessReading(int Value, int Max);
 
 /// <summary>An item a tooltip lists as a cure or suppressor: its name, its web icon path and how many the player has at home.</summary>
 public readonly record struct ItemCount(int Id, string Name, string Icon, int Count);
@@ -41,9 +47,12 @@ public readonly record struct FoodMod(int Stat, int Food, double Ratio);
 public sealed record Details(IReadOnlyList<double> Max, IReadOnlyList<IReadOnlyList<LossLine>> Coming, IReadOnlyList<BuffRule> Rules, double ColdFactor,
     IReadOnlyList<ItemCount> Items, string SuppressedBy, IReadOnlyList<string> Foods, IReadOnlyList<FoodMod> FoodMods);
 
-/// <summary>Which parts the player turned on in the config, and how big the stat bars and their buffs are drawn (percent).</summary>
+/// <summary>
+/// Which parts the player turned on in the config, and how big the stat bars, their buffs and the bars' hover boxes are
+/// drawn (percent).
+/// </summary>
 public sealed record Options(bool Weight = true, bool Stripes = true, bool Tooltips = true, bool GameText = true, bool Cures = true, int BarSize = Core.BarSize.Default,
-    int BuffSize = Core.BarSize.Default);
+    int BuffSize = Core.BarSize.Default, bool Fitness = true, int TooltipSize = Core.BarSize.TooltipDefault);
 
 /// <summary>Game names the page quotes, in the game's current language.</summary>
 public sealed record GameNames(string WellFed, string Overweight);

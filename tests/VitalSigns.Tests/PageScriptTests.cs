@@ -618,27 +618,30 @@ public class PageScriptTests
 
     // ===== Bar size =====
 
-    private const string BarRule = ".status-panel > .status-row > .progress-bar-wrapper{zoom:";
+    private const string BarRule = ".status-panel > .status-row > .progress-bar-wrapper,.status-panel > .vs-fit-row > .progress-bar-wrapper{zoom:";
     private const string BuffRule = ".status-panel > .status-row > .buff-container{zoom:";
+    private const string TipRule = ".status-panel .progress-bar-wrapper > .status-tooltip{zoom:";
 
+    /// <summary>The hover boxes sit inside the zoomed bars and zoom multiplies, so at the 80% bars they get 1/0.8 to show at
+    /// the game's own size.</summary>
     [Fact]
-    public void Bars_and_buffs_start_at_the_same_size()
+    public void Bars_and_buffs_start_at_the_same_size_and_the_hover_boxes_at_the_game_size()
     {
         var page = PageScript.On();
 
         page.Apply(0, Readings.Data());
 
-        Assert.Equal(BarRule + "0.8}" + BuffRule + "0.8}", page.Text("document.getElementById('vs-zoom').textContent"));
+        Assert.Equal(BarRule + "0.8}" + BuffRule + "0.8}" + TipRule + "1.25}", page.Text("document.getElementById('vs-zoom').textContent"));
     }
 
     [Fact]
-    public void The_bar_size_no_longer_scales_the_buffs()
+    public void The_bar_size_no_longer_scales_the_buffs_or_the_hover_boxes()
     {
         var page = PageScript.On();
 
         page.Apply(0, Readings.Data(options: new Options(BarSize: 120)));
 
-        Assert.Equal(BarRule + "1.2}" + BuffRule + "0.8}", page.Text("document.getElementById('vs-zoom').textContent"));
+        Assert.Equal(BarRule + "1.2}" + BuffRule + "0.8}" + TipRule + "0.8333}", page.Text("document.getElementById('vs-zoom').textContent"));
     }
 
     [Fact]
@@ -648,7 +651,21 @@ public class PageScriptTests
 
         page.Apply(0, Readings.Data(options: new Options(BuffSize: 130)));
 
-        Assert.Equal(BarRule + "0.8}" + BuffRule + "1.3}", page.Text("document.getElementById('vs-zoom').textContent"));
+        Assert.Equal(BarRule + "0.8}" + BuffRule + "1.3}" + TipRule + "1.25}", page.Text("document.getElementById('vs-zoom').textContent"));
+    }
+
+    [Fact]
+    public void The_hover_box_size_is_its_own_whatever_the_bar_size()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Readings.Data(options: new Options(BarSize: 100, BuffSize: 100, TooltipSize: 120)));
+
+        Assert.Equal(TipRule + "1.2}", page.Text("document.getElementById('vs-zoom').textContent"));
+
+        page.Apply(2, Readings.Data(options: new Options(BarSize: 60, BuffSize: 100, TooltipSize: 60)));
+
+        Assert.Equal(BarRule + "0.6}", page.Text("document.getElementById('vs-zoom').textContent"));
     }
 
     [Fact]
@@ -663,5 +680,133 @@ public class PageScriptTests
         page.Apply(2, Readings.Data(options: new Options(BarSize: 100, BuffSize: 60)));
 
         Assert.Equal(BuffRule + "0.6}", page.Text("document.getElementById('vs-zoom').textContent"));
+    }
+
+    // ===== Fitness =====
+
+    private const string FitRow = "childWith(page.panel, 'vs-fit-row')";
+    private const string FitBar = FitRow + ".children[0]";
+    private const string FitTip = "childWith(" + FitBar + ", 'status-tooltip')";
+
+    private static string Fit(int value, int max = 100, Options? options = null, bool isChinese = false) =>
+        Readings.Data(fitness: new FitnessReading(value, max), options: options, isChinese: isChinese);
+
+    [Fact]
+    public void Fitness_gets_a_bar_of_the_game_s_own_build_after_the_stat_rows()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Fit(72));
+
+        Assert.Equal(5, page.Number("page.panel.children.length"));
+        Assert.True(page.Is($"page.panel.children[4] === {FitRow}"));
+        Assert.True(page.Is($"{FitBar}.classList.contains('progress-bar-wrapper') && {FitBar}.hasAttribute('data-interactive')"));
+        Assert.Equal("Fitness", page.Text($"{FitBar}.querySelector('.vs-fit-name').textContent"));
+        Assert.Equal("72", page.Text($"{FitBar}.querySelector('.vs-fit-value').textContent"));
+        Assert.Equal("scaleX(0.7200)", page.Text($"{FitBar}.querySelector('.progress-fill').style.transform"));
+        Assert.Equal("72/100", page.Text($"{FitTip}.querySelector('.st-value').textContent"));
+        Assert.Contains("Below 30 you become Weakened", page.Text($"childWith({FitTip}, 'vs-fit-about').textContent"));
+    }
+
+    [Fact]
+    public void Fitness_is_green_when_fine_amber_near_Weakened_and_red_below_30()
+    {
+        var page = PageScript.On();
+        var fill = $"{FitBar}.querySelector('.progress-fill')";
+
+        page.Apply(0, Fit(40));
+        Assert.True(page.Is($"{fill}.classList.contains('bar-green') && !{fill}.classList.contains('bar-yellow') && !{FitBar}.classList.contains('is-low')"));
+        Assert.Equal("10 above 30, where Weakened starts.", page.Text($"blockText({FitTip}, 'vs-st')"));
+
+        page.Apply(2, Fit(39));
+        Assert.True(page.Is($"{fill}.classList.contains('bar-yellow') && !{fill}.classList.contains('bar-green') && !{FitBar}.classList.contains('is-low')"));
+        Assert.Equal("Close to Weakened: 10 more lost and it drops below 30.", page.Text($"blockText({FitTip}, 'vs-st')"));
+        Assert.True(page.Is($"childWith({FitTip}, 'vs-st').children[0].classList.contains('vs-warn')"));
+
+        page.Apply(4, Fit(29));
+        Assert.True(page.Is($"{FitBar}.classList.contains('is-low') && !{fill}.classList.contains('bar-yellow') && !{fill}.classList.contains('bar-green')"));
+        Assert.Equal("Below 30, so you are Weakened.", page.Text($"blockText({FitTip}, 'vs-st')"));
+        Assert.True(page.Is($"childWith({FitTip}, 'vs-st').children[0].classList.contains('vs-bad')"));
+    }
+
+    [Fact]
+    public void The_Fitness_state_line_sits_above_the_description_like_the_other_bars()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Fit(50));
+
+        Assert.True(page.Is($"{FitTip}.children.indexOf(childWith({FitTip}, 'vs-st')) === {FitTip}.children.indexOf(childWith({FitTip}, 'vs-fit-about')) - 1"));
+    }
+
+    [Fact]
+    public void The_Fitness_row_is_drawn_once_and_kept_last()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Fit(60));
+        page.Run("page.panel.appendChild(new FakeElement('div', 'status-row'))");
+        page.Apply(2, Fit(61));
+
+        Assert.Equal(1, page.Number("document.querySelectorAll('.vs-fit-row').length"));
+        Assert.True(page.Is($"page.panel.children[page.panel.children.length - 1] === {FitRow}"));
+        Assert.Equal("61", page.Text($"{FitBar}.querySelector('.vs-fit-value').textContent"));
+    }
+
+    [Fact]
+    public void The_panel_is_marked_while_the_Fitness_row_is_in_it()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Fit(60));
+        Assert.True(page.Is("page.panel.hasAttribute('data-vs-fit')"));
+
+        page.Apply(2, Readings.Data());
+        Assert.False(page.Is("page.panel.hasAttribute('data-vs-fit')"));
+        Assert.Equal(0, page.Number("document.querySelectorAll('.vs-fit-row').length"));
+    }
+
+    [Fact]
+    public void With_no_player_the_Fitness_row_is_taken_away()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Fit(60));
+        page.Apply(2, PageData.NoPlayer);
+
+        Assert.Equal(0, page.Number("document.querySelectorAll('.vs-fit-row').length"));
+        Assert.False(page.Is("page.panel.hasAttribute('data-vs-fit')"));
+    }
+
+    [Fact]
+    public void With_the_Fitness_bar_off_no_row_is_drawn()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Fit(60, options: new Options(Fitness: false)));
+
+        Assert.Equal(0, page.Number("document.querySelectorAll('.vs-fit-row').length"));
+    }
+
+    [Fact]
+    public void With_the_game_text_off_the_Fitness_box_keeps_only_its_state_line()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Fit(60, options: new Options(GameText: false)));
+
+        Assert.True(page.Is($"{FitTip}.hasAttribute('data-vs-no-game-text')"));
+        Assert.Equal("30 above 30, where Weakened starts.", page.Text($"blockText({FitTip}, 'vs-st')"));
+    }
+
+    [Fact]
+    public void A_Chinese_game_gets_the_Fitness_text_in_Chinese()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Fit(35, isChinese: true));
+
+        Assert.Equal("健康", page.Text($"{FitBar}.querySelector('.vs-fit-name').textContent"));
+        Assert.Equal("接近「亚健康」：再降低 6 点就会低于30。", page.Text($"blockText({FitTip}, 'vs-st')"));
     }
 }

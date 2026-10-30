@@ -13,8 +13,8 @@ internal static class Readings
         new[] { satiety ?? Unscaled, morale ?? Unscaled, stamina ?? Unscaled, life ?? Unscaled };
 
     public static string Data(IReadOnlyList<StatRatios>? stats = null, IReadOnlyList<BuffTime>? buffs = null, CarryWeight? weight = null, WellFedLine? wellFed = null,
-        bool isChinese = false, GameNames? names = null, Details? details = null, Options? options = null) =>
-        PageData.Of(new Vitals(stats ?? Stats(), buffs ?? Array.Empty<BuffTime>(), 0, weight, wellFed, details), names ?? English, isChinese, options);
+        bool isChinese = false, GameNames? names = null, Details? details = null, Options? options = null, FitnessReading? fitness = null) =>
+        PageData.Of(new Vitals(stats ?? Stats(), buffs ?? Array.Empty<BuffTime>(), 0, weight, wellFed, details, fitness), names ?? English, isChinese, options);
 
     public static readonly double[] None = { 0, 0, 0, 0 };
 

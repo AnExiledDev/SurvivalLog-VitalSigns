@@ -1,6 +1,6 @@
 # Vital Signs
 
-Shows more about your stats on the HUD: how each stat's gains and losses are scaled right now, how much running debuffs will still take, where Well Fed starts and ends on the Satiety bar, what each buff does and how much time it has left, what cures a debuff, and how much you carry. It also lets you make buffs and debuffs last longer or shorter.
+Shows more about your stats on the HUD: how each stat's gains and losses are scaled right now, how much running debuffs will still take, where Well Fed starts and ends on the Satiety bar, what each buff does and how much time it has left, what cures a debuff, how much you carry, and your Fitness, which the game never shows. It also lets you make buffs and debuffs last longer or shorter.
 
 The game's stat bars show a value and nothing else. Food, buffs and debuffs quietly change how fast each stat rises and falls, and the only way to see how long a buff lasts is to hover it. Vital Signs puts that on the bars themselves. And since every buff has a fixed time, it lets you change those times too: make good buffs last twice as long and bad ones half as long, or slow down only the ones you care about.
 
@@ -12,8 +12,10 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 - **Buff hover boxes**: a compact box with the name and time left on one line, what a buff or debuff does to each stat for the layers you have with the values lined up, a bar for the time left, and for debuffs the items that cure or suppress them with how many you have. Items you have come first. A suppressed debuff says what is holding it back.
 - **Well Fed lines on the Satiety bar**: one line where Well Fed starts and a fainter one where it ends, read from the game's own rule. The Satiety hover box says the two values.
 - **Timer stripe on buffs**: every buff or debuff that runs out gets a thin stripe along its bottom edge that shrinks as its time runs down and turns amber near the end. Buffs that last until something removes them get none.
+- **Fitness bar**: a bar under Life shows your Fitness, a stat the game keeps but never shows. It is green when fine, amber within 10 of Weakened and red below 30, where Weakened starts. Its hover box says what Fitness does and how close you are to Weakened. This replaces the Fitness Bar mod; remove `FitnessBar.dll` if you have it.
 - **Weight on the Inventory button**: the kilograms you carry and a bar with a mark where Overweight starts, amber when you are close to Overweight and red past it. Hover the button to see your carried weight, the most you can carry, where Overweight starts and how much room you have left.
-- **Bar size**: the bars are drawn at 80% of the game's size by default, and the buffs next to them shrink with them. Set any size from 50% to 150%.
+- **Sizes**: the bars and the buffs next to them are drawn at 80% of the game's size by default, and the bars' hover boxes at the game's own size so their text stays easy to read. Set each from 50% to 150%.
+- **Darker hover boxes**: the stat hover boxes are as dark as the buff ones, so the HUD behind them no longer shows through.
 - **Any language**: the lines are in English, or in Simplified Chinese when the game is set to Chinese. Buff names come from the game.
 - **Survives reloads**: the HUD can reload after a scene change; the mod notices within a couple of seconds and draws everything again.
 - **Light on the game**: the mod reads your stats every couple of seconds and only sends them to the HUD when something changed.
@@ -32,6 +34,7 @@ The HUD part only reads your stats and draws them. With every multiplier at 1, t
 - Values are read every couple of seconds, so a change can take that long to show.
 - The loss shading is an estimate from the debuffs running now. Natural drain, new debuffs and anything you eat or use are not in it.
 - Stats UI draws much of the same; use one or the other.
+- Fitness Bar draws the same Fitness bar. With both installed you get two; remove `FitnessBar.dll`.
 - A buff made to last a very long time shows a large hour count in its hover box, such as `12000:00` for 500 days. The game shows buff times in hours and minutes only.
 - Multipliers changed while the game is closed apply to new buffs only. Buffs already running in a save keep the time they had when the game was saved.
 
@@ -56,7 +59,7 @@ Delete `VitalSigns.dll` from the `BepInEx\plugins` folder. For a clean slate, al
 
 ## Configuration
 
-Settings live in `BepInEx\config\com.dev.survivallog.vitalsigns.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Changes take effect at the next game start. Each setting in the cfg file is explained in English and Simplified Chinese. Each part (the weight, the timer stripes, the hover box details, the game's own stat text and the cure lists) can be turned off, and `BarSize` and `BuffSize` set how big the bars and the buffs are drawn. See [CONFIG.md](CONFIG.md) for every setting.
+Settings live in `BepInEx\config\com.dev.survivallog.vitalsigns.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Changes take effect at the next game start. Each setting in the cfg file is explained in English and Simplified Chinese. Each part (the Fitness bar, the weight, the timer stripes, the hover box details, the game's own stat text and the cure lists) can be turned off, and `BarSize`, `BuffSize` and `BarTooltipSize` set how big the bars, the buffs and the bars' hover boxes are drawn. See [CONFIG.md](CONFIG.md) for every setting.
 
 For buff times, open the Mod Manager, go to Vital Signs and pick the Timers tab. Set the good and bad multipliers and the category ones at the top, and a single buff's multiplier in its row, then press Save. The changes take effect at once, on buffs already running too. The good, bad and category multipliers are also in the cfg file, and single buffs are in `BepInEx\config\VitalSigns.Timers.json`.
 
@@ -64,7 +67,7 @@ For buff times, open the Mod Manager, go to Vital Signs and pick the Timers tab.
 
 Tested on Survival Log 1.1.20151 with BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.5.0 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
+Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.6.0 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
 
 Once a game has loaded, look for `page script sent to CoreUI1 (install 1): the stat bars show the readings`. A line ending `no stat bars on the HUD right now` means the mod could not find the stat bars.
 
@@ -80,6 +83,7 @@ To reach me directly, message `exiled.dev` on Discord; you can find me in the [o
 
 ## Changelog
 
+- **0.6.0**: A Fitness bar under Life, which replaces the Fitness Bar mod, a separate size for the bars' hover boxes, and darker stat hover boxes.
 - **0.5.0**: Set how long buffs and debuffs last, with a Timers tab in the Mod Manager that lists every buff.
 - **0.4.0**: Bigger buffs with their own BuffSize setting, and the old buff hover box no longer flashes up first.
 - **0.3.1**: The gain multiplier sits after the stat's name instead of on top of it.

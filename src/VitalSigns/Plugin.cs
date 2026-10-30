@@ -17,7 +17,7 @@ namespace VitalSigns;
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.vitalsigns";
-    private const string Version = "0.5.0";
+    private const string Version = "0.6.0";
     private const string ModManagerGuid = "com.dev.survivallog.modmanager";
     private const string TimersFileName = "VitalSigns.Timers.json";
 
@@ -36,8 +36,8 @@ public sealed class Plugin : BasePlugin
     public override void Load()
     {
         var isEnabled = Config.Bind("VitalSigns", "Enabled", true, new ConfigDescription(
-            "Show more on the HUD: how each stat's gains and losses are scaled, shading for the losses still to come, the Well Fed lines on the Satiety bar, a timer stripe on each buff that ends, buff effects and cures in the tooltips, and the weight you carry on the Inventory button. Also applies the buff time multipliers. Off: the mod does nothing and every buff keeps the game's own time. Takes effect at the next game start.\n" +
-            "在屏幕上显示更多信息：各项属性的增减倍率、即将扣除数值的阴影、「饱腹」条上的「饱腹富余」界线、每个有时限的状态上的计时条、提示中的状态效果与解药，以及「背包」按钮上的当前负重。同时应用状态持续时间倍数。关闭后本模组不做任何改动，所有状态使用游戏原本的时间。下次启动游戏时生效。", null, "ModManager.Restart")).Value;
+            "Show more on the HUD: how each stat's gains and losses are scaled, shading for the losses still to come, the Well Fed lines on the Satiety bar, a timer stripe on each buff that ends, buff effects and cures in the tooltips, the weight you carry on the Inventory button and a Fitness bar under the Life bar. Also applies the buff time multipliers. Off: the mod does nothing and every buff keeps the game's own time. Takes effect at the next game start.\n" +
+            "在屏幕上显示更多信息：各项属性的增减倍率、即将扣除数值的阴影、「饱腹」条上的「饱腹富余」界线、每个有时限的状态上的计时条、提示中的状态效果与解药，「背包」按钮上的当前负重，以及「生命」条下方的健康条。同时应用状态持续时间倍数。关闭后本模组不做任何改动，所有状态使用游戏原本的时间。下次启动游戏时生效。", null, "ModManager.Restart")).Value;
         var log = new VsLog(Log, Path.Combine(Paths.BepInExRootPath, "vital-signs.log"));
 
         if (!isEnabled)
@@ -107,16 +107,25 @@ public sealed class Plugin : BasePlugin
             "List the items that cure or suppress a debuff in its tooltip, with how many of each you have. Only applies when ExtendedTooltips is on.",
             "在负面状态的提示中列出可以治愈或压制它的物品，以及你拥有的数量。仅在开启 ExtendedTooltips 时生效。");
 
+        var fitness = Bind("FitnessBar",
+            "Show a Fitness bar under the Life bar, with a hover box that says what Fitness does and how close you are to Weakened.",
+            "在「生命」条下方显示健康条，悬停提示说明健康的作用以及距离「亚健康」还有多远。");
+
         var barSize = Config.Bind("Display", "BarSize", BarSize.Default, new ConfigDescription(
-            "How big the Satiety, Morale, Stamina and Life bars are drawn, in percent of the game's size, from 50 to 150. Their hover boxes grow and shrink with them. 100 is the game's size.\n" +
-            "「饱腹」「心情」「体力」「生命」属性条的显示大小，为游戏原尺寸的百分比，范围 50 到 150。属性条的悬停提示会一起缩放。100 为游戏原尺寸。",
+            "How big the Satiety, Morale, Stamina, Life and Fitness bars are drawn, in percent of the game's size, from 50 to 150. 100 is the game's size. Their hover boxes have their own size, BarTooltipSize.\n" +
+            "「饱腹」「心情」「体力」「生命」和健康条的显示大小，为游戏原尺寸的百分比，范围 50 到 150。100 为游戏原尺寸。属性条的悬停提示大小由 BarTooltipSize 单独设置。",
             new AcceptableValueRange<int>(BarSize.Min, BarSize.Max), "ModManager.Restart")).Value;
         var buffSize = Config.Bind("Display", "BuffSize", BarSize.Default, new ConfigDescription(
             "How big the buffs next to the bars are drawn, in percent of the game's size, from 50 to 150. Their hover boxes grow and shrink with them. At the same number as BarSize they sit in proportion to the bars. 100 is the game's size.\n" +
             "属性条旁状态的显示大小，为游戏原尺寸的百分比，范围 50 到 150。状态的悬停提示会一起缩放。与 BarSize 数值相同时，状态与属性条比例协调。100 为游戏原尺寸。",
             new AcceptableValueRange<int>(BarSize.Min, BarSize.Max), "ModManager.Restart")).Value;
 
-        return new Options(weight, stripes, tooltips, gameText, cures, barSize, buffSize);
+        var tooltipSize = Config.Bind("Display", "BarTooltipSize", BarSize.TooltipDefault, new ConfigDescription(
+            "How big the hover boxes of the Satiety, Morale, Stamina, Life and Fitness bars are drawn, in percent of the game's size, from 50 to 150, whatever BarSize is. 100 is the game's size.\n" +
+            "「饱腹」「心情」「体力」「生命」和健康条悬停提示的显示大小，为游戏原尺寸的百分比，范围 50 到 150，不受 BarSize 影响。100 为游戏原尺寸。",
+            new AcceptableValueRange<int>(BarSize.Min, BarSize.Max), "ModManager.Restart")).Value;
+
+        return new Options(weight, stripes, tooltips, gameText, cures, barSize, buffSize, fitness, tooltipSize);
 
         bool Bind(string key, string english, string chinese) =>
             Config.Bind("Display", key, true, new ConfigDescription(english + "\n" + chinese, null, "ModManager.Restart")).Value;

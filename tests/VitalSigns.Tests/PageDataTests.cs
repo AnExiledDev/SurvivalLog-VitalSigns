@@ -15,7 +15,7 @@ public class PageDataTests
             new WellFedLine(80, 60, 100));
 
         Assert.Equal("{zh:false,stats:[[0.25,-0.5,0,0.1],[0,0,0,0],[0,0,0,0],[0,0,1,0]],buffs:[[1300,90000,21600,1,0],[4,95000,0,1,0]],"
-            + "weight:[12345,20000,16000],wellFed:[80,60,100],names:{wellFed:\"Well Fed\",overweight:\"Overweight\"},opt:[1,1,1,1,1],zoom:0.8,buffZoom:0.8}", data);
+            + "weight:[12345,20000,16000],wellFed:[80,60,100],names:{wellFed:\"Well Fed\",overweight:\"Overweight\"},opt:[1,1,1,1,1],zoom:0.8,buffZoom:0.8,tipZoom:1,fit:null}", data);
     }
 
     [Fact]
@@ -103,8 +103,28 @@ public class PageDataTests
 
         var data = Readings.Data(details: details);
 
-        Assert.EndsWith(",opt:[1,1,1,1,1],zoom:0.8,buffZoom:0.8,max:[100,100,120,80],coming:[[],[],[],[[1111,6.67,9000]]],"
+        Assert.EndsWith(",opt:[1,1,1,1,1],zoom:0.8,buffZoom:0.8,tipZoom:1,fit:null,max:[100,100,120,80],coming:[[],[],[],[[1111,6.67,9000]]],"
             + "info:{1111:[\"Cut\",0,2,[[\"e\",3,-2],[\"g\",0,0.5]],[2400,2401],[2916],1]},"
             + "items:{2400:[\"Bandage\",\"Icons/bandage.png\",3]},by:\"Morphine\",foods:[\"Meat\",\"Fruit\"],food:[[0,2,-0.25]]}", data);
+    }
+
+    [Fact]
+    public void Fitness_reaches_the_page_as_its_value_and_maximum()
+    {
+        Assert.Contains(",fit:[42,100]", Readings.Data(fitness: new FitnessReading(42, 100)));
+    }
+
+    [Fact]
+    public void With_the_Fitness_bar_off_or_no_reading_fitness_goes_as_null()
+    {
+        Assert.Contains(",fit:null", Readings.Data(fitness: new FitnessReading(42, 100), options: new Options(Fitness: false)));
+        Assert.Contains(",fit:null", Readings.Data());
+    }
+
+    [Fact]
+    public void The_hover_box_size_reaches_the_page_on_its_own()
+    {
+        Assert.Contains(",zoom:1.2,buffZoom:0.8,tipZoom:1,", Readings.Data(options: new Options(BarSize: 120)));
+        Assert.Contains(",zoom:0.8,buffZoom:0.8,tipZoom:1.3,", Readings.Data(options: new Options(TooltipSize: 130)));
     }
 }

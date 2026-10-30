@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0
+
+- New: a Fitness bar under the Life bar. Fitness is a stat the game keeps but never shows; it lowers your chance of getting sick, and below 30 you become Weakened.
+- The Fitness bar is green when fine, amber within 10 of Weakened and red below 30. Its hover box says what Fitness does and how close you are to Weakened.
+- This replaces the Fitness Bar mod. Remove `FitnessBar.dll` if you have it, or you get two bars. The new FitnessBar setting turns it off.
+- New: the BarTooltipSize setting sets how big the bars' hover boxes are drawn, from 50% to 150%, apart from BarSize. It starts at 100%, the game's size, so the hover box text is bigger than before.
+- The stat hover boxes are darker, the same as the buff ones, so the HUD behind them no longer shows through.
+
 ## 0.5.0
 
 - New: make buffs and debuffs last longer or shorter, from 0.1x to 100x. Good buffs and bad buffs each have their own multiplier.

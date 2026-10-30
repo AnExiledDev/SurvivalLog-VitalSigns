@@ -44,7 +44,15 @@ internal static class PlayerVitals
         var now = clock.GetTotalSeconds();
 
         return new Vitals(stats, buffs, now, Weight(AgentTools.GetAgentComponent<BagComponent>(role)), WellFed(attributes),
-            Details(world!, attributes, component, stats, buffs, now, options, isChinese));
+            Details(world!, attributes, component, stats, buffs, now, options, isChinese), Fitness(attributes));
+    }
+
+    /// <summary>Fitness the way the game reads its own bars (LeadingRole.SyncAttr2UI): the value rounded from its float total, the maximum a whole number.</summary>
+    private static FitnessReading? Fitness(AttributeComponent attributes)
+    {
+        if (!attributes.AttrDict.ContainsKey(AttrName.Health)) return null;
+
+        return new FitnessReading((int)Math.Round(attributes.GetTotalValue_Float(AttrName.Health)), attributes.GetTotalValue_Int(AttrName.MaxHealth));
     }
 
     private static Details? Details(BattleLogicWorld world, AttributeComponent attributes, BuffComponent? component, List<StatRatios> stats, List<BuffTime> buffs,
