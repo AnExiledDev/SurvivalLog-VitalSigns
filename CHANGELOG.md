@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.4
+
+- The Timers tab now shows buff names and descriptions in English when the game is in English. Before, they could show in Chinese.
+- The Timers tab's category names are no longer cut off, the filter buttons are the right size, and rows no longer show through above the table header.
+- BarTooltipSize now starts at 80%, the same as BarSize and BuffSize. A size you already set is kept.
+- Made for Survival Log 1.1.20151.
+
 ## 0.7.3
 
 - Hover over the multiplier chip on a bar to see what makes it up: each buff that raises or lowers the stat's gain, with its amount, and anything else as Other.

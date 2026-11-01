@@ -823,13 +823,13 @@ public class PageScriptTests
     /// <summary>The hover boxes sit inside the zoomed bars and zoom multiplies, so at the 80% bars they get 1/0.8 to show at
     /// the game's own size.</summary>
     [Fact]
-    public void Bars_and_buffs_start_at_the_same_size_and_the_hover_boxes_at_the_game_size()
+    public void Bars_buffs_and_the_bars_hover_boxes_start_at_the_same_size()
     {
         var page = PageScript.On();
 
         page.Apply(0, Readings.Data());
 
-        Assert.Equal(BarRule + "0.8}" + BuffRule + "0.8}" + TipRule + "1.25}", page.Text("document.getElementById('vs-zoom').textContent"));
+        Assert.Equal(BarRule + "0.8}" + BuffRule + "0.8}", page.Text("document.getElementById('vs-zoom').textContent"));
     }
 
     [Fact]
@@ -839,7 +839,7 @@ public class PageScriptTests
 
         page.Apply(0, Readings.Data(options: new Options(BarSize: 120)));
 
-        Assert.Equal(BarRule + "1.2}" + BuffRule + "0.8}" + TipRule + "0.8333}", page.Text("document.getElementById('vs-zoom').textContent"));
+        Assert.Equal(BarRule + "1.2}" + BuffRule + "0.8}" + TipRule + "0.6667}", page.Text("document.getElementById('vs-zoom').textContent"));
     }
 
     [Fact]
@@ -849,7 +849,7 @@ public class PageScriptTests
 
         page.Apply(0, Readings.Data(options: new Options(BuffSize: 130)));
 
-        Assert.Equal(BarRule + "0.8}" + BuffRule + "1.3}" + TipRule + "1.25}", page.Text("document.getElementById('vs-zoom').textContent"));
+        Assert.Equal(BarRule + "0.8}" + BuffRule + "1.3}", page.Text("document.getElementById('vs-zoom').textContent"));
     }
 
     [Fact]
@@ -871,11 +871,11 @@ public class PageScriptTests
     {
         var page = PageScript.On();
 
-        page.Apply(0, Readings.Data(options: new Options(BarSize: 100, BuffSize: 100)));
+        page.Apply(0, Readings.Data(options: new Options(BarSize: 100, BuffSize: 100, TooltipSize: 100)));
 
         Assert.Equal("", page.Text("document.getElementById('vs-zoom').textContent"));
 
-        page.Apply(2, Readings.Data(options: new Options(BarSize: 100, BuffSize: 60)));
+        page.Apply(2, Readings.Data(options: new Options(BarSize: 100, BuffSize: 60, TooltipSize: 100)));
 
         Assert.Equal(BuffRule + "0.6}", page.Text("document.getElementById('vs-zoom').textContent"));
     }

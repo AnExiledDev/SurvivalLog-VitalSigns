@@ -58,7 +58,7 @@ Values are read every couple of seconds, so a change can take that long to show.
 Delete [font=Courier New]VitalSigns.dll[/font] from the [font=Courier New]BepInEx\plugins[/font] folder.
 
 [size=5]Configuration[/size]
-Settings are in [font=Courier New]BepInEx\config\com.dev.survivallog.vitalsigns.cfg[/font] or on the Mod Manager's Mods screen, and take effect at once. [font=Courier New]Enabled[/font] turns the mod on or off. Under Display you can turn off the Fitness bar, the weight, the timer stripes, the hover box details, the game's own stat text and the cure lists. BarSize and BuffSize set how big the bars and the buffs are drawn (80% of the game's size by default), and BarTooltipSize the bars' hover boxes (100% by default). Under Alerts you can turn off each warning, and LowAt sets how low a stat gets before it warns (20% by default).
+Settings are in [font=Courier New]BepInEx\config\com.dev.survivallog.vitalsigns.cfg[/font] or on the Mod Manager's Mods screen, and take effect at once. [font=Courier New]Enabled[/font] turns the mod on or off. Under Display you can turn off the Fitness bar, the weight, the timer stripes, the hover box details, the game's own stat text and the cure lists. BarSize, BuffSize and BarTooltipSize set how big the bars, the buffs and the bars' hover boxes are drawn (80% of the game's size by default). Under Alerts you can turn off each warning, and LowAt sets how low a stat gets before it warns (20% by default).
 
 For buff times, open the Mod Manager, go to Vital Signs and pick the Timers tab. Set the good and bad multipliers and the category ones at the top, and a single buff's multiplier in its row, then press Save. The changes take effect at once, on buffs already running too. They are also in the cfg file under Timers and TimerCategories, and single buffs are in [font=Courier New]BepInEx\config\VitalSigns.Timers.json[/font]. See [url=https://github.com/AnExiledDev/SurvivalLog-VitalSigns/blob/main/CONFIG.md]CONFIG.md[/url] for every setting.
 
@@ -125,7 +125,7 @@ Open source under MIT: [url=https://github.com/AnExiledDev/SurvivalLog-VitalSign
 从 [font=Courier New]BepInEx\plugins[/font] 文件夹中删除 [font=Courier New]VitalSigns.dll[/font]。
 
 [size=5]配置[/size]
-设置位于 [font=Courier New]BepInEx\config\com.dev.survivallog.vitalsigns.cfg[/font]，也可以在 Mod Manager 的「模组」界面修改，修改后立即生效。[font=Courier New]Enabled[/font] 用于开关模组。在 Display 分组里可以分别关闭健康条、负重显示、计时条、悬停提示详情、游戏自带的属性说明和治疗物品列表。BarSize 和 BuffSize 分别设置属性条和状态的显示大小（默认均为游戏原尺寸的 80%），BarTooltipSize 设置属性条悬停提示的大小（默认 100%）。在 Alerts 分组里可以分别关闭每项提醒，LowAt 设置属性降到多少时提醒（默认 20%）。
+设置位于 [font=Courier New]BepInEx\config\com.dev.survivallog.vitalsigns.cfg[/font]，也可以在 Mod Manager 的「模组」界面修改，修改后立即生效。[font=Courier New]Enabled[/font] 用于开关模组。在 Display 分组里可以分别关闭健康条、负重显示、计时条、悬停提示详情、游戏自带的属性说明和治疗物品列表。BarSize、BuffSize 和 BarTooltipSize 分别设置属性条、状态和属性条悬停提示的显示大小（默认均为游戏原尺寸的 80%）。在 Alerts 分组里可以分别关闭每项提醒，LowAt 设置属性降到多少时提醒（默认 20%）。
 
 状态持续时间：打开 Mod Manager，进入 Vital Signs，选择「计时」标签页。在顶部设置增益、负面和各类别的倍数，在状态所在的行设置单个状态的倍数，然后点「保存」。改动立即生效，正在生效的状态也会改变。这些倍数也在配置文件的 Timers 和 TimerCategories 分组中，单个状态的倍数在 [font=Courier New]BepInEx\config\VitalSigns.Timers.json[/font] 中。完整说明见 [url=https://github.com/AnExiledDev/SurvivalLog-VitalSigns/blob/main/CONFIG.md]CONFIG.md[/url]（英文）。
 

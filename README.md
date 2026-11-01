@@ -72,7 +72,7 @@ For buff times, open the Mod Manager, go to Vital Signs and pick the Timers tab.
 
 Tested on Survival Log 1.1.20151 with BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.7.3 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
+Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.7.4 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
 
 Once a game has loaded, look for `page script sent to CoreUI1 (install 1): the stat bars show the readings`. A line ending `no stat bars on the HUD right now` means the mod could not find the stat bars.
 
@@ -90,6 +90,7 @@ To reach me directly, message `exiled.dev` on Discord; you can find me in the [o
 
 ## Changelog
 
+- **0.7.4**: The Timers tab shows buffs in English in an English game and lays out cleanly, and BarTooltipSize starts at 80%.
 - **0.7.3**: Hovering the multiplier chip lists each buff that changes it, with its amount.
 - **0.7.2**: The gain multiplier is a solid chip left of the bar, hover boxes stay on screen, and buff descriptions show one sentence to a line.
 - **0.7.1**: The note about the Fitness Bar mod shows only for a Fitness Bar too old to turn itself off.
