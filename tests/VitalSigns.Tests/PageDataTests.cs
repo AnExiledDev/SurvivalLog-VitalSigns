@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using VitalSigns.Core;
 using Xunit;
 
@@ -127,5 +129,20 @@ public class PageDataTests
     {
         Assert.Contains(",zoom:1.2,buffZoom:0.8,tipZoom:1,", Readings.Data(options: new Options(BarSize: 120)));
         Assert.Contains(",zoom:0.8,buffZoom:0.8,tipZoom:1.3,", Readings.Data(options: new Options(TooltipSize: 130)));
+    }
+
+    [Fact]
+    public void The_multipliers_sources_go_last_per_stat()
+    {
+        var sources = new IReadOnlyList<GainSource>[] { new[] { new GainSource("Quick Jog", 0.4) }, Array.Empty<GainSource>(), Array.Empty<GainSource>(), new[] { new GainSource("Cold", -0.25) } };
+        var data = Readings.Data(details: Readings.DetailsOf(sources: sources));
+
+        Assert.EndsWith(",food:[],src:[[[\"Quick Jog\",0.4]],[],[],[[\"Cold\",-0.25]]]}", data);
+    }
+
+    [Fact]
+    public void Without_sources_the_reading_has_no_src()
+    {
+        Assert.DoesNotContain("src:", Readings.Data(details: Readings.DetailsOf()));
     }
 }

@@ -35,7 +35,7 @@
     var BAR_BOXES = '.status-panel > .status-row > .progress-bar-wrapper,.status-panel > .' + FIT_ROW + ' > .progress-bar-wrapper,' +
         '.status-panel > .status-row > .vs-chip';
     var BUFF_BOXES = '.status-panel > .status-row > .buff-container';
-    var BAR_TIPS = '.status-panel .progress-bar-wrapper > .status-tooltip';
+    var BAR_TIPS = '.status-panel .progress-bar-wrapper > .status-tooltip,.status-panel .vs-chip > .vs-ct';
     var DRAWN = ['vs-chip', 'vs-mark', 'vs-loss', 'vs-st', 'vs-timer', 'vs-bt', 'vs-btime', 'vs-bd', 'vs-weight', 'vs-wbar', 'vs-weight-tip', FIT_ROW];
     // Attributes put on the game's own tooltips, taken off again by clear. Attributes, not classes: Vue writes the whole
     // class of a tooltip each time it shows or hides it, which wiped a class of ours and showed the game's own look until
@@ -63,6 +63,7 @@
             end: function (stat) { return stat + ' when it ends'; },
             max: function (stat) { return 'Max ' + stat; },
             gainFx: function (stat) { return stat + ' gain'; },
+            other: 'Other',
             lossFx: function (stat) { return stat + ' loss'; },
             speed: 'Move speed',
             satietyFood: function (food) { return food + ' satiety'; },
@@ -101,6 +102,7 @@
             end: function (stat) { return '结束时' + stat; },
             max: function (stat) { return stat + '上限'; },
             gainFx: function (stat) { return stat + '增加'; },
+            other: '其他',
             lossFx: function (stat) { return stat + '减少'; },
             speed: '移动速度',
             satietyFood: function (food) { return food + '饱腹'; },
@@ -131,9 +133,20 @@
         '.status-panel .progress-text{text-shadow:-.6px -.6px 0 rgba(0,0,0,.85),.6px -.6px 0 rgba(0,0,0,.85),-.6px .6px 0 rgba(0,0,0,.85),.6px .6px 0 rgba(0,0,0,.85)}',
         // The multiplier: a solid chip of its own left of the bar, with the bar's corners and the buffs' shadow, so the
         // bar's name and value keep their whole width. Zoomed with the bar (BarSize).
-        '.vs-chip{flex-shrink:0;align-self:center;box-sizing:border-box;min-width:31px;height:18px;margin-right:4px;padding:0 4px;border:1px solid;border-radius:2.8px;font-size:10.5px;line-height:16px;font-weight:bold;text-align:center;color:#fff;font-variant-numeric:tabular-nums;box-shadow:.7px .7px 2.1px rgba(0,0,0,.5);text-shadow:0 .7px 1px rgba(0,0,0,.45);pointer-events:none}',
+        '.vs-chip{flex-shrink:0;align-self:center;box-sizing:border-box;min-width:31px;height:18px;margin-right:4px;padding:0 4px;border:1px solid;border-radius:2.8px;font-size:10.5px;line-height:16px;font-weight:bold;text-align:center;color:#fff;font-variant-numeric:tabular-nums;box-shadow:.7px .7px 2.1px rgba(0,0,0,.5);text-shadow:0 .7px 1px rgba(0,0,0,.45);pointer-events:none;position:relative}',
         '.vs-chip-up{background:#2e7d51;border-color:#4caf50}',
         '.vs-chip-down{background:#a83030;border-color:#e05252}',
+        // The multiplier's hover box: what makes it up, buff by buff, in the look of the game's buff boxes. It opens left
+        // of the chip as the bars' boxes do. The chip takes the mouse only while it has a box.
+        '.vs-chip[data-interactive]{pointer-events:auto}',
+        '.vs-ct{position:absolute;right:calc(100% + 9px);top:50%;transform:translateY(-50%);box-sizing:border-box;width:180px;padding:7px 9px;background:rgba(14,16,19,.93);border:1px solid rgba(255,255,255,.14);border-radius:4px;z-index:30;opacity:0;visibility:hidden;pointer-events:none;text-align:left;font-weight:normal;text-shadow:none;white-space:normal}',
+        '.vs-chip:hover > .vs-ct{opacity:1;visibility:visible}',
+        '.vs-ct::after{content:"";position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-top:var(--vs-arrow,0px);border:6px solid transparent;border-left-color:rgba(14,16,19,.93)}',
+        '.vs-ch{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:5px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,.14)}',
+        '.vs-cn{min-width:0;font-size:12px;line-height:15px;font-weight:900}',
+        '.vs-ct-up .vs-cn{color:#7bd88a}',
+        '.vs-ct-down .vs-cn{color:#ff8a80}',
+        '.vs-cm{flex-shrink:0;font-family:Consolas,monospace;font-size:11px;font-weight:bold;color:#eee}',
         // A hover box moved to stay on screen: its arrow is moved back by the same amount, so it still points at its bar
         // or badge. The game anchors a box by its top or, on the last rows, by its bottom; the margins move either.
         '.status-panel .status-tooltip::after,.status-panel .buff-tooltip::after{margin-top:var(--vs-arrow,0px);margin-bottom:calc(-1 * var(--vs-arrow,0px))}',
@@ -323,7 +336,7 @@
 
         if (!mask) return;
 
-        drawChip(row, bar, ratios ? ratios[0] : 0);
+        drawChip(row, bar, ratios ? ratios[0] : 0, stat, names);
         drawMarks(mask, wellFed);
         drawLoss(mask, stat, item);
 
@@ -341,7 +354,7 @@
     }
 
     // In the row, just before the bar. Put back there when the game adds a node in between.
-    function drawChip(row, bar, gain) {
+    function drawChip(row, bar, gain, stat, names) {
         var text = scaleText(gain);
         var chip = ownChild(row, 'vs-chip');
 
@@ -357,7 +370,71 @@
 
         setClass(chip, 'vs-chip-up', gain > 0);
         setClass(chip, 'vs-chip-down', gain < 0);
-        setText(chip, 'x' + text);
+        setText(ownChild(chip, 'vs-cx') || chip.appendChild(element('span', 'vs-cx')), 'x' + text);
+
+        var hasTip = drawChipTip(chip, stat, gain, text, names);
+
+        if (chip.hasAttribute('data-interactive') === hasTip) return;
+
+        setMark(chip, 'data-interactive', hasTip);
+        syncClicks();
+    }
+
+    // The multiplier's hover box: the stat's gain and its multiplier, then each buff's share and whatever else the
+    // game adds that no running buff accounts for. Rebuilt only when what it shows changed.
+    function drawChipTip(chip, stat, gain, text, names) {
+        var tip = ownChild(chip, 'vs-ct');
+
+        if (!isTooltipOn() || stat < 0) {
+            if (tip) chip.removeChild(tip);
+
+            return false;
+        }
+
+        var title = say().gainFx(names[stat]);
+        var rows = chipRows(stat, gain);
+        var key = JSON.stringify([title, text, gain > 0, rows]);
+
+        if (tip && tip.__vsKey === key) return true;
+
+        if (!tip) tip = chip.appendChild(element('div', 'vs-ct'));
+
+        setClass(tip, 'vs-ct-up', gain > 0);
+        setClass(tip, 'vs-ct-down', gain < 0);
+
+        while (tip.children.length) tip.removeChild(tip.children[0]);
+
+        var head = tip.appendChild(element('div', 'vs-ch'));
+
+        head.appendChild(element('span', 'vs-cn')).textContent = title;
+        head.appendChild(element('span', 'vs-cm')).textContent = 'x' + text;
+
+        for (var i = 0; i < rows.length; i++) tip.appendChild(rowNode(rows[i]));
+
+        tip.__vsKey = key;
+
+        return true;
+    }
+
+    function chipRows(stat, gain) {
+        var sources = held.src ? held.src[stat] || [] : [];
+        var rows = [];
+        var rest = gain;
+
+        for (var i = 0; i < sources.length; i++) {
+            rest -= sources[i][1];
+            addShare(rows, sources[i][0], sources[i][1]);
+        }
+
+        addShare(rows, say().other, rest);
+
+        return rows;
+    }
+
+    function addShare(rows, name, ratio) {
+        var change = percentChange(ratio);
+
+        if (change) rows.push({ k: name, v: change, c: ratio > 0 ? 'vs-good' : 'vs-bad' });
     }
 
     // The game multiplies a change by 1 + ratio. Empty when that rounds to 1, so an unscaled stat shows nothing.
@@ -719,12 +796,12 @@
         });
     }
 
-    // A stat bar or a buff badge in the stat panel, the node itself or one above it.
+    // A stat bar, a multiplier chip or a buff badge in the stat panel, the node itself or one above it.
     function hostOf(node) {
         for (var depth = 0; node && depth < BADGE_DEPTH; depth++, node = node.parentElement) {
             if (!node.classList) continue;
 
-            if (node.classList.contains('buff') || node.classList.contains('progress-bar-wrapper')) return node;
+            if (node.classList.contains('buff') || node.classList.contains('progress-bar-wrapper') || node.classList.contains('vs-chip')) return node;
 
             if (node.classList.contains('status-panel')) return null;
         }
@@ -733,6 +810,8 @@
     }
 
     function tipOfHost(host) {
+        if (host.classList.contains('vs-chip')) return ownChild(host, 'vs-ct');
+
         return ownChild(host, host.classList.contains('buff') ? 'buff-tooltip' : 'status-tooltip');
     }
 

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using VitalSigns.Core;
 using Xunit;
 
@@ -27,7 +29,7 @@ public class PageScriptTests
         page.Apply(0, Readings.Data(Readings.Stats(satiety: new StatRatios(0.5, 0, 0, 0))));
 
         Assert.Equal(PageAnswer.Ok, page.Apply(2));
-        Assert.Equal("x1.5", page.Text($"chipOf({Satiety}).textContent"));
+        Assert.Equal("x1.5", page.Text($"childWith(chipOf({Satiety}), 'vs-cx').textContent"));
     }
 
     [Fact]
@@ -69,9 +71,9 @@ public class PageScriptTests
 
         page.Apply(0, Readings.Data(Readings.Stats(satiety: new StatRatios(0.25, 0, 0, 0), morale: new StatRatios(-0.5, 0, 0, 0), life: new StatRatios(0, 0.3, 0, 0))));
 
-        Assert.Equal("x1.25", page.Text($"chipOf({Satiety}).textContent"));
+        Assert.Equal("x1.25", page.Text($"childWith(chipOf({Satiety}), 'vs-cx').textContent"));
         Assert.True(page.Is($"chipOf({Satiety}).classList.contains('vs-chip-up')"));
-        Assert.Equal("x0.5", page.Text($"chipOf({Morale}).textContent"));
+        Assert.Equal("x0.5", page.Text($"childWith(chipOf({Morale}), 'vs-cx').textContent"));
         Assert.True(page.Is($"chipOf({Morale}).classList.contains('vs-chip-down')"));
         Assert.False(page.Is($"chipOf({Life})"));
         // Its own chip left of the bar, so the bar's name and value keep the whole bar.
@@ -93,6 +95,70 @@ public class PageScriptTests
         Assert.Equal(page.Number($"{Satiety}.children.indexOf({Satiety}.querySelector('.progress-bar-wrapper'))") - 1,
             page.Number($"{Satiety}.children.indexOf(chipOf({Satiety}))"));
         Assert.Equal(1, page.Number($"{Satiety}.querySelectorAll('.vs-chip').length"));
+    }
+
+    // ===== The multiplier's hover box =====
+
+    private static IReadOnlyList<IReadOnlyList<GainSource>> SatietySources(params GainSource[] satiety) =>
+        new IReadOnlyList<GainSource>[] { satiety, Array.Empty<GainSource>(), Array.Empty<GainSource>(), Array.Empty<GainSource>() };
+
+    /// <summary>The buffs' shares add to 0.2 of the 0.4 gain; the game's other 0.2 (gear, traits) is its own line, so the
+    /// lines always add up to the chip.</summary>
+    [Fact]
+    public void The_multiplier_hover_box_lists_each_buffs_share_and_the_rest_as_other()
+    {
+        var page = PageScript.On();
+        var sources = SatietySources(new GainSource("Quick Jog", 0.3), new GainSource("Cold", -0.1));
+
+        page.Apply(0, Readings.Data(Readings.Stats(satiety: new StatRatios(0.4, 0, 0, 0)), details: Readings.DetailsOf(sources: sources)));
+
+        var lines = page.Text($"blockText(chipOf({Satiety}), 'vs-ct')").Split('\n');
+
+        Assert.EndsWith("gain x1.4", lines[0]);
+        Assert.Equal(new[] { "Quick Jog +30%", "Cold -10%", "Other +20%" }, lines[1..]);
+        Assert.True(page.Is($"childWith(chipOf({Satiety}), 'vs-ct').classList.contains('vs-ct-up')"));
+        Assert.True(page.Is($"childWith(childWith(chipOf({Satiety}), 'vs-ct'), 'vs-kv').classList.contains('vs-good')"));
+        Assert.True(page.Is($"chipOf({Satiety}).hasAttribute('data-interactive')"));
+    }
+
+    [Fact]
+    public void When_the_buffs_account_for_the_whole_multiplier_there_is_no_other_line()
+    {
+        var page = PageScript.On();
+        var sources = SatietySources(new GainSource("Hungry", -0.5));
+
+        page.Apply(0, Readings.Data(Readings.Stats(satiety: new StatRatios(-0.5, 0, 0, 0)), details: Readings.DetailsOf(sources: sources)));
+
+        var lines = page.Text($"blockText(chipOf({Satiety}), 'vs-ct')").Split('\n');
+
+        Assert.Equal(new[] { "Hungry -50%" }, lines[1..]);
+        Assert.True(page.Is($"childWith(chipOf({Satiety}), 'vs-ct').classList.contains('vs-ct-down')"));
+    }
+
+    [Fact]
+    public void With_hover_boxes_off_the_chip_has_no_box_and_lets_the_mouse_through()
+    {
+        var page = PageScript.On();
+        var data = Readings.Data(Readings.Stats(satiety: new StatRatios(0.4, 0, 0, 0)), details: Readings.DetailsOf(sources: SatietySources(new GainSource("Quick Jog", 0.4))));
+
+        page.Apply(0, data);
+        page.Apply(2, Readings.Data(Readings.Stats(satiety: new StatRatios(0.4, 0, 0, 0)), options: new Options(Tooltips: false)));
+
+        Assert.False(page.Is($"childWith(chipOf({Satiety}), 'vs-ct')"));
+        Assert.False(page.Is($"chipOf({Satiety}).hasAttribute('data-interactive')"));
+        Assert.Equal("x1.4", page.Text($"childWith(chipOf({Satiety}), 'vs-cx').textContent"));
+    }
+
+    [Fact]
+    public void The_multiplier_hover_box_moves_up_onto_the_window_like_the_others()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Readings.Data(Readings.Stats(life: new StatRatios(0.4, 0, 0, 0))));
+        page.Run($"placeBox(childWith(chipOf({Life}), 'vs-ct'), 500, 300, 2, 700)");
+        page.Run($"hover(chipOf({Life}))");
+
+        Assert.Equal("-53px", page.Text($"childWith(chipOf({Life}), 'vs-ct').style.marginTop"));
     }
 
     // ===== Hover boxes kept on screen =====
@@ -219,7 +285,7 @@ public class PageScriptTests
 
         page.Apply(0, Readings.Data(Readings.Stats(satiety: new StatRatios(0.5, 0, 0, 0)), wellFed: WellFed));
 
-        Assert.Equal("x1.5", page.Text("chipOf(page.rows[3]).textContent"));
+        Assert.Equal("x1.5", page.Text("childWith(chipOf(page.rows[3]), 'vs-cx').textContent"));
         Assert.Equal(2, page.Number("maskOf(page.rows[3]).querySelectorAll('.vs-mark').length"));
         Assert.False(page.Is("chipOf(page.rows[0])"));
     }
@@ -752,7 +818,7 @@ public class PageScriptTests
     // The multiplier chip sits beside the bar, so it is zoomed with it.
     private const string BarRule = ".status-panel > .status-row > .progress-bar-wrapper,.status-panel > .vs-fit-row > .progress-bar-wrapper,.status-panel > .status-row > .vs-chip{zoom:";
     private const string BuffRule = ".status-panel > .status-row > .buff-container{zoom:";
-    private const string TipRule = ".status-panel .progress-bar-wrapper > .status-tooltip{zoom:";
+    private const string TipRule = ".status-panel .progress-bar-wrapper > .status-tooltip,.status-panel .vs-chip > .vs-ct{zoom:";
 
     /// <summary>The hover boxes sit inside the zoomed bars and zoom multiplies, so at the 80% bars they get 1/0.8 to show at
     /// the game's own size.</summary>

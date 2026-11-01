@@ -8,7 +8,7 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 
 [size=5]Main features[/size]
 [list]
-[*][b]Gain multiplier on each bar[/b]: when something scales how much a stat gains, the bar shows it, for example x1.25 in green or x0.5 in red.[/*]
+[*][b]Gain multiplier on each bar[/b]: when something scales how much a stat gains, the bar shows it, for example x1.25 in green or x0.5 in red. Hover over it to see each buff that raises or lowers it, with its amount.[/*]
 [*][b]Coming losses shaded on each bar[/b]: the part of a bar that running debuffs will still take is shaded, so you can see where the stat will land.[/*]
 [*][b]More in the bar's hover box[/b]: the exact value, every scaled change as a percentage, your food modifiers and each loss still coming with how long it takes.[/*]
 [*][b]Buff hover boxes[/b]: a compact box with the name and time left on one line, then what a buff or debuff does to each stat and how many layers you have. Debuffs list the items that cure or suppress them, with how many you have.[/*]
@@ -76,7 +76,7 @@ Open source under MIT: [url=https://github.com/AnExiledDev/SurvivalLog-VitalSign
 
 [size=5]主要功能[/size]
 [list]
-[*][b]属性条上的增益倍率[/b]：当某项属性的增加量被放大或缩小时，属性条上会显示倍率，例如绿色的 x1.25 或红色的 x0.5。[/*]
+[*][b]属性条上的增益倍率[/b]：当某项属性的增加量被放大或缩小时，属性条上会显示倍率，例如绿色的 x1.25 或红色的 x0.5。将鼠标悬停在倍率上，可以看到每个提高或降低它的状态及其数值。[/*]
 [*][b]属性条上的即将扣除量[/b]：正在生效的减益在结束前还会扣掉的部分会以阴影标出，一眼就能看到属性会降到哪里。[/*]
 [*][b]悬停提示里的更多信息[/b]：精确数值、所有被改变的倍率（以百分比显示）、你的食物倍率，以及每一项即将扣除的数值和所需时间。[/*]
 [*][b]状态悬停提示[/b]：紧凑的提示框，名称和剩余时间在同一行，下面是增益或减益对每项属性的影响和当前层数。减益还会列出可以治愈或压制它的物品，以及你拥有的数量。[/*]

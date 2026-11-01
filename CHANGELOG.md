@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.3
+
+- Hover over the multiplier chip on a bar to see what makes it up: each buff that raises or lowers the stat's gain, with its amount, and anything else as Other.
+- Made for Survival Log 1.1.20151.
+
 ## 0.7.2
 
 - The multiplier on a bar is now a solid green or red chip just left of the bar, so the bar's name and value no longer run past its edge.

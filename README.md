@@ -6,7 +6,7 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 
 ## Features
 
-- **Gain multiplier on each bar**: when something scales how much a stat gains, a chip just left of the bar shows it, for example `x1.25` in green or `x0.5` in red.
+- **Gain multiplier on each bar**: when something scales how much a stat gains, a chip just left of the bar shows it, for example `x1.25` in green or `x0.5` in red. Hover over it to see each buff that raises or lowers it, with its amount.
 - **Coming losses shaded on each bar**: the part of a bar that running debuffs will still take before they end is shaded, so you can see where the stat will land. It counts each debuff's layers, cold resistance and how losses are scaled.
 - **More in the bar's hover box**: the exact value, every scaled change as a percentage (such as `Losses -25%` or `Natural recovery +50%`), your food modifiers, and each loss still coming with how long it takes. The game's own text can be hidden.
 - **Buff hover boxes**: a compact box with the name and time left on one line, what a buff or debuff does to each stat for the layers you have with the values lined up, a bar for the time left, and for debuffs the items that cure or suppress them with how many you have. Items you have come first. A suppressed debuff says what is holding it back.
@@ -72,7 +72,7 @@ For buff times, open the Mod Manager, go to Vital Signs and pick the Timers tab.
 
 Tested on Survival Log 1.1.20151 with BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.7.2 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
+Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.7.3 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
 
 Once a game has loaded, look for `page script sent to CoreUI1 (install 1): the stat bars show the readings`. A line ending `no stat bars on the HUD right now` means the mod could not find the stat bars.
 
@@ -90,6 +90,7 @@ To reach me directly, message `exiled.dev` on Discord; you can find me in the [o
 
 ## Changelog
 
+- **0.7.3**: Hovering the multiplier chip lists each buff that changes it, with its amount.
 - **0.7.2**: The gain multiplier is a solid chip left of the bar, hover boxes stay on screen, and buff descriptions show one sentence to a line.
 - **0.7.1**: The note about the Fitness Bar mod shows only for a Fitness Bar too old to turn itself off.
 - **0.7.0**: Low stat warnings, every setting applies at once, and a note in the Fitness hover box when the Fitness Bar mod is also installed. Exiled's Toolkit 0.11.0 is now required.

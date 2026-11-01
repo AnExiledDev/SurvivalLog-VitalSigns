@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using GameCore.HotUpdate;
 using GameCore.HotUpdate.Battle.Logic;
+using Il2CppInterop.Runtime;
 using VitalSigns.Core;
 
 namespace VitalSigns.Adapters;
@@ -121,7 +122,59 @@ internal static class PlayerVitals
 
         return new Details(max, ComingLoss.Of(now, buffs, rules, cold, losses), options.Tooltips ? ruleList : Array.Empty<BuffRule>(), cold,
             options.Tooltips && options.Cures ? Items(world, config, ruleList, isChinese) : Array.Empty<ItemCount>(), string.Join(" / ", suppressedBy),
-            options.Tooltips ? BuffBook.Foods(config, isChinese) : Array.Empty<string>(), FoodMods(attributes));
+            options.Tooltips ? BuffBook.Foods(config, isChinese) : Array.Empty<string>(), FoodMods(attributes),
+            options.Tooltips ? GainSources.Of(GainParts(world, component, config, isChinese), BuffRule.Stats) : null);
+    }
+
+    /// <summary>
+    /// What each running buff adds to a stat's gain ratio, as the game itself recorded it when the buff applied
+    /// (AE_BuffAdd5Attr.AddHistory, kept in the buff effect's AttrHistory). A suppressed buff's record is not applied and
+    /// is left out. Only read: the history is looked up, never made.
+    /// </summary>
+    private static List<(int Stat, string Name, double Ratio)> GainParts(BattleLogicWorld world, BuffComponent? component, ConfigManager config, bool isChinese)
+    {
+        var parts = new List<(int Stat, string Name, double Ratio)>();
+        var effects = world._BTEffectManager;
+        var map = component?.buffArgsMap;
+
+        if (effects == null || map == null) return parts;
+
+        try
+        {
+            var key = Il2CppType.Of<AttrHistory>();
+            var scaling = (double)GameKey.Attr_ScalingRatio;
+
+            if (!(scaling > 0)) return parts;
+
+            foreach (var buff in map.Values)
+            {
+                var buffConfig = buff?.config;
+                var children = buffConfig == null ? null : effects.GetBtArgsById(buff!.EffectBtArgsID)?.ChildArgsMap;
+
+                if (children == null || !children.ContainsKey(key)) continue;
+
+                var records = children[key]?.TryCast<AttrHistory>()?.AttrDataList;
+
+                if (records == null) continue;
+
+                var name = BuffBook.Rule(config, buffConfig!.ID, isChinese)?.Name ?? ("#" + buffConfig.ID);
+
+                foreach (var record in records.Values)
+                {
+                    if (record == null || !record.IsApplied) continue;
+
+                    var stat = Array.FindIndex(Rows, row => row.Gain == record.Name);
+
+                    if (stat >= 0) parts.Add((stat, name, record.Value / scaling));
+                }
+            }
+        }
+        catch (Exception)
+        {
+            // A game change to these types leaves the hover box with just the total.
+        }
+
+        return parts;
     }
 
     /// <summary>Every cure and suppressor the shown buffs name, with how many the player has in the bag, at home and in the drawer (the game's own crafting count).</summary>

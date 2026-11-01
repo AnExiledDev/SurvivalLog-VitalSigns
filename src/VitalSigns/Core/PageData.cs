@@ -89,6 +89,17 @@ public static class PageData
         AppendList(data, details.FoodMods, (text, mod) => text.Append('[').Append(Whole(mod.Stat)).Append(',').Append(Whole(mod.Food)).Append(',')
             .Append(Ratio(mod.Ratio)).Append(']'));
         data.Append(']');
+
+        if (details.Sources == null) return;
+
+        data.Append(",src:[");
+        AppendList(data, details.Sources, (text, stat) =>
+        {
+            text.Append('[');
+            AppendList(text, stat, (line, source) => line.Append('[').Append(PageCalls.Quote(source.Name)).Append(',').Append(Ratio(source.Ratio)).Append(']'));
+            text.Append(']');
+        });
+        data.Append(']');
     }
 
     private static char Flag(bool value) => value ? '1' : '0';

@@ -28,7 +28,8 @@ internal static class Readings
             satietyFood ?? NoFood, moraleFood ?? NoFood, cures ?? Array.Empty<int>(), suppressors ?? Array.Empty<int>());
 
     public static Details DetailsOf(IReadOnlyList<BuffRule>? rules = null, IReadOnlyList<IReadOnlyList<LossLine>>? coming = null, IReadOnlyList<ItemCount>? items = null,
-        string suppressedBy = "", IReadOnlyList<string>? foods = null, IReadOnlyList<FoodMod>? foodMods = null, double[]? max = null) =>
+        string suppressedBy = "", IReadOnlyList<string>? foods = null, IReadOnlyList<FoodMod>? foodMods = null, double[]? max = null,
+        IReadOnlyList<IReadOnlyList<GainSource>>? sources = null) =>
         new(max ?? new double[] { 100, 100, 100, 100 }, coming ?? new IReadOnlyList<LossLine>[] { Array.Empty<LossLine>(), Array.Empty<LossLine>(), Array.Empty<LossLine>(), Array.Empty<LossLine>() },
-            rules ?? Array.Empty<BuffRule>(), 1, items ?? Array.Empty<ItemCount>(), suppressedBy, foods ?? Array.Empty<string>(), foodMods ?? Array.Empty<FoodMod>());
+            rules ?? Array.Empty<BuffRule>(), 1, items ?? Array.Empty<ItemCount>(), suppressedBy, foods ?? Array.Empty<string>(), foodMods ?? Array.Empty<FoodMod>(), sources);
 }

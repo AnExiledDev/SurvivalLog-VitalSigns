@@ -43,10 +43,15 @@ public readonly record struct FoodMod(int Stat, int Food, double Ratio);
 
 /// <summary>
 /// What the tooltips and the loss shading draw from, besides the ratios. Max and Coming are in the HUD's row order.
-/// Rules holds one entry per buff id on the HUD. SuppressedBy names the running suppressors, empty when none.
+/// Rules holds one entry per buff id on the HUD. SuppressedBy names the running suppressors, empty when none. Sources,
+/// in row order, are the buffs that make up each stat's gain ratio; null when the hover boxes are off.
 /// </summary>
 public sealed record Details(IReadOnlyList<double> Max, IReadOnlyList<IReadOnlyList<LossLine>> Coming, IReadOnlyList<BuffRule> Rules, double ColdFactor,
-    IReadOnlyList<ItemCount> Items, string SuppressedBy, IReadOnlyList<string> Foods, IReadOnlyList<FoodMod> FoodMods);
+    IReadOnlyList<ItemCount> Items, string SuppressedBy, IReadOnlyList<string> Foods, IReadOnlyList<FoodMod> FoodMods,
+    IReadOnlyList<IReadOnlyList<GainSource>>? Sources = null);
+
+/// <summary>A running buff's share of a stat's gain ratio (as in StatRatios), named for the multiplier's hover box.</summary>
+public readonly record struct GainSource(string Name, double Ratio);
 
 /// <summary>
 /// Which parts the player turned on in the config, and how big the stat bars, their buffs and the bars' hover boxes are
