@@ -12,7 +12,7 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 - **Buff hover boxes**: a compact box with the name and time left on one line, what a buff or debuff does to each stat for the layers you have with the values lined up, a bar for the time left, and for debuffs the items that cure or suppress them with how many you have. Items you have come first. A suppressed debuff says what is holding it back.
 - **Well Fed lines on the Satiety bar**: one line where Well Fed starts and a fainter one where it ends, read from the game's own rule. The Satiety hover box says the two values.
 - **Timer stripe on buffs**: every buff or debuff that runs out gets a thin stripe along its bottom edge that shrinks as its time runs down and turns amber near the end. Buffs that last until something removes them get none.
-- **Fitness bar**: a bar under Life shows your Fitness, a stat the game keeps but never shows. It is green when fine, amber within 10 of Weakened and red below 30, where Weakened starts. Its hover box says what Fitness does and how close you are to Weakened. This replaces the Fitness Bar mod; remove `FitnessBar.dll` if you have it. With both installed, the Fitness hover box says so.
+- **Fitness bar**: a bar under Life shows your Fitness, a stat the game keeps but never shows. It is green when fine, amber within 10 of Weakened and red below 30, where Weakened starts. Its hover box says what Fitness does and how close you are to Weakened. This replaces the Fitness Bar mod: from Fitness Bar 0.1.2 on, it turns itself off when Vital Signs is installed, so only one Fitness bar shows. An older Fitness Bar still draws its own, and the Fitness hover box then says to remove or update it.
 - **Low stat warnings**: a pop-up when Satiety, Morale, Stamina or Life drops to 20% of its maximum, where the game turns the bar red, and when Fitness drops below 40, close to Weakened, and below 30, where you become Weakened. Each warns once per drop, and again only after the stat climbs a little back. Set the line and turn each one off in the Alerts settings.
 - **Weight on the Inventory button**: the kilograms you carry and a bar with a mark where Overweight starts, amber when you are close to Overweight and red past it. Hover the button to see your carried weight, the most you can carry, where Overweight starts and how much room you have left.
 - **Sizes**: the bars and the buffs next to them are drawn at 80% of the game's size by default, and the bars' hover boxes at the game's own size so their text stays easy to read. Set each from 50% to 150%.
@@ -72,7 +72,7 @@ For buff times, open the Mod Manager, go to Vital Signs and pick the Timers tab.
 
 Tested on Survival Log 1.1.20151 with BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.7.0 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
+Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.7.1 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
 
 Once a game has loaded, look for `page script sent to CoreUI1 (install 1): the stat bars show the readings`. A line ending `no stat bars on the HUD right now` means the mod could not find the stat bars.
 
@@ -90,6 +90,7 @@ To reach me directly, message `exiled.dev` on Discord; you can find me in the [o
 
 ## Changelog
 
+- **0.7.1**: The note about the Fitness Bar mod shows only for a Fitness Bar too old to turn itself off.
 - **0.7.0**: Low stat warnings, every setting applies at once, and a note in the Fitness hover box when the Fitness Bar mod is also installed. Exiled's Toolkit 0.11.0 is now required.
 - **0.6.0**: A Fitness bar under Life, which replaces the Fitness Bar mod, a separate size for the bars' hover boxes, and darker stat hover boxes.
 - **0.5.0**: Set how long buffs and debuffs last, with a Timers tab in the Mod Manager that lists every buff.

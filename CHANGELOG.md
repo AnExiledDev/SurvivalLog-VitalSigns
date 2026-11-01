@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.1
+
+- Fitness Bar 0.1.2 and newer turn themselves off when Vital Signs is installed, so the Fitness hover box now asks to remove Fitness Bar only when an older version still draws a second bar.
+- Made for Survival Log 1.1.20151.
+
 ## 0.7.0
 
 - New: warnings when a stat runs low. Satiety, Morale, Stamina and Life warn at 20% of their maximum, where the game turns the bar red, and Fitness warns below 40 and again below 30, where you become Weakened.

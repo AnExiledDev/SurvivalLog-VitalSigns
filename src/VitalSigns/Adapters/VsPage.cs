@@ -94,7 +94,7 @@ internal sealed class VsPage
 
         _hasOtherFitnessBar = _isOtherFitnessBarIn();
 
-        if (_hasOtherFitnessBar.Value) _log("the Fitness Bar mod is installed too, so there are two Fitness bars; the Fitness hover box says to remove FitnessBar.dll");
+        if (_hasOtherFitnessBar.Value) _log("an old Fitness Bar (before 0.1.2) is installed too, so there are two Fitness bars; the Fitness hover box says to remove FitnessBar.dll or update it");
 
         return _hasOtherFitnessBar.Value;
     }

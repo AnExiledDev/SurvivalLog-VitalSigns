@@ -79,7 +79,7 @@
             weakened: 'Below 30, so you are Weakened.',
             nearWeakened: function (left) { return 'Close to Weakened: ' + left + ' more lost and it drops below 30.'; },
             aboveWeakened: function (above) { return above + ' above 30, where Weakened starts.'; },
-            otherFitnessBar: 'The Fitness Bar mod is also installed, so you see two Fitness bars. Remove FitnessBar.dll from BepInEx/plugins.'
+            otherFitnessBar: 'An old Fitness Bar mod is also installed, so you see two Fitness bars. Remove FitnessBar.dll from BepInEx/plugins, or update it to 0.1.2 or newer.'
         },
         zh: {
             stats: ['饱腹', '心情', '体力', '生命'],
@@ -117,7 +117,7 @@
             weakened: '低于30，你处于「亚健康」状态。',
             nearWeakened: function (left) { return '接近「亚健康」：再降低 ' + left + ' 点就会低于30。'; },
             aboveWeakened: function (above) { return '比「亚健康」的界线30高 ' + above + ' 点。'; },
-            otherFitnessBar: '同时安装了 Fitness Bar 模组，所以会显示两个健康条。请从 BepInEx/plugins 中删除 FitnessBar.dll。'
+            otherFitnessBar: '同时安装了旧版 Fitness Bar 模组，所以会显示两个健康条。请从 BepInEx/plugins 中删除 FitnessBar.dll，或将其更新到 0.1.2 或更高版本。'
         }
     };
 

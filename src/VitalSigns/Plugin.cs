@@ -17,7 +17,7 @@ namespace VitalSigns;
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.vitalsigns";
-    private const string Version = "0.7.0";
+    private const string Version = "0.7.1";
     private const string FitnessBarGuid = "com.dev.survivallog.fitnessbar";
     private const string ModManagerGuid = "com.dev.survivallog.modmanager";
     private const string TimersFileName = "VitalSigns.Timers.json";
@@ -43,7 +43,8 @@ public sealed class Plugin : BasePlugin
 
         log.Write($"===== Vital Signs {Version} started" + (enabled.Value ? "" : ": off, VitalSigns/Enabled is false"));
 
-        var page = new VsPage(log.Write, () => IL2CPPChainloader.Instance.Plugins.ContainsKey(FitnessBarGuid));
+        var page = new VsPage(log.Write, () => OtherFitnessBar.Draws(
+            IL2CPPChainloader.Instance.Plugins.TryGetValue(FitnessBarGuid, out var other) ? other.Metadata.Version?.ToString() : null));
         var display = DisplayEntries();
         var alerts = AlertEntries();
 

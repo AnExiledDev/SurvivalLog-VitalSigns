@@ -14,7 +14,7 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 [*][b]Buff hover boxes[/b]: a compact box with the name and time left on one line, then what a buff or debuff does to each stat and how many layers you have. Debuffs list the items that cure or suppress them, with how many you have.[/*]
 [*][b]Well Fed lines on the Satiety bar[/b]: one line where Well Fed starts and a fainter one where it ends, read from the game's own rule.[/*]
 [*][b]Timer stripe on buffs[/b]: every buff or debuff that runs out gets a thin stripe that shrinks as its time runs down and turns amber near the end.[/*]
-[*][b]Fitness bar[/b]: a bar under Life shows your Fitness, a stat the game keeps but never shows. Green when fine, amber close to Weakened and red below 30. Its hover box says what Fitness does and how close you are to Weakened. This replaces the Fitness Bar mod.[/*]
+[*][b]Fitness bar[/b]: a bar under Life shows your Fitness, a stat the game keeps but never shows. Green when fine, amber close to Weakened and red below 30. Its hover box says what Fitness does and how close you are to Weakened. This replaces the Fitness Bar mod, which turns itself off when Vital Signs is installed.[/*]
 [*][b]Low stat warnings[/b]: a pop-up when Satiety, Morale, Stamina or Life drops to 20% of its maximum, and when Fitness drops below 40 and below 30, where you become Weakened. Each warns once per drop. Set the line or turn each one off.[/*]
 [*][b]Weight on the Inventory button[/b]: the kilograms you carry, amber when you are close to Overweight and red past it. Hover the button for how much room you have left.[/*]
 [*][b]Sizes[/b]: the bars and the buffs next to them are drawn at 80% of the game's size by default, and the bars' hover boxes at the game's own size. Set each one from 50% to 150%.[/*]
@@ -31,7 +31,7 @@ Only buffs you can see on your character and that have a timer get a new time. H
 The HUD part only reads your stats and draws them. With every multiplier at 1, the default, no buff time changes either. Vital Signs adds nothing to your save and does not edit game files. A save keeps the end time of each running buff, so after you remove the mod, buffs already running finish at the time they had, and new buffs use the game's own times.
 
 [size=5]Known issues[/size]
-Values are read every couple of seconds, so a change can take that long to show. The loss shading counts only the debuffs running now, not natural drain or anything you eat. Stats UI draws much of the same; use one or the other. Fitness Bar draws the same Fitness bar; remove it, or you get two (the Fitness hover box reminds you). Loading a save with a stat already low does not warn. A buff made to last a very long time shows a large hour count in its hover box, such as [font=Courier New]12000:00[/font] for 500 days. Multipliers changed while the game is closed apply to new buffs only.
+Values are read every couple of seconds, so a change can take that long to show. The loss shading counts only the debuffs running now, not natural drain or anything you eat. Stats UI draws much of the same; use one or the other. Fitness Bar 0.1.2 and newer turn themselves off beside Vital Signs; an older Fitness Bar draws a second bar, and the Fitness hover box then says to remove or update it. Loading a save with a stat already low does not warn. A buff made to last a very long time shows a large hour count in its hover box, such as [font=Courier New]12000:00[/font] for 500 days. Multipliers changed while the game is closed apply to new buffs only.
 
 [center][img]https://sldb.core-directive.com/img/mods-banner.jpg[/img]
 [size=4][url=https://www.nexusmods.com/survivallog/mods/73]Get Mod Manager[/url] to set up all your mods in game  |  [url=https://sldb.core-directive.com/en/]Open the Survival Log wiki[/url] for items, recipes and maps[/size][/center]
@@ -82,7 +82,7 @@ Open source under MIT: [url=https://github.com/AnExiledDev/SurvivalLog-VitalSign
 [*][b]状态悬停提示[/b]：紧凑的提示框，名称和剩余时间在同一行，下面是增益或减益对每项属性的影响和当前层数。减益还会列出可以治愈或压制它的物品，以及你拥有的数量。[/*]
 [*][b]「饱腹」条上的「饱腹富余」界线[/b]：一条线标出获得「饱腹富余」的位置，另一条较淡的线标出失去它的位置，数值来自游戏自身的规则。[/*]
 [*][b]状态计时条[/b]：每个会结束的增益或减益底部都有一条细条，随剩余时间缩短，快结束时变成琥珀色。[/*]
-[*][b]健康条[/b]：「生命」条下方显示你的健康，这是游戏记录却从不显示的属性。正常时为绿色，接近「亚健康」时为琥珀色，低于30时为红色。悬停提示说明健康的作用以及距离「亚健康」还有多远。本功能取代了 Fitness Bar 模组。[/*]
+[*][b]健康条[/b]：「生命」条下方显示你的健康，这是游戏记录却从不显示的属性。正常时为绿色，接近「亚健康」时为琥珀色，低于30时为红色。悬停提示说明健康的作用以及距离「亚健康」还有多远。本功能取代了 Fitness Bar 模组；安装了 Vital Signs 时，Fitness Bar 会自动关闭。[/*]
 [*][b]属性偏低提醒[/b]：「饱腹」「心情」「体力」或「生命」降到上限的 20% 时弹出提醒，健康降到40以下和30以下（陷入「亚健康」）时也会提醒。每次下降只提醒一次。可以设置提醒的位置，或分别关闭。[/*]
 [*][b]「背包」按钮上的负重[/b]：显示当前负重（千克），接近「超重」时变成琥珀色，超过后变成红色。鼠标悬停可查看距离「超重」还有多少余量。[/*]
 [*][b]大小[/b]：属性条和旁边的状态默认按游戏原尺寸的 80% 显示，属性条的悬停提示按游戏原尺寸显示。三者可分别在 50% 到 150% 之间设置。[/*]
@@ -99,7 +99,7 @@ Open source under MIT: [url=https://github.com/AnExiledDev/SurvivalLog-VitalSign
 屏幕显示部分只读取并显示你的属性。所有倍数保持默认的 1 时，状态时间也不会改变。Vital Signs 不会往存档里写入任何内容，也不会修改游戏文件。存档会记下每个正在生效的状态的结束时间，所以移除模组后，正在生效的状态按原来的时间结束，新的状态使用游戏原本的时间。
 
 [size=5]已知问题[/size]
-数值每隔几秒读取一次，所以变化可能要等这么久才会显示。阴影只计算当前正在生效的减益，不包括自然消耗和你吃下或使用的东西。Stats UI 显示的内容大多相同，二者选其一即可。Fitness Bar 显示的是同一个健康条，请将其移除，否则会出现两条（健康条的悬停提示会提醒你）。读取存档时如果属性已经偏低，不会提醒。持续时间很长的状态，提示框里会显示很大的小时数，例如 500 天显示为 [font=Courier New]12000:00[/font]。在游戏关闭时修改的倍数只对新的状态生效。
+数值每隔几秒读取一次，所以变化可能要等这么久才会显示。阴影只计算当前正在生效的减益，不包括自然消耗和你吃下或使用的东西。Stats UI 显示的内容大多相同，二者选其一即可。Fitness Bar 0.1.2 及更高版本在安装了 Vital Signs 时会自动关闭；旧版 Fitness Bar 会显示第二个健康条，这时健康条的悬停提示会提醒你删除或更新它。读取存档时如果属性已经偏低，不会提醒。持续时间很长的状态，提示框里会显示很大的小时数，例如 500 天显示为 [font=Courier New]12000:00[/font]。在游戏关闭时修改的倍数只对新的状态生效。
 
 [url=https://www.nexusmods.com/survivallog/mods/73]获取 Mod Manager[/url]，在游戏里设置所有模组。[url=https://sldb.core-directive.com/zh/]打开 Survival Log 维基[/url]，物品、配方、地图一查就有。
 
