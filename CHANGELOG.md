@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.2
+
+- The multiplier on a bar is now a solid green or red chip just left of the bar, so the bar's name and value no longer run past its edge.
+- Hover boxes that would run off the top or bottom of the screen now move to stay on it, and their arrow still points at the bar or buff.
+- A buff's own description is now shown one sentence to a line, in slightly larger and brighter text.
+- Made for Survival Log 1.1.20151.
+
 ## 0.7.1
 
 - Fitness Bar 0.1.2 and newer turn themselves off when Vital Signs is installed, so the Fitness hover box now asks to remove Fitness Bar only when an older version still draws a second bar.

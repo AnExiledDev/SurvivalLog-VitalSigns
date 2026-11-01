@@ -14,7 +14,14 @@ var FakeElement = class {
         this.textContent = '';
         this.attrs = {};
         this.classes = className ? className.split(' ') : [];
-        this.style = {};
+        // Custom properties set through setProperty are kept by name beside the plain ones.
+        this.style = {
+            setProperty: function (name, value) { element.style[name] = String(value); },
+            removeProperty: function (name) { delete element.style[name]; }
+        };
+        // The box getBoundingClientRect answers, set by a test in the window's pixels; offsetHeight is in the element's own.
+        this.rect = null;
+        this.offsetHeight = 0;
         this.classList = {
             contains: function (name) { return element.classes.indexOf(name) >= 0; },
             add: function (name) { if (element.classes.indexOf(name) < 0) element.classes.push(name); },
@@ -25,6 +32,10 @@ var FakeElement = class {
     get className() { return this.classes.join(' '); }
 
     set className(value) { this.classes = String(value).split(' ').filter(function (c) { return c; }); }
+
+    getBoundingClientRect() {
+        return this.rect || { top: 0, bottom: 0, height: 0 };
+    }
 
     hasAttribute(name) { return Object.prototype.hasOwnProperty.call(this.attrs, name); }
 
@@ -197,9 +208,19 @@ function toolButton(tools, name) {
 }
 
 // A child of the element with the class, or null.
-// A stat row's gain multiplier, which sits in the name's line after the name.
+// A stat row's gain multiplier, which sits in the row just before the bar.
 function chipOf(row) {
-    return childWith(maskOf(row).querySelector('.attr-name'), 'vs-chip');
+    return childWith(row, 'vs-chip');
+}
+
+// Places a hover box as the window would measure it: its top and height in the window's pixels, at the given zoom
+// above it, moved by any margin the script set. The window is the given height.
+function placeBox(tip, top, height, zoom, windowHeight) {
+    var shift = parseFloat(tip.style.marginTop) || 0;
+
+    window.innerHeight = windowHeight;
+    tip.offsetHeight = height / zoom;
+    tip.rect = { top: top + shift * zoom, bottom: top + shift * zoom + height, height: height };
 }
 
 function childWith(element, className) {

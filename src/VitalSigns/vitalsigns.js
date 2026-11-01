@@ -32,15 +32,20 @@
     // Put on the stat panel while the Fitness row is in it, so the row above keeps the hover boxes that open upward.
     var FIT_MARK = 'data-vs-fit';
     // What BarSize, BuffSize and BarTooltipSize zoom.
-    var BAR_BOXES = '.status-panel > .status-row > .progress-bar-wrapper,.status-panel > .' + FIT_ROW + ' > .progress-bar-wrapper';
+    var BAR_BOXES = '.status-panel > .status-row > .progress-bar-wrapper,.status-panel > .' + FIT_ROW + ' > .progress-bar-wrapper,' +
+        '.status-panel > .status-row > .vs-chip';
     var BUFF_BOXES = '.status-panel > .status-row > .buff-container';
     var BAR_TIPS = '.status-panel .progress-bar-wrapper > .status-tooltip';
-    var DRAWN = ['vs-chip', 'vs-mark', 'vs-loss', 'vs-st', 'vs-timer', 'vs-bt', 'vs-btime', 'vs-weight', 'vs-wbar', 'vs-weight-tip', FIT_ROW];
+    var DRAWN = ['vs-chip', 'vs-mark', 'vs-loss', 'vs-st', 'vs-timer', 'vs-bt', 'vs-btime', 'vs-bd', 'vs-weight', 'vs-wbar', 'vs-weight-tip', FIT_ROW];
     // Attributes put on the game's own tooltips, taken off again by clear. Attributes, not classes: Vue writes the whole
     // class of a tooltip each time it shows or hides it, which wiped a class of ours and showed the game's own look until
     // the next call drew it again. Vue leaves attributes it does not own alone.
     var MARKS = ['data-vs-no-game-text', 'data-vs-tip', 'data-vs-timed'];
     var MARKED_TIPS = ['buff-tooltip', 'status-tooltip'];
+    // How close a hover box may come to the top or bottom of the window, in the window's pixels.
+    var EDGE = 6;
+    // The arrow of a moved hover box stays this far inside the box's top and bottom, in the box's own pixels.
+    var ARROW_ROOM = 12;
 
     var TEXTS = {
         en: {
@@ -124,10 +129,14 @@
     // Under the game's own look: the chip, lines and shading sit inside its bar, the tooltip blocks use its text styles.
     var CSS = [
         '.status-panel .progress-text{text-shadow:-.6px -.6px 0 rgba(0,0,0,.85),.6px -.6px 0 rgba(0,0,0,.85),-.6px .6px 0 rgba(0,0,0,.85),.6px .6px 0 rgba(0,0,0,.85)}',
-        // In the name's own line, after the name, so it can never sit over or under the label.
-        '.vs-chip{flex-shrink:0;margin-left:2px;padding:0 3px;border-radius:2px;background:rgba(0,0,0,.45);font-size:8.5px;line-height:11px;font-weight:bold;pointer-events:none;text-shadow:.7px .7px 1.4px #000}',
-        '.vs-chip-up{color:#a5d6a7}',
-        '.vs-chip-down{color:#ff8a80}',
+        // The multiplier: a solid chip of its own left of the bar, with the bar's corners and the buffs' shadow, so the
+        // bar's name and value keep their whole width. Zoomed with the bar (BarSize).
+        '.vs-chip{flex-shrink:0;align-self:center;box-sizing:border-box;min-width:31px;height:18px;margin-right:4px;padding:0 4px;border:1px solid;border-radius:2.8px;font-size:10.5px;line-height:16px;font-weight:bold;text-align:center;color:#fff;font-variant-numeric:tabular-nums;box-shadow:.7px .7px 2.1px rgba(0,0,0,.5);text-shadow:0 .7px 1px rgba(0,0,0,.45);pointer-events:none}',
+        '.vs-chip-up{background:#2e7d51;border-color:#4caf50}',
+        '.vs-chip-down{background:#a83030;border-color:#e05252}',
+        // A hover box moved to stay on screen: its arrow is moved back by the same amount, so it still points at its bar
+        // or badge. The game anchors a box by its top or, on the last rows, by its bottom; the margins move either.
+        '.status-panel .status-tooltip::after,.status-panel .buff-tooltip::after{margin-top:var(--vs-arrow,0px);margin-bottom:calc(-1 * var(--vs-arrow,0px))}',
         '.vs-mark{position:absolute;top:0;bottom:0;width:1px;margin-left:-.5px;background:rgba(255,255,255,.6);pointer-events:none}',
         '.vs-mark-until{background:rgba(255,255,255,.3)}',
         '.vs-loss{position:absolute;top:0;bottom:0;pointer-events:none;background:repeating-linear-gradient(135deg,rgba(0,0,0,.55) 0 2px,rgba(0,0,0,.25) 2px 4px)}',
@@ -171,7 +180,11 @@
         '.vs-btime{order:1;flex:0 0 auto;margin-left:8px;font-family:Consolas,monospace;font-size:10.5px;font-weight:bold;color:#eee}',
         '[data-vs-tip] > .vs-bt{order:2;flex:0 0 100%;margin-top:4px;padding-top:3px;border-top:1px solid rgba(255,255,255,.14)}',
         '[data-vs-tip] > .vs-bt.vs-bt-timed{margin-top:0;padding-top:0;border-top:0}',
-        '[data-vs-tip] > .bt-body{order:3;flex:0 0 100%;margin-top:5px;padding-top:4px;border-top:1px dashed rgba(255,255,255,.16);font-size:10px;line-height:1.4;color:#a3abb4}',
+        // The game's text drawn again by us, a sentence to a line, in place of its one block.
+        '[data-vs-tip] > .bt-body{display:none}',
+        '[data-vs-tip] > .vs-bd{order:3;flex:0 0 100%;margin-top:6px;padding-top:5px;border-top:1px solid rgba(255,255,255,.12)}',
+        '.vs-bd .vs-row{font-size:10.5px;line-height:1.45;color:#b4bbc2}',
+        '.vs-bd .vs-row + .vs-row{margin-top:3px}',
         '.vs-bt .vs-row{font-size:10.5px;line-height:1.45}',
         '.vs-kv{display:flex;justify-content:space-between;align-items:baseline;gap:8px}',
         '.vs-kv .vs-k{min-width:0;color:#c4c9ce}',
@@ -206,6 +219,8 @@
     // The badge under the mouse, and the tooltip our block was last drawn in.
     var hovered = null;
     var drawnTip = null;
+    // The bar or badge under the mouse, whose hover box is kept on screen.
+    var fitHost = null;
 
     function apply(now, data) {
         clock = now;
@@ -250,6 +265,8 @@
         drawFitness(rows[rows.length - 1].parentElement);
 
         if (hovered) drawBuffTip(hovered, names);
+
+        if (fitHost) fitTip(tipOfHost(fitHost));
 
         return 'ok';
     }
@@ -306,7 +323,7 @@
 
         if (!mask) return;
 
-        drawChip(mask, ratios ? ratios[0] : 0);
+        drawChip(row, bar, ratios ? ratios[0] : 0);
         drawMarks(mask, wellFed);
         drawLoss(mask, stat, item);
 
@@ -323,18 +340,20 @@
         if (icon) setText(icon, HEART);
     }
 
-    function drawChip(mask, gain) {
+    // In the row, just before the bar. Put back there when the game adds a node in between.
+    function drawChip(row, bar, gain) {
         var text = scaleText(gain);
-        var line = mask.querySelector('.attr-name') || mask;
-        var chip = ownChild(line, 'vs-chip');
+        var chip = ownChild(row, 'vs-chip');
 
         if (!text) {
-            if (chip) line.removeChild(chip);
+            if (chip) row.removeChild(chip);
 
             return;
         }
 
-        if (!chip) chip = line.appendChild(element('span', 'vs-chip'));
+        if (!chip) chip = element('span', 'vs-chip');
+
+        if (row.children[Array.prototype.indexOf.call(row.children, bar) - 1] !== chip) row.insertBefore(chip, bar);
 
         setClass(chip, 'vs-chip-up', gain > 0);
         setClass(chip, 'vs-chip-down', gain < 0);
@@ -668,6 +687,14 @@
 
     // One capturing listener for the whole page: the badge under the mouse gets our block in its tooltip.
     function onOver(event) {
+        var host = hostOf(event.target);
+
+        if (host !== fitHost) {
+            fitHost = host;
+
+            if (host) fitSoon(host);
+        }
+
         var badge = badgeOf(event.target);
 
         if (!badge || badge === hovered) return;
@@ -675,6 +702,69 @@
         hovered = badge;
 
         if (held) drawBuffTip(badge, statNames(attrList(), ICONS.length));
+    }
+
+    // The game fills a buff's hover box after the mouse reaches it, so the box is drawn and measured again a frame later.
+    function fitSoon(host) {
+        fitTip(tipOfHost(host));
+
+        if (typeof requestAnimationFrame !== 'function') return;
+
+        requestAnimationFrame(function () {
+            if (host !== fitHost) return;
+
+            if (held && host === hovered) drawBuffTip(host, statNames(attrList(), ICONS.length));
+
+            fitTip(tipOfHost(host));
+        });
+    }
+
+    // A stat bar or a buff badge in the stat panel, the node itself or one above it.
+    function hostOf(node) {
+        for (var depth = 0; node && depth < BADGE_DEPTH; depth++, node = node.parentElement) {
+            if (!node.classList) continue;
+
+            if (node.classList.contains('buff') || node.classList.contains('progress-bar-wrapper')) return node;
+
+            if (node.classList.contains('status-panel')) return null;
+        }
+
+        return null;
+    }
+
+    function tipOfHost(host) {
+        return ownChild(host, host.classList.contains('buff') ? 'buff-tooltip' : 'status-tooltip');
+    }
+
+    // Moves a hover box up or down by as little as keeps it inside the window, its top first when it is taller than
+    // the window. The box is measured in the window's pixels and moved in its own, which differ by every zoom above it.
+    function fitTip(tip) {
+        if (!tip || typeof tip.getBoundingClientRect !== 'function') return;
+
+        var box = tip.getBoundingClientRect();
+        var scale = tip.offsetHeight > 0 ? box.height / tip.offsetHeight : 0;
+        var room = window.innerHeight;
+
+        if (!(scale > 0) || !(room > 0)) return;
+
+        var shift = tip.__vsShift || 0;
+        var top = box.top + shift * scale;
+        var up = Math.max(0, top + box.height - (room - EDGE));
+
+        if (top - up < EDGE) up = top - EDGE;
+
+        var moved = Math.round(up / scale);
+
+        if (moved === shift) return;
+
+        var arrowRoom = Math.max(0, tip.offsetHeight / 2 - ARROW_ROOM);
+        var arrow = Math.round(Math.max(-arrowRoom, Math.min(arrowRoom, moved)));
+
+        tip.__vsShift = moved;
+        setStyle(tip, 'marginTop', moved ? -moved + 'px' : '');
+        setStyle(tip, 'marginBottom', moved ? moved + 'px' : '');
+
+        if (tip.style.setProperty) tip.style.setProperty('--vs-arrow', arrow + 'px');
     }
 
     function badgeOf(node) {
@@ -707,6 +797,7 @@
         var rows = buffRows(info, shown, names);
 
         drawBlock(tip, 'vs-bt', 'div', 'vs-bt', rows, null);
+        drawBlock(tip, 'vs-bd', 'div', 'vs-bd', sentenceRows(ownChild(tip, 'bt-body')), null);
         setOwnText(tip, 'vs-btime', 'span', 'vs-btime', isTimed ? duration(shown.copy[1] - clock) : '');
         setMark(tip, 'data-vs-tip', true);
         setMark(tip, 'data-vs-timed', isTimed);
@@ -716,8 +807,24 @@
         if (block) setClass(block, 'vs-bt-timed', isTimed);
     }
 
+    // The game's description a sentence to a row. A sentence ends at . ! ? before a space, or at a Chinese 。！？.
+    function sentenceRows(body) {
+        var text = body ? String(body.textContent || '') : '';
+        var parts = text.replace(/([.!?])\s+/g, '$1\n').replace(/([\u3002\uff01\uff1f])\s*/g, '$1\n').split('\n');
+        var rows = [];
+
+        for (var i = 0; i < parts.length; i++) {
+            var part = parts[i].trim();
+
+            if (part) rows.push([part]);
+        }
+
+        return rows;
+    }
+
     function undrawBuffTip(tip) {
         drawBlock(tip, 'vs-bt', 'div', 'vs-bt', [], null);
+        drawBlock(tip, 'vs-bd', 'div', 'vs-bd', [], null);
         setOwnText(tip, 'vs-btime', 'span', 'vs-btime', '');
         setMark(tip, 'data-vs-tip', false);
         setMark(tip, 'data-vs-timed', false);
@@ -1013,6 +1120,8 @@
 
             for (var h = 0; h < tips.length; h++) {
                 for (var m = 0; m < MARKS.length; m++) setMark(tips[h], MARKS[m], false);
+
+                unfitTip(tips[h]);
             }
         }
 
@@ -1022,6 +1131,17 @@
 
         lengths = {};
         drawnTip = null;
+        fitHost = null;
+    }
+
+    function unfitTip(tip) {
+        if (!tip.__vsShift) return;
+
+        tip.__vsShift = 0;
+        setStyle(tip, 'marginTop', '');
+        setStyle(tip, 'marginBottom', '');
+
+        if (tip.style.removeProperty) tip.style.removeProperty('--vs-arrow');
     }
 
     function ownChild(parent, className) {

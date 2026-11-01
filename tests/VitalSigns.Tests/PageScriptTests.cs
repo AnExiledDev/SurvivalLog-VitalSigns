@@ -50,7 +50,7 @@ public class PageScriptTests
         Assert.True(page.Number("document.querySelectorAll('.vs-chip').length") > 0);
         Assert.Equal(PageAnswer.NoPlayer, page.Apply(10, PageData.NoPlayer));
 
-        foreach (var drawn in new[] { "vs-chip", "vs-mark", "vs-loss", "vs-st", "vs-timer", "vs-bt", "vs-weight", "vs-wbar", "vs-weight-tip", "vs-btime" })
+        foreach (var drawn in new[] { "vs-chip", "vs-mark", "vs-loss", "vs-st", "vs-timer", "vs-bt", "vs-weight", "vs-wbar", "vs-weight-tip", "vs-btime", "vs-bd" })
         {
             Assert.Equal(0, page.Number($"document.querySelectorAll('.{drawn}').length"));
         }
@@ -74,7 +74,107 @@ public class PageScriptTests
         Assert.Equal("x0.5", page.Text($"chipOf({Morale}).textContent"));
         Assert.True(page.Is($"chipOf({Morale}).classList.contains('vs-chip-down')"));
         Assert.False(page.Is($"chipOf({Life})"));
-        Assert.Equal(2, page.Number($"maskOf({Satiety}).querySelector('.attr-name').children.indexOf(chipOf({Satiety}))"));
+        // Its own chip left of the bar, so the bar's name and value keep the whole bar.
+        Assert.Equal(page.Number($"{Satiety}.children.indexOf({Satiety}.querySelector('.progress-bar-wrapper'))") - 1,
+            page.Number($"{Satiety}.children.indexOf(chipOf({Satiety}))"));
+        Assert.Equal(0, page.Number($"maskOf({Satiety}).querySelectorAll('.vs-chip').length"));
+    }
+
+    [Fact]
+    public void The_chip_goes_back_beside_the_bar_when_the_game_puts_a_node_in_between()
+    {
+        var page = PageScript.On();
+        var data = Readings.Data(Readings.Stats(satiety: new StatRatios(0.25, 0, 0, 0)));
+
+        page.Apply(0, data);
+        page.Run($"{Satiety}.insertBefore(new FakeElement('div', 'game-node'), {Satiety}.querySelector('.progress-bar-wrapper'))");
+        page.Apply(2, data);
+
+        Assert.Equal(page.Number($"{Satiety}.children.indexOf({Satiety}.querySelector('.progress-bar-wrapper'))") - 1,
+            page.Number($"{Satiety}.children.indexOf(chipOf({Satiety}))"));
+        Assert.Equal(1, page.Number($"{Satiety}.querySelectorAll('.vs-chip').length"));
+    }
+
+    // ===== Hover boxes kept on screen =====
+
+    /// <summary>A box running 106 window pixels past the bottom edge (6 pixels kept clear) at zoom 2 moves up 53 of its own
+    /// pixels, and its arrow moves back down the same, so it still points at the bar.</summary>
+    [Fact]
+    public void A_hover_box_past_the_bottom_of_the_window_moves_up_onto_it_and_its_arrow_back_to_the_bar()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Readings.Data());
+        page.Run($"placeBox(tipOf({Life}), 500, 300, 2, 700)");
+        page.Run($"hover(maskOf({Life}))");
+
+        Assert.Equal("-53px", page.Text($"tipOf({Life}).style.marginTop"));
+        Assert.Equal("53px", page.Text($"tipOf({Life}).style.marginBottom"));
+        Assert.Equal("53px", page.Text($"tipOf({Life}).style['--vs-arrow']"));
+
+        // Measured again where it now sits, it stays put.
+        page.Run($"placeBox(tipOf({Life}), 500, 300, 2, 700)");
+        page.Apply(2, Readings.Data());
+
+        Assert.Equal("-53px", page.Text($"tipOf({Life}).style.marginTop"));
+    }
+
+    [Fact]
+    public void A_hover_box_that_fits_is_not_moved_and_one_that_grew_back_onto_the_window_moves_back()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Readings.Data());
+        page.Run($"placeBox(tipOf({Satiety}), 100, 200, 1, 700)");
+        page.Run($"hover(tipOf({Satiety}))");
+
+        Assert.Equal("", page.Text($"tipOf({Satiety}).style.marginTop || ''"));
+
+        page.Run($"placeBox(tipOf({Satiety}), 600, 200, 1, 700)");
+        page.Apply(2, Readings.Data());
+
+        Assert.Equal("-106px", page.Text($"tipOf({Satiety}).style.marginTop"));
+
+        page.Run($"placeBox(tipOf({Satiety}), 100, 200, 1, 700)");
+        page.Apply(4, Readings.Data());
+
+        Assert.Equal("", page.Text($"tipOf({Satiety}).style.marginTop"));
+    }
+
+    /// <summary>Taller than the window, the box keeps its top on screen; its arrow stays inside the box.</summary>
+    [Fact]
+    public void A_hover_box_taller_than_the_window_keeps_its_top_on_screen_and_its_arrow_inside()
+    {
+        var page = PageScript.On("{buffs:[[1300]]}");
+
+        page.Apply(0, Readings.Data(buffs: new[] { new BuffTime(1300, 100, 100) }, details: Readings.DetailsOf(new[] { Readings.Rule(1300) })));
+        page.Run($"placeBox(buffTip({Satiety}, 0), 300, 800, 1, 700)");
+        page.Run($"hover({Satiety}.querySelectorAll('.buff')[0])");
+
+        Assert.Equal("-294px", page.Text($"buffTip({Satiety}, 0).style.marginTop"));
+        Assert.Equal("294px", page.Text($"buffTip({Satiety}, 0).style['--vs-arrow']"));
+
+        // A short box moved more than half its height would put its arrow past its edge, so the arrow stops inside.
+        page.Run($"placeBox(buffTip({Satiety}, 0), 650, 200, 1, 700)");
+        page.Apply(2, Readings.Data(buffs: new[] { new BuffTime(1300, 98, 100) }, details: Readings.DetailsOf(new[] { Readings.Rule(1300) })));
+
+        Assert.Equal("-156px", page.Text($"buffTip({Satiety}, 0).style.marginTop"));
+        Assert.Equal("88px", page.Text($"buffTip({Satiety}, 0).style['--vs-arrow']"));
+    }
+
+    [Fact]
+    public void With_no_player_a_moved_hover_box_goes_back_to_the_game_place()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Readings.Data());
+        page.Run($"placeBox(tipOf({Life}), 500, 300, 1, 700)");
+        page.Run($"hover(maskOf({Life}))");
+        page.Apply(2, PageData.NoPlayer);
+
+        Assert.Equal("", page.Text($"tipOf({Life}).style.marginTop"));
+        Assert.Equal("", page.Text($"tipOf({Life}).style.marginBottom"));
+        Assert.False(page.Is($"tipOf({Life}).style['--vs-arrow']"));
     }
 
     [Fact]
@@ -422,6 +522,37 @@ public class PageScriptTests
     }
 
     [Fact]
+    public void A_hovered_buff_shows_the_game_text_a_sentence_to_a_line_in_place_of_the_game_block()
+    {
+        var page = PageScript.On("{buffs:[[], [], [], [1111]]}");
+
+        page.Run($"childWith(buffTip({Life}, 0), 'bt-body').textContent = 'Raises the chance of illness by 1.5 times.  Spreads to others! Lasts a while?'");
+        page.Apply(0, Readings.Data(buffs: new[] { new BuffTime(1111, 3600, 7200) }, details: Readings.DetailsOf(new[] { Cut })));
+        page.Run($"hover(buffTip({Life}, 0))");
+
+        Assert.Equal("Raises the chance of illness by 1.5 times.\nSpreads to others!\nLasts a while?", page.Text($"blockText(buffTip({Life}, 0), 'vs-bd')"));
+        // The game's own block stays, hidden while ours shows, so Vue can keep writing to it.
+        Assert.True(page.Is($"childWith(buffTip({Life}, 0), 'bt-body')"));
+
+        page.Run($"childWith(buffTip({Life}, 0), 'bt-body').textContent = '\u4f20\u67d3\u3002\u6301\u7eed\u4e24\u5929\u3002'");
+        page.Apply(2, Readings.Data(buffs: new[] { new BuffTime(1111, 3598, 7200) }, details: Readings.DetailsOf(new[] { Cut })));
+
+        Assert.Equal("\u4f20\u67d3\u3002\n\u6301\u7eed\u4e24\u5929\u3002", page.Text($"blockText(buffTip({Life}, 0), 'vs-bd')"));
+    }
+
+    [Fact]
+    public void A_buff_with_no_details_keeps_the_game_text_block()
+    {
+        var page = PageScript.On("{buffs:[[], [], [], [1111]]}");
+
+        page.Apply(0, Readings.Data(buffs: new[] { new BuffTime(1111, 3600, 7200) }));
+        page.Run($"hover(buffTip({Life}, 0))");
+
+        Assert.False(page.Is($"childWith(buffTip({Life}, 0), 'vs-bd')"));
+        Assert.False(page.Is($"buffTip({Life}, 0).hasAttribute('data-vs-tip')"));
+    }
+
+    [Fact]
     public void A_timed_buff_shows_its_time_on_the_header_line_in_place_of_the_game_timer()
     {
         var page = PageScript.On("{buffs:[[], [], [], [1111]]}");
@@ -618,7 +749,8 @@ public class PageScriptTests
 
     // ===== Bar size =====
 
-    private const string BarRule = ".status-panel > .status-row > .progress-bar-wrapper,.status-panel > .vs-fit-row > .progress-bar-wrapper{zoom:";
+    // The multiplier chip sits beside the bar, so it is zoomed with it.
+    private const string BarRule = ".status-panel > .status-row > .progress-bar-wrapper,.status-panel > .vs-fit-row > .progress-bar-wrapper,.status-panel > .status-row > .vs-chip{zoom:";
     private const string BuffRule = ".status-panel > .status-row > .buff-container{zoom:";
     private const string TipRule = ".status-panel .progress-bar-wrapper > .status-tooltip{zoom:";
 
