@@ -54,7 +54,7 @@ The HUD part only reads your stats and draws them. With every multiplier at 1, t
 1. Install the [BepInEx Pack for Survival Log](https://www.nexusmods.com/survivallog/mods/12) (if no other mods were installed before, start the game once so BepInEx finishes setup, then quit).
 2. Install [Exiled's Toolkit](https://www.nexusmods.com/survivallog/mods/61) 0.11.0 or newer.
 3. Optional, for the Timers tab: install [Mod Manager](https://www.nexusmods.com/survivallog/mods/73) the same way.
-4. Download `VitalSigns-x.y.z.zip` from the [latest release](https://github.com/AnExiledDev/SurvivalLog-VitalSigns/releases/latest).
+4. Download `VitalSigns-x.y.z.zip` from the [latest release](https://github.com/AnExiledDev/SurvivalLog-VitalSigns/releases/latest) or from [Nexus Mods](https://www.nexusmods.com/survivallog/mods/133).
 5. Extract the zip into the game folder (the folder with `SurvivalLog.exe`). It holds a `BepInEx` folder, so the DLL lands in the right place. When asked, merge the folders. The result should be:
    `C:\Program Files (x86)\Steam\steamapps\common\Survival Log\BepInEx\plugins\VitalSigns.dll`
 
@@ -72,7 +72,7 @@ For buff times, open the Mod Manager, go to Vital Signs and pick the Timers tab.
 
 Tested on Survival Log 1.1.20151 with BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.7.4 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
+Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.7.5 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
 
 Once a game has loaded, look for `page script sent to CoreUI1 (install 1): the stat bars show the readings`. A line ending `no stat bars on the HUD right now` means the mod could not find the stat bars.
 
@@ -90,6 +90,7 @@ To reach me directly, message `exiled.dev` on Discord; you can find me in the [o
 
 ## Changelog
 
+- **0.7.5**: The Mod Manager no longer says settings need a restart; they all apply right away.
 - **0.7.4**: The Timers tab shows buffs in English in an English game and lays out cleanly, and BarTooltipSize starts at 80%.
 - **0.7.3**: Hovering the multiplier chip lists each buff that changes it, with its amount.
 - **0.7.2**: The gain multiplier is a solid chip left of the bar, hover boxes stay on screen, and buff descriptions show one sentence to a line.

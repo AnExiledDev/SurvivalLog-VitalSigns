@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.5
+
+- The Mod Manager no longer says Vital Signs settings need a game restart. They all apply right away.
+- Made for Survival Log 1.1.20151.
+
 ## 0.7.4
 
 - The Timers tab now shows buff names and descriptions in English when the game is in English. Before, they could show in Chinese.
