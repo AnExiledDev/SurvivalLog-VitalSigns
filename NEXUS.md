@@ -30,8 +30,10 @@ Only buffs you can see on your character and that have a timer get a new time. H
 
 The HUD part only reads your stats and draws them. With every multiplier at 1, the default, no buff time changes either. Vital Signs adds nothing to your save and does not edit game files. A save keeps the end time of each running buff, so after you remove the mod, buffs already running finish at the time they had, and new buffs use the game's own times.
 
+Vital Signs was originally inspired by [url=https://www.nexusmods.com/survivallog/mods/27]Stats UI[/url] by ivmakk0, and has since grown well past it, with UI size settings, a Fitness bar, low stat warnings, settings that apply live, and buff duration multipliers.
+
 [size=5]Known issues[/size]
-Values are read every couple of seconds, so a change can take that long to show. The loss shading counts only the debuffs running now, not natural drain or anything you eat. Vital Signs was originally inspired by [url=https://www.nexusmods.com/survivallog/mods/27]Stats UI[/url] by ivmakk0. The two show much of the same, so use one or the other. Fitness Bar 0.1.2 and newer turn themselves off beside Vital Signs; an older Fitness Bar draws a second bar, and the Fitness hover box then says to remove or update it. Loading a save with a stat already low does not warn. A buff made to last a very long time shows a large hour count in its hover box, such as [font=Courier New]12000:00[/font] for 500 days. Multipliers changed while the game is closed apply to new buffs only.
+Values are read every couple of seconds, so a change can take that long to show. The loss shading counts only the debuffs running now, not natural drain or anything you eat. Stats UI and Vital Signs only conflict in what they draw on screen. If you don't need the extra features, Stats UI works just as well. Fitness Bar 0.1.2 and newer turn themselves off beside Vital Signs; an older Fitness Bar draws a second bar, and the Fitness hover box then says to remove or update it. Loading a save with a stat already low does not warn. A buff made to last a very long time shows a large hour count in its hover box, such as [font=Courier New]12000:00[/font] for 500 days. Multipliers changed while the game is closed apply to new buffs only.
 
 [center][img]https://sldb.core-directive.com/img/mods-banner.jpg[/img]
 [size=4][url=https://www.nexusmods.com/survivallog/mods/73]Get Mod Manager[/url] to set up all your mods in game  |  [url=https://sldb.core-directive.com/en/]Open the Survival Log wiki[/url] for items, recipes and maps[/size][/center]
@@ -98,8 +100,10 @@ Open source under MIT: [url=https://github.com/AnExiledDev/SurvivalLog-VitalSign
 
 屏幕显示部分只读取并显示你的属性。所有倍数保持默认的 1 时，状态时间也不会改变。Vital Signs 不会往存档里写入任何内容，也不会修改游戏文件。存档会记下每个正在生效的状态的结束时间，所以移除模组后，正在生效的状态按原来的时间结束，新的状态使用游戏原本的时间。
 
+Vital Signs 最初的灵感来自 ivmakk0 的 [url=https://www.nexusmods.com/survivallog/mods/27]Stats UI[/url]，之后加入了更多功能：界面大小设置、健康条、属性偏低提醒、即时生效的设置和状态持续时间倍数。
+
 [size=5]已知问题[/size]
-数值每隔几秒读取一次，所以变化可能要等这么久才会显示。阴影只计算当前正在生效的减益，不包括自然消耗和你吃下或使用的东西。Vital Signs 最初的灵感来自 ivmakk0 的 [url=https://www.nexusmods.com/survivallog/mods/27]Stats UI[/url]。两者显示的内容大多相同，二者选其一即可。Fitness Bar 0.1.2 及更高版本在安装了 Vital Signs 时会自动关闭；旧版 Fitness Bar 会显示第二个健康条，这时健康条的悬停提示会提醒你删除或更新它。读取存档时如果属性已经偏低，不会提醒。持续时间很长的状态，提示框里会显示很大的小时数，例如 500 天显示为 [font=Courier New]12000:00[/font]。在游戏关闭时修改的倍数只对新的状态生效。
+数值每隔几秒读取一次，所以变化可能要等这么久才会显示。阴影只计算当前正在生效的减益，不包括自然消耗和你吃下或使用的东西。Stats UI 和 Vital Signs 只在界面显示上冲突。如果不需要这些额外功能，用 Stats UI 也完全可以。Fitness Bar 0.1.2 及更高版本在安装了 Vital Signs 时会自动关闭；旧版 Fitness Bar 会显示第二个健康条，这时健康条的悬停提示会提醒你删除或更新它。读取存档时如果属性已经偏低，不会提醒。持续时间很长的状态，提示框里会显示很大的小时数，例如 500 天显示为 [font=Courier New]12000:00[/font]。在游戏关闭时修改的倍数只对新的状态生效。
 
 [url=https://www.nexusmods.com/survivallog/mods/73]获取 Mod Manager[/url]，在游戏里设置所有模组。[url=https://sldb.core-directive.com/zh/]打开 Survival Log 维基[/url]，物品、配方、地图一查就有。
 

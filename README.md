@@ -31,11 +31,13 @@ Only buffs you can see on your character and that have a timer get a new time. H
 
 The HUD part only reads your stats and draws them. With every multiplier at 1, the default, no buff time changes either. Vital Signs adds nothing to your save and does not edit game files. A save keeps the end time of each running buff, so after you remove the mod, buffs already running finish at the time they had, and new buffs use the game's own times.
 
+Vital Signs was originally inspired by [Stats UI](https://www.nexusmods.com/survivallog/mods/27) by ivmakk0, and has since grown well past it, with UI size settings, a Fitness bar, low stat warnings, settings that apply live, and buff duration multipliers.
+
 ## Known issues and limits
 
 - Values are read every couple of seconds, so a change can take that long to show.
 - The loss shading is an estimate from the debuffs running now. Natural drain, new debuffs and anything you eat or use are not in it.
-- Vital Signs was originally inspired by [Stats UI](https://www.nexusmods.com/survivallog/mods/27) by ivmakk0. The two show much of the same, so use one or the other.
+- Stats UI and Vital Signs only conflict in what they draw on screen. If you don't need the extra features, Stats UI works just as well.
 - Fitness Bar draws the same Fitness bar. With both installed you get two, and the Fitness hover box says to remove `FitnessBar.dll`.
 - A warning comes when a stat drops past its line while you play. Loading a save with a stat already low does not warn.
 - With the mod turned off, an open Timers tab stays until the Mod Manager page reloads.
