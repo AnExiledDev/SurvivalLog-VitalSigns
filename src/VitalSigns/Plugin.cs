@@ -21,7 +21,7 @@ namespace VitalSigns;
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.vitalsigns";
-    private const string Version = "0.9.1";
+    private const string Version = "0.9.2";
     private const string FitnessBarGuid = "com.dev.survivallog.fitnessbar";
     private const string ModManagerGuid = "com.dev.survivallog.modmanager";
     private const string TimersFileName = "VitalSigns.Timers.json";
@@ -101,12 +101,13 @@ public sealed class Plugin : BasePlugin
 
         // Off, every stat changes by the game's own numbers again. The hook goes in only once a multiplier is set.
         var difficultyHooks = new Harmony(Guid + ".difficulty");
+        var difficultyGate = new DifficultyHookGate(() => DifficultyHook.Apply(difficultyHooks, log.Write));
 
         OptionalLive.Watch(() =>
         {
             var wanted = enabled.Value ? ReadDifficulty(difficulty) : Difficulty.Off;
 
-            if (!wanted.IsOff) DifficultyHook.Apply(difficultyHooks, log.Write);
+            difficultyGate.Want(wanted);
 
             DifficultyHook.Settings = wanted;
         }, difficulty.All.Append(enabled).ToArray());

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.2
+
+- More tests for when stat difficulty starts working. Nothing changes in play: the multipliers still do nothing until one is set off 1.
+
 ## 0.9.1
 
 - The food note in the Actions tab now says what a Satiety click eats: just enough to reach the goal, never past full.
