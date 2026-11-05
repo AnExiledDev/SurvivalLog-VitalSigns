@@ -44,8 +44,64 @@ internal static class PlayerVitals
         var buffs = Buffs(component);
         var now = clock.GetTotalSeconds();
 
-        return new Vitals(stats, buffs, now, Weight(AgentTools.GetAgentComponent<BagComponent>(role)), WellFed(attributes),
-            Details(world!, attributes, component, stats, buffs, now, options, isChinese), Fitness(attributes), Levels(attributes));
+        var weight = Weight(AgentTools.GetAgentComponent<BagComponent>(role));
+
+        return new Vitals(stats, buffs, now, weight, WellFed(attributes), Details(world!, attributes, component, stats, buffs, now, options, isChinese),
+            Fitness(attributes), Levels(attributes), Heavy(world!, role.InstanceId, weight, options, isChinese));
+    }
+
+    private static readonly List<BagStack> Stacks = new();
+    private static IReadOnlyList<HeavyItem>? _heavy;
+    private static (int Carried, long Owner, int Most, bool IsChinese)? _heavyKey;
+
+    /// <summary>
+    /// The heaviest kinds of item in the bag, read again only when the carried weight, the player, the list's length or
+    /// the language changes: the game builds a new list of the bag for every ask.
+    /// </summary>
+    private static IReadOnlyList<HeavyItem>? Heavy(BattleLogicWorld world, long owner, CarryWeight? weight, Options options, bool isChinese)
+    {
+        if (weight is not { } carried || !options.Weight || options.HeavyItems <= 0) return null;
+
+        var key = (carried.Carried, owner, options.HeavyItems, isChinese);
+
+        if (_heavyKey == key) return _heavy;
+
+        _heavyKey = key;
+        _heavy = null;
+
+        var items = world._ItemManager;
+        var config = GameSingleton.Existing<ConfigManager>();
+
+        if (items == null || config?._Config_Item_Dict == null) return null;
+
+        try
+        {
+            var list = items.GetItemDataList(owner);
+
+            Stacks.Clear();
+
+            for (var i = 0; list != null && i < list.Count; i++)
+            {
+                var item = list[i];
+
+                if (item == null || item._ItemCount_k__BackingField <= 0 || !config._Config_Item_Dict.ContainsKey(item._ItemConfigId_k__BackingField)) continue;
+
+                Stacks.Add(new BagStack(item._ItemConfigId_k__BackingField, items.GetItemActualWeight(item), item._ItemCount_k__BackingField));
+            }
+
+            var heaviest = Core.Heaviest.Of(Stacks, Math.Min(options.HeavyItems, Core.Heaviest.Max));
+            var named = new List<HeavyItem>(heaviest.Count);
+
+            foreach (var kind in heaviest) named.Add(new HeavyItem(BuffBook.Item(config, kind.Id, isChinese).Name, kind.Grams, kind.Count));
+
+            _heavy = named;
+        }
+        catch (Exception)
+        {
+            // A game change to the bag's types leaves the hover box with the weight alone.
+        }
+
+        return _heavy;
     }
 
     private static readonly AttrName[] ValueRows = { AttrName.Satiety, AttrName.Morale, AttrName.Stamina, AttrName.Vitality };
@@ -84,12 +140,16 @@ internal static class PlayerVitals
         var ruleList = new List<BuffRule>();
         var suppressedBy = new List<string>();
 
+        var good = new List<int>();
+
         foreach (var buff in buffs)
         {
             if (rules.ContainsKey(buff.ConfigId) || BuffBook.Rule(config, buff.ConfigId, isChinese) is not { } rule) continue;
 
             rules[buff.ConfigId] = rule;
             ruleList.Add(rule);
+
+            if (rule.IsGood) good.Add(rule.Id);
         }
 
         var running = new List<int>();
@@ -123,7 +183,7 @@ internal static class PlayerVitals
         return new Details(max, ComingLoss.Of(now, buffs, rules, cold, losses), options.Tooltips ? ruleList : Array.Empty<BuffRule>(), cold,
             options.Tooltips && options.Cures ? Items(world, config, ruleList, isChinese) : Array.Empty<ItemCount>(), string.Join(" / ", suppressedBy),
             options.Tooltips ? BuffBook.Foods(config, isChinese) : Array.Empty<string>(), FoodMods(attributes),
-            options.Tooltips ? GainSources.Of(GainParts(world, component, config, isChinese), BuffRule.Stats) : null);
+            options.Tooltips ? GainSources.Of(GainParts(world, component, config, isChinese), BuffRule.Stats) : null, good);
     }
 
     /// <summary>

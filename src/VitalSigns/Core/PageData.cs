@@ -16,6 +16,11 @@ public static class PageData
     /// <summary>Effect kinds as the page names them.</summary>
     private const string Kinds = "esnmglvfo";
 
+    /// <remarks>
+    /// opt: weight, stripes, hover boxes, game text, cures, trend arrows. look: match the HUD style, bar look (0 game,
+    /// 1 flat, 2 segmented), colour-blind colours. ending: [game seconds left at which a buff pulses, debuffs too], or
+    /// null when off. heavy: the heaviest items in the bag, [name, grams, count].
+    /// </remarks>
     /// <param name="hasOtherFitnessBar">The Fitness Bar mod is installed too: the Fitness reading carries a third value, 1, and the bar's hover box says so.</param>
     public static string Of(Vitals? vitals, GameNames names, bool isChinese, Options? options = null, bool hasOtherFitnessBar = false)
     {
@@ -38,11 +43,22 @@ public static class PageData
         data.Append(vitals.WellFed is { } wellFed ? $"[{Whole(wellFed.From)},{Whole(wellFed.Until)},{Whole(wellFed.Max)}]" : "null");
         data.Append(",names:{wellFed:").Append(PageCalls.Quote(names.WellFed)).Append(",overweight:").Append(PageCalls.Quote(names.Overweight)).Append('}');
         data.Append(",opt:[").Append(Flag(options.Weight)).Append(',').Append(Flag(options.Stripes)).Append(',').Append(Flag(options.Tooltips)).Append(',')
-            .Append(Flag(options.GameText)).Append(',').Append(Flag(options.Cures)).Append(']');
+            .Append(Flag(options.GameText)).Append(',').Append(Flag(options.Cures)).Append(',').Append(Flag(options.Trends)).Append(']');
+        data.Append(",look:[").Append(Flag(options.MatchHud)).Append(',').Append(BarLook.Index(options.BarLook)).Append(',').Append(Flag(options.ColourBlind)).Append(']');
+        data.Append(",ending:");
+        data.Append(options.EndingPulse ? $"[{Whole(EndingSeconds(options.EndingMinutes))},{Flag(options.EndingDebuffs)}]" : "null");
         data.Append(",zoom:").Append(Ratio(BarSize.Zoom(options.BarSize))).Append(",buffZoom:").Append(Ratio(BarSize.Zoom(options.BuffSize)))
             .Append(",tipZoom:").Append(Ratio(BarSize.Zoom(options.TooltipSize)));
         data.Append(",fit:");
         data.Append(options.Fitness && vitals.Fitness is { } fitness ? $"[{Whole(fitness.Value)},{Whole(fitness.Max)}{(hasOtherFitnessBar ? ",1" : "")}]" : "null");
+
+        if (vitals.Weight != null && vitals.Heavy is { } heavy)
+        {
+            data.Append(",heavy:[");
+            AppendList(data, heavy, (text, item) => text.Append('[').Append(PageCalls.Quote(item.Name)).Append(',').Append(Whole(item.Grams)).Append(',')
+                .Append(Whole(item.Count)).Append(']'));
+            data.Append(']');
+        }
 
         if (vitals.Details is { } details) AppendDetails(data, details);
 
@@ -53,7 +69,7 @@ public static class PageData
     /// max: each stat's maximum. coming: per stat, [buff, amount, last loss second]. info: per buff id, [name, is good,
     /// interval in hours, effect lines [kind, stat or food, value for one layer], cure item ids, suppressor item ids,
     /// is suppressible]. items: per item id, [name, icon, count]. by: the running suppressors. foods: food type names.
-    /// food: the player's own food modifiers, [stat, food type, ratio].
+    /// food: the player's own food modifiers, [stat, food type, ratio]. good: the ids of the good buffs on the HUD.
     /// </summary>
     private static void AppendDetails(StringBuilder data, Details details)
     {
@@ -90,6 +106,13 @@ public static class PageData
             .Append(Ratio(mod.Ratio)).Append(']'));
         data.Append(']');
 
+        if (details.Good != null)
+        {
+            data.Append(",good:[");
+            AppendList(data, details.Good, (text, id) => text.Append(Whole(id)));
+            data.Append(']');
+        }
+
         if (details.Sources == null) return;
 
         data.Append(",src:[");
@@ -101,6 +124,9 @@ public static class PageData
         });
         data.Append(']');
     }
+
+    /// <summary>The pulse threshold in game seconds, held to the setting's range.</summary>
+    private static int EndingSeconds(int minutes) => System.Math.Clamp(minutes, Ending.MinMinutes, Ending.MaxMinutes) * 60;
 
     private static char Flag(bool value) => value ? '1' : '0';
 

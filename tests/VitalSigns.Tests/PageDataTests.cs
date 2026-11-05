@@ -17,7 +17,7 @@ public class PageDataTests
             new WellFedLine(80, 60, 100));
 
         Assert.Equal("{zh:false,stats:[[0.25,-0.5,0,0.1],[0,0,0,0],[0,0,0,0],[0,0,1,0]],buffs:[[1300,90000,21600,1,0],[4,95000,0,1,0]],"
-            + "weight:[12345,20000,16000],wellFed:[80,60,100],names:{wellFed:\"Well Fed\",overweight:\"Overweight\"},opt:[1,1,1,1,1],zoom:0.8,buffZoom:0.8,tipZoom:0.8,fit:null}", data);
+            + "weight:[12345,20000,16000],wellFed:[80,60,100],names:{wellFed:\"Well Fed\",overweight:\"Overweight\"},opt:[1,1,1,1,1,1],look:[1,0,0],ending:[3600,0],zoom:0.8,buffZoom:0.8,tipZoom:0.8,fit:null}", data);
     }
 
     [Fact]
@@ -76,7 +76,58 @@ public class PageDataTests
     {
         var data = Readings.Data(options: new Options(Weight: false, Stripes: true, Tooltips: false, GameText: true, Cures: false));
 
-        Assert.Contains(",opt:[0,1,0,1,0]", data);
+        Assert.Contains(",opt:[0,1,0,1,0,1]", data);
+    }
+
+    [Fact]
+    public void Trend_arrows_turned_off_reach_the_page_as_the_sixth_flag()
+    {
+        Assert.Contains(",opt:[1,1,1,1,1,0],", Readings.Data(options: new Options(Trends: false)));
+    }
+
+    [Theory]
+    [InlineData("Game", 0)]
+    [InlineData("Flat", 1)]
+    [InlineData("segmented", 2)]
+    [InlineData(" Flat ", 1)]
+    [InlineData("Shiny", 0)]
+    [InlineData("", 0)]
+    public void The_bar_look_reaches_the_page_as_its_number_and_an_unknown_one_as_the_games(string look, int index)
+    {
+        Assert.Contains($",look:[1,{index},0],", Readings.Data(options: new Options(BarLook: look)));
+    }
+
+    [Fact]
+    public void The_style_match_off_and_colour_blind_on_reach_the_page()
+    {
+        Assert.Contains(",look:[0,0,1],", Readings.Data(options: new Options(MatchHud: false, ColourBlind: true)));
+    }
+
+    [Fact]
+    public void The_ending_pulse_reaches_the_page_in_game_seconds_held_to_its_range_and_as_null_when_off()
+    {
+        Assert.Contains(",ending:[1800,1],", Readings.Data(options: new Options(EndingMinutes: 30, EndingDebuffs: true)));
+        Assert.Contains(",ending:[300,0],", Readings.Data(options: new Options(EndingMinutes: 1)));
+        Assert.Contains(",ending:[43200,0],", Readings.Data(options: new Options(EndingMinutes: 5000)));
+        Assert.Contains(",ending:null,", Readings.Data(options: new Options(EndingPulse: false)));
+    }
+
+    [Fact]
+    public void The_heaviest_items_reach_the_page_with_the_weight_and_not_without_it()
+    {
+        var heavy = new[] { new HeavyItem("Iron bar", 4000, 2), new HeavyItem("Rope", 500, 1) };
+
+        Assert.Contains(",heavy:[[\"Iron bar\",4000,2],[\"Rope\",500,1]]", Readings.Data(weight: new CarryWeight(5000, 20000, 16000), heavy: heavy));
+        Assert.DoesNotContain("heavy:", Readings.Data(heavy: heavy));
+        Assert.DoesNotContain("heavy:", Readings.Data(weight: new CarryWeight(5000, 20000, 16000)));
+    }
+
+    [Fact]
+    public void The_good_buff_ids_reach_the_page_after_the_food_modifiers()
+    {
+        var data = Readings.Data(details: Readings.DetailsOf(good: new[] { 1300, 4 }));
+
+        Assert.EndsWith(",food:[],good:[1300,4]}", data);
     }
 
     [Fact]
@@ -105,7 +156,7 @@ public class PageDataTests
 
         var data = Readings.Data(details: details);
 
-        Assert.EndsWith(",opt:[1,1,1,1,1],zoom:0.8,buffZoom:0.8,tipZoom:0.8,fit:null,max:[100,100,120,80],coming:[[],[],[],[[1111,6.67,9000]]],"
+        Assert.EndsWith(",opt:[1,1,1,1,1,1],look:[1,0,0],ending:[3600,0],zoom:0.8,buffZoom:0.8,tipZoom:0.8,fit:null,max:[100,100,120,80],coming:[[],[],[],[[1111,6.67,9000]]],"
             + "info:{1111:[\"Cut\",0,2,[[\"e\",3,-2],[\"g\",0,0.5]],[2400,2401],[2916],1]},"
             + "items:{2400:[\"Bandage\",\"Icons/bandage.png\",3]},by:\"Morphine\",foods:[\"Meat\",\"Fruit\"],food:[[0,2,-0.25]]}", data);
     }

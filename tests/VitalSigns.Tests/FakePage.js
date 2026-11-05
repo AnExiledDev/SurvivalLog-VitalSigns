@@ -38,6 +38,7 @@ var FakeElement = class {
     }
 
     hasAttribute(name) { return Object.prototype.hasOwnProperty.call(this.attrs, name); }
+    getAttribute(name) { return this.hasAttribute(name) ? this.attrs[name] : null; }
 
     setAttribute(name, value) { this.attrs[name] = String(value); }
 

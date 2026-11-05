@@ -13,8 +13,10 @@ internal static class Readings
         new[] { satiety ?? Unscaled, morale ?? Unscaled, stamina ?? Unscaled, life ?? Unscaled };
 
     public static string Data(IReadOnlyList<StatRatios>? stats = null, IReadOnlyList<BuffTime>? buffs = null, CarryWeight? weight = null, WellFedLine? wellFed = null,
-        bool isChinese = false, GameNames? names = null, Details? details = null, Options? options = null, FitnessReading? fitness = null, bool hasOtherFitnessBar = false) =>
-        PageData.Of(new Vitals(stats ?? Stats(), buffs ?? Array.Empty<BuffTime>(), 0, weight, wellFed, details, fitness), names ?? English, isChinese, options, hasOtherFitnessBar);
+        bool isChinese = false, GameNames? names = null, Details? details = null, Options? options = null, FitnessReading? fitness = null, bool hasOtherFitnessBar = false,
+        IReadOnlyList<HeavyItem>? heavy = null) =>
+        PageData.Of(new Vitals(stats ?? Stats(), buffs ?? Array.Empty<BuffTime>(), 0, weight, wellFed, details, fitness, Heavy: heavy), names ?? English, isChinese, options,
+            hasOtherFitnessBar);
 
     public static readonly double[] None = { 0, 0, 0, 0 };
 
@@ -29,7 +31,7 @@ internal static class Readings
 
     public static Details DetailsOf(IReadOnlyList<BuffRule>? rules = null, IReadOnlyList<IReadOnlyList<LossLine>>? coming = null, IReadOnlyList<ItemCount>? items = null,
         string suppressedBy = "", IReadOnlyList<string>? foods = null, IReadOnlyList<FoodMod>? foodMods = null, double[]? max = null,
-        IReadOnlyList<IReadOnlyList<GainSource>>? sources = null) =>
+        IReadOnlyList<IReadOnlyList<GainSource>>? sources = null, IReadOnlyList<int>? good = null) =>
         new(max ?? new double[] { 100, 100, 100, 100 }, coming ?? new IReadOnlyList<LossLine>[] { Array.Empty<LossLine>(), Array.Empty<LossLine>(), Array.Empty<LossLine>(), Array.Empty<LossLine>() },
-            rules ?? Array.Empty<BuffRule>(), 1, items ?? Array.Empty<ItemCount>(), suppressedBy, foods ?? Array.Empty<string>(), foodMods ?? Array.Empty<FoodMod>(), sources);
+            rules ?? Array.Empty<BuffRule>(), 1, items ?? Array.Empty<ItemCount>(), suppressedBy, foods ?? Array.Empty<string>(), foodMods ?? Array.Empty<FoodMod>(), sources, good);
 }

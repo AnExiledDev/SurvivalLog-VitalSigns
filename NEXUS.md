@@ -16,7 +16,10 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 [*][b]Timer stripe on buffs[/b]: every buff or debuff that runs out gets a thin stripe that shrinks as its time runs down and turns amber near the end.[/*]
 [*][b]Fitness bar[/b]: a bar under Life shows your Fitness, a stat the game keeps but never shows. Green when fine, amber close to Weakened and red below 30. Its hover box says what Fitness does and how close you are to Weakened. This replaces the Fitness Bar mod, which turns itself off when Vital Signs is installed.[/*]
 [*][b]Low stat warnings[/b]: a pop-up when Satiety, Morale, Stamina or Life drops to 20% of its maximum, and when Fitness drops below 40 and below 30, where you become Weakened. Each warns once per drop. Set the line or turn each one off.[/*]
-[*][b]Weight on the Inventory button[/b]: the kilograms you carry, amber when you are close to Overweight and red past it. Hover the button for how much room you have left.[/*]
+[*][b]Weight on the Inventory button[/b]: the kilograms you carry, amber when you are close to Overweight and red past it. Hover the button for how much room you have left and the heaviest items in your bag.[/*]
+[*][b]Trend arrows[/b]: a small arrow up or down by a stat's value when it rose or fell over the last game hour.[/*]
+[*][b]Buffs about to end pulse[/b]: a good buff pulses when it has an hour or less left, so you can renew it in time. Set how soon, or make debuffs pulse too.[/*]
+[*][b]Styles[/b]: the hover boxes, chips and bar frames take the colours of the HUD style chosen in Exiled's Toolkit. Bars can be drawn flat or split into tenths, and a colour-blind setting uses blue and orange in place of green and red.[/*]
 [*][b]Sizes[/b]: the bars and the buffs next to them are drawn at 80% of the game's size by default, and the bars' hover boxes at the game's own size. Set each one from 50% to 150%.[/*]
 [*][b]Settings apply at once[/b]: every setting changed on the Mod Manager's Mods screen takes effect right away, with no restart.[/*]
 [*][b]English or Chinese[/b]: follows the game's language.[/*]
@@ -43,7 +46,7 @@ Values are read every couple of seconds, so a change can take that long to show.
 [*]Survival Log 1.1.20151. A game update can break it until the mod is updated.[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/12]BepInEx for Survival Log[/url]. Install it first.[/*]
 [*]Optional: [url=https://www.nexusmods.com/survivallog/mods/73]Mod Manager[/url]. The Timers tab, where you see every buff and set single buffs, is on this mod's page in the Mod Manager. Without it, set the buff multipliers in the config files.[/*]
-[*][url=https://www.nexusmods.com/survivallog/mods/61]Exiled's Toolkit[/url] 0.11.0 or newer. The warnings are its pop-ups, and settings take effect at once through it.[/*]
+[*][url=https://www.nexusmods.com/survivallog/mods/61]Exiled's Toolkit[/url] 0.11.0 or newer. The warnings are its pop-ups, and settings take effect at once through it. The colours that match its HUD style need 0.18.0 or newer.[/*]
 [/list]
 
 [size=5]Installation[/size]
@@ -60,7 +63,7 @@ Values are read every couple of seconds, so a change can take that long to show.
 Delete [font=Courier New]VitalSigns.dll[/font] from the [font=Courier New]BepInEx\plugins[/font] folder.
 
 [size=5]Configuration[/size]
-Settings are in [font=Courier New]BepInEx\config\com.dev.survivallog.vitalsigns.cfg[/font] or on the Mod Manager's Mods screen, and take effect at once. [font=Courier New]Enabled[/font] turns the mod on or off. Under Display you can turn off the Fitness bar, the weight, the timer stripes, the hover box details, the game's own stat text and the cure lists. BarSize, BuffSize and BarTooltipSize set how big the bars, the buffs and the bars' hover boxes are drawn (80% of the game's size by default). Under Alerts you can turn off each warning, and LowAt sets how low a stat gets before it warns (20% by default).
+Settings are in [font=Courier New]BepInEx\config\com.dev.survivallog.vitalsigns.cfg[/font] or on the Mod Manager's Mods screen, and take effect at once. [font=Courier New]Enabled[/font] turns the mod on or off. Under Display you can turn off the Fitness bar, the weight, the timer stripes, the hover box details, the game's own stat text and the cure lists. BarSize, BuffSize and BarTooltipSize set how big the bars, the buffs and the bars' hover boxes are drawn (80% of the game's size by default). HeaviestItems, TrendArrows, MatchHudStyle, BarLook and ColourBlind set the heaviest items list, the arrows and the look. Under Alerts you can turn off each warning, and LowAt sets how low a stat gets before it warns (20% by default). BuffEndingPulse, BuffEndingMinutes and BuffEndingDebuffs set which buffs pulse before they end, and how soon.
 
 For buff times, open the Mod Manager, go to Vital Signs and pick the Timers tab. Set the good and bad multipliers and the category ones at the top, and a single buff's multiplier in its row, then press Save. The changes take effect at once, on buffs already running too. They are also in the cfg file under Timers and TimerCategories, and single buffs are in [font=Courier New]BepInEx\config\VitalSigns.Timers.json[/font]. See [url=https://github.com/AnExiledDev/SurvivalLog-VitalSigns/blob/main/CONFIG.md]CONFIG.md[/url] for every setting.
 
@@ -86,7 +89,10 @@ Open source under MIT: [url=https://github.com/AnExiledDev/SurvivalLog-VitalSign
 [*][b]状态计时条[/b]：每个会结束的增益或减益底部都有一条细条，随剩余时间缩短，快结束时变成琥珀色。[/*]
 [*][b]健康条[/b]：「生命」条下方显示你的健康，这是游戏记录却从不显示的属性。正常时为绿色，接近「亚健康」时为琥珀色，低于30时为红色。悬停提示说明健康的作用以及距离「亚健康」还有多远。本功能取代了 Fitness Bar 模组；安装了 Vital Signs 时，Fitness Bar 会自动关闭。[/*]
 [*][b]属性偏低提醒[/b]：「饱腹」「心情」「体力」或「生命」降到上限的 20% 时弹出提醒，健康降到40以下和30以下（陷入「亚健康」）时也会提醒。每次下降只提醒一次。可以设置提醒的位置，或分别关闭。[/*]
-[*][b]「背包」按钮上的负重[/b]：显示当前负重（千克），接近「超重」时变成琥珀色，超过后变成红色。鼠标悬停可查看距离「超重」还有多少余量。[/*]
+[*][b]「背包」按钮上的负重[/b]：显示当前负重（千克），接近「超重」时变成琥珀色，超过后变成红色。鼠标悬停可查看距离「超重」还有多少余量，以及背包里最重的物品。[/*]
+[*][b]趋势箭头[/b]：属性在过去一小时（游戏时间）内上升或下降时，数值旁会显示一个小箭头。[/*]
+[*][b]即将结束的状态会闪烁[/b]：增益状态剩余一小时或更少时会闪烁，方便及时续上。可以设置提前多久，也可以让负面状态一起闪烁。[/*]
+[*][b]样式[/b]：悬停提示、倍率标签和属性条边框会采用 Exiled's Toolkit 中所选界面风格的配色。属性条可以无边框显示，或分成十格；色盲模式用蓝色和橙色代替绿色和红色。[/*]
 [*][b]大小[/b]：属性条和旁边的状态默认按游戏原尺寸的 80% 显示，属性条的悬停提示按游戏原尺寸显示。三者可分别在 50% 到 150% 之间设置。[/*]
 [*][b]设置立即生效[/b]：在 Mod Manager 的「模组」界面修改任何设置都会立即生效，无需重启。[/*]
 [*][b]中英文[/b]：跟随游戏语言。[/*]
@@ -112,7 +118,7 @@ Vital Signs 最初的灵感来自 ivmakk0 的 [url=https://www.nexusmods.com/sur
 [*]Survival Log 1.1.20151。游戏更新后模组可能暂时失效，直到模组更新为止。[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/12]BepInEx for Survival Log[/url]，请先安装。[/*]
 [*]可选：[url=https://www.nexusmods.com/survivallog/mods/73]Mod Manager[/url]。查看所有状态、设置单个状态的「计时」标签页，在 Mod Manager 里本模组的页面上。没装的话，在配置文件中设置倍数。[/*]
-[*][url=https://www.nexusmods.com/survivallog/mods/61]Exiled's Toolkit[/url] 0.11.0 或更新版本。提醒弹窗由它显示，设置也通过它立即生效。[/*]
+[*][url=https://www.nexusmods.com/survivallog/mods/61]Exiled's Toolkit[/url] 0.11.0 或更新版本。提醒弹窗由它显示，设置也通过它立即生效。跟随其界面风格的配色需要 0.18.0 或更新版本。[/*]
 [/list]
 
 [size=5]安装[/size]
@@ -129,7 +135,7 @@ Vital Signs 最初的灵感来自 ivmakk0 的 [url=https://www.nexusmods.com/sur
 从 [font=Courier New]BepInEx\plugins[/font] 文件夹中删除 [font=Courier New]VitalSigns.dll[/font]。
 
 [size=5]配置[/size]
-设置位于 [font=Courier New]BepInEx\config\com.dev.survivallog.vitalsigns.cfg[/font]，也可以在 Mod Manager 的「模组」界面修改，修改后立即生效。[font=Courier New]Enabled[/font] 用于开关模组。在 Display 分组里可以分别关闭健康条、负重显示、计时条、悬停提示详情、游戏自带的属性说明和治疗物品列表。BarSize、BuffSize 和 BarTooltipSize 分别设置属性条、状态和属性条悬停提示的显示大小（默认均为游戏原尺寸的 80%）。在 Alerts 分组里可以分别关闭每项提醒，LowAt 设置属性降到多少时提醒（默认 20%）。
+设置位于 [font=Courier New]BepInEx\config\com.dev.survivallog.vitalsigns.cfg[/font]，也可以在 Mod Manager 的「模组」界面修改，修改后立即生效。[font=Courier New]Enabled[/font] 用于开关模组。在 Display 分组里可以分别关闭健康条、负重显示、计时条、悬停提示详情、游戏自带的属性说明和治疗物品列表。BarSize、BuffSize 和 BarTooltipSize 分别设置属性条、状态和属性条悬停提示的显示大小（默认均为游戏原尺寸的 80%）。HeaviestItems、TrendArrows、MatchHudStyle、BarLook 和 ColourBlind 分别设置最重物品列表、趋势箭头和外观。在 Alerts 分组里可以分别关闭每项提醒，LowAt 设置属性降到多少时提醒（默认 20%）。BuffEndingPulse、BuffEndingMinutes 和 BuffEndingDebuffs 设置哪些状态在结束前闪烁，以及提前多久。
 
 状态持续时间：打开 Mod Manager，进入 Vital Signs，选择「计时」标签页。在顶部设置增益、负面和各类别的倍数，在状态所在的行设置单个状态的倍数，然后点「保存」。改动立即生效，正在生效的状态也会改变。这些倍数也在配置文件的 Timers 和 TimerCategories 分组中，单个状态的倍数在 [font=Courier New]BepInEx\config\VitalSigns.Timers.json[/font] 中。完整说明见 [url=https://github.com/AnExiledDev/SurvivalLog-VitalSigns/blob/main/CONFIG.md]CONFIG.md[/url]（英文）。
 

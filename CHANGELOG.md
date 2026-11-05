@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.0
+
+- Trend arrows: a small arrow by a stat's value shows when it rose or fell over the last game hour.
+- A good buff now pulses when it has an hour or less left, so you can renew it in time. Set how soon with BuffEndingMinutes, or make debuffs pulse too with BuffEndingDebuffs.
+- The Inventory button's hover box now lists the 5 heaviest items in your bag, with their weight. Set how many with HeaviestItems.
+- The hover boxes, the multiplier chips and the bar frames now take the colours of the HUD style chosen in Exiled's Toolkit 0.18.0 or newer. Turn it off with MatchHudStyle.
+- BarLook draws the stat bars flat, with no frame or shadow, or split into tenths.
+- ColourBlind uses blue in place of green and orange in place of red.
+- Made for Survival Log 1.1.20151.
+
 ## 0.7.5
 
 - The Mod Manager no longer says Vital Signs settings need a game restart. They all apply right away.

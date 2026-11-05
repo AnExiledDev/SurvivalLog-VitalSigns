@@ -36,11 +36,22 @@
         '.status-panel > .status-row > .vs-chip';
     var BUFF_BOXES = '.status-panel > .status-row > .buff-container';
     var BAR_TIPS = '.status-panel .progress-bar-wrapper > .status-tooltip,.status-panel .vs-chip > .vs-ct';
-    var DRAWN = ['vs-chip', 'vs-mark', 'vs-loss', 'vs-st', 'vs-timer', 'vs-bt', 'vs-btime', 'vs-bd', 'vs-weight', 'vs-wbar', 'vs-weight-tip', FIT_ROW];
+    var DRAWN = ['vs-trend', 'vs-chip', 'vs-mark', 'vs-loss', 'vs-st', 'vs-timer', 'vs-bt', 'vs-btime', 'vs-bd', 'vs-weight', 'vs-wbar', 'vs-weight-tip', FIT_ROW];
     // Attributes put on the game's own tooltips, taken off again by clear. Attributes, not classes: Vue writes the whole
     // class of a tooltip each time it shows or hides it, which wiped a class of ours and showed the game's own look until
     // the next call drew it again. Vue leaves attributes it does not own alone.
     var MARKS = ['data-vs-no-game-text', 'data-vs-tip', 'data-vs-timed'];
+    // The HUD style colours are taken only from a Toolkit look that is not the classic one.
+    var MATCH = 'html[data-vs-match][data-etk-look]:not([data-etk-look="classic"])';
+    var LOOK_MARKS = ['data-vs-match', 'data-vs-cb', 'data-vs-bars'];
+    var BAR_LOOKS = [null, 'flat', 'segmented'];
+    var ENDING = 'data-vs-ending';
+    // Trend arrows: the change over this much game time, once at least the shorter span has been seen; a reading kept
+    // every minute of game time; a change smaller than this part of the bar is no change.
+    var TREND_SECONDS = 3600;
+    var TREND_MIN_SECONDS = 600;
+    var TREND_STEP = 60;
+    var TREND_EPSILON = 0.005;
     var MARKED_TIPS = ['buff-tooltip', 'status-tooltip'];
     // How close a hover box may come to the top or bottom of the window, in the window's pixels.
     var EDGE = 6;
@@ -85,6 +96,8 @@
             weakened: 'Below 30, so you are Weakened.',
             nearWeakened: function (left) { return 'Close to Weakened: ' + left + ' more lost and it drops below 30.'; },
             aboveWeakened: function (above) { return above + ' above 30, where Weakened starts.'; },
+            heaviest: 'Heaviest:',
+            heavy: function (name, count, kg) { return name + (count > 1 ? ' x' + count : '') + ': ' + kg + ' kg'; },
             otherFitnessBar: 'An old Fitness Bar mod is also installed, so you see two Fitness bars. Remove FitnessBar.dll from BepInEx/plugins, or update it to 0.1.2 or newer.'
         },
         zh: {
@@ -124,45 +137,78 @@
             weakened: '低于30，你处于「亚健康」状态。',
             nearWeakened: function (left) { return '接近「亚健康」：再降低 ' + left + ' 点就会低于30。'; },
             aboveWeakened: function (above) { return '比「亚健康」的界线30高 ' + above + ' 点。'; },
+            heaviest: '最重的物品：',
+            heavy: function (name, count, kg) { return name + (count > 1 ? ' x' + count : '') + '：' + kg + ' 千克'; },
             otherFitnessBar: '同时安装了旧版 Fitness Bar 模组，所以会显示两个健康条。请从 BepInEx/plugins 中删除 FitnessBar.dll，或将其更新到 0.1.2 或更高版本。'
         }
     };
 
     // Under the game's own look: the chip, lines and shading sit inside its bar, the tooltip blocks use its text styles.
     var CSS = [
+        // Our colours, in one place. MatchHudStyle takes them from the HUD style picked in Exiled's Toolkit (its
+        // data-etk-look and --etk-* variables, each with our colour as the fallback); the classic style keeps ours.
+        ':root{--vs-panel:rgba(14,16,19,.93);--vs-edge:rgba(255,255,255,.14);--vs-text:#eee;--vs-muted:#ccc;--vs-key:#c4c9ce;--vs-faint:#b4bbc2;--vs-head:#8f98a1;' +
+            '--vs-good:#a5d6a7;--vs-bad:#ff8a80;--vs-warn:#ffc107;--vs-good-head:#7bd88a;--vs-up:#2e7d51;--vs-up-edge:#4caf50;--vs-down:#a83030;' +
+            '--vs-down-edge:#e05252;--vs-wfill:#81c784;--vs-radius:2.8px}',
+        MATCH + '{--vs-panel:var(--etk-panel,rgba(14,16,19,.93));--vs-edge:var(--etk-edge,rgba(255,255,255,.14));--vs-text:var(--etk-text,#eee);' +
+            '--vs-muted:var(--etk-muted,#ccc);--vs-key:var(--etk-muted,#c4c9ce);--vs-faint:var(--etk-muted,#b4bbc2);--vs-head:var(--etk-accent,#8f98a1);' +
+            '--vs-radius:var(--etk-radius,2.8px)}',
+        MATCH + ' .status-panel .bar-mask{background:var(--etk-track,rgba(0,0,0,.5));border-color:var(--etk-edge,rgba(255,255,255,.12));border-radius:var(--etk-radius,2.8px)}',
+        // Colour blind: blue for good and orange for bad (the Okabe-Ito colours), on our parts and the game's bars and badges.
+        'html[data-vs-cb]{--vs-good:#56b4e9;--vs-bad:#e69f00;--vs-warn:#f0e442;--vs-good-head:#56b4e9;--vs-up:#0072b2;--vs-up-edge:#56b4e9;' +
+            '--vs-down:#d55e00;--vs-down-edge:#e69f00;--vs-wfill:#56b4e9}',
+        'html[data-vs-cb] .status-panel .progress-fill.bar-green{background-color:rgba(0,114,178,.7)}',
+        'html[data-vs-cb] .status-panel .progress-fill.bar-yellow{background-color:rgba(240,228,66,.55)}',
+        'html[data-vs-cb] .status-panel .progress-fill.bar-orange{background-color:rgba(230,159,0,.6)}',
+        'html[data-vs-cb] .status-panel .is-low .progress-fill{background-color:rgba(204,121,167,.75)!important}',
+        'html[data-vs-cb] .buff.buff-pos{background-color:rgba(0,114,178,.6);border-color:rgba(86,180,233,.6)}',
+        'html[data-vs-cb] .buff.buff-neg{background-color:rgba(213,94,0,.6);border-color:rgba(230,159,0,.6)}',
+        // BarLook: Flat drops the bar's frame and shadow, Segmented marks every tenth.
+        'html[data-vs-bars="flat"] .status-panel .bar-mask{box-shadow:none;border-color:transparent}',
+        'html[data-vs-bars="segmented"] .status-panel .bar-mask::after{content:"";position:absolute;inset:0;z-index:5;pointer-events:none;' +
+            'background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),rgba(0,0,0,.45) calc(10% - 1px) 10%)}',
+        // A stat that rose or fell over the last game hour: the arrow sits just left of the value.
+        '.status-panel .progress-text > .vs-trend{order:1;margin-left:auto;margin-right:3px;font-style:normal;font-size:8px}',
+        '.status-panel .progress-text > :not(.attr-name):not(.vs-trend){order:2}',
+        '.vs-trend-up{color:var(--vs-good)}',
+        '.vs-trend-down{color:var(--vs-bad)}',
+        // A buff about to end pulses. Before, not after: the game's own after is its new-buff flash.
+        '.buff[data-vs-ending]::before{content:"";position:absolute;inset:-1px;border-radius:inherit;border:1px solid var(--vs-warn);' +
+            'box-shadow:0 0 6px 1px var(--vs-warn);opacity:0;animation:vs-ending 1.6s ease-in-out infinite;pointer-events:none}',
+        '@keyframes vs-ending{0%,100%{opacity:0}50%{opacity:1}}',
         '.status-panel .progress-text{text-shadow:-.6px -.6px 0 rgba(0,0,0,.85),.6px -.6px 0 rgba(0,0,0,.85),-.6px .6px 0 rgba(0,0,0,.85),.6px .6px 0 rgba(0,0,0,.85)}',
         // The multiplier: a solid chip of its own left of the bar, with the bar's corners and the buffs' shadow, so the
         // bar's name and value keep their whole width. Zoomed with the bar (BarSize).
-        '.vs-chip{flex-shrink:0;align-self:center;box-sizing:border-box;min-width:31px;height:18px;margin-right:4px;padding:0 4px;border:1px solid;border-radius:2.8px;font-size:10.5px;line-height:16px;font-weight:bold;text-align:center;color:#fff;font-variant-numeric:tabular-nums;box-shadow:.7px .7px 2.1px rgba(0,0,0,.5);text-shadow:0 .7px 1px rgba(0,0,0,.45);pointer-events:none;position:relative}',
-        '.vs-chip-up{background:#2e7d51;border-color:#4caf50}',
-        '.vs-chip-down{background:#a83030;border-color:#e05252}',
+        '.vs-chip{flex-shrink:0;align-self:center;box-sizing:border-box;min-width:31px;height:18px;margin-right:4px;padding:0 4px;border:1px solid;border-radius:var(--vs-radius);font-size:10.5px;line-height:16px;font-weight:bold;text-align:center;color:#fff;font-variant-numeric:tabular-nums;box-shadow:.7px .7px 2.1px rgba(0,0,0,.5);text-shadow:0 .7px 1px rgba(0,0,0,.45);pointer-events:none;position:relative}',
+        '.vs-chip-up{background:var(--vs-up);border-color:var(--vs-up-edge)}',
+        '.vs-chip-down{background:var(--vs-down);border-color:var(--vs-down-edge)}',
         // The multiplier's hover box: what makes it up, buff by buff, in the look of the game's buff boxes. It opens left
         // of the chip as the bars' boxes do. The chip takes the mouse only while it has a box.
         '.vs-chip[data-interactive]{pointer-events:auto}',
-        '.vs-ct{position:absolute;right:calc(100% + 9px);top:50%;transform:translateY(-50%);box-sizing:border-box;width:180px;padding:7px 9px;background:rgba(14,16,19,.93);border:1px solid rgba(255,255,255,.14);border-radius:4px;z-index:30;opacity:0;visibility:hidden;pointer-events:none;text-align:left;font-weight:normal;text-shadow:none;white-space:normal}',
+        '.vs-ct{position:absolute;right:calc(100% + 9px);top:50%;transform:translateY(-50%);box-sizing:border-box;width:180px;padding:7px 9px;background:var(--vs-panel);border:1px solid var(--vs-edge);border-radius:4px;z-index:30;opacity:0;visibility:hidden;pointer-events:none;text-align:left;font-weight:normal;text-shadow:none;white-space:normal}',
         '.vs-chip:hover > .vs-ct{opacity:1;visibility:visible}',
-        '.vs-ct::after{content:"";position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-top:var(--vs-arrow,0px);border:6px solid transparent;border-left-color:rgba(14,16,19,.93)}',
-        '.vs-ch{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:5px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,.14)}',
+        '.vs-ct::after{content:"";position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-top:var(--vs-arrow,0px);border:6px solid transparent;border-left-color:var(--vs-panel)}',
+        '.vs-ch{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:5px;padding-bottom:4px;border-bottom:1px solid var(--vs-edge)}',
         '.vs-cn{min-width:0;font-size:12px;line-height:15px;font-weight:900}',
-        '.vs-ct-up .vs-cn{color:#7bd88a}',
-        '.vs-ct-down .vs-cn{color:#ff8a80}',
-        '.vs-cm{flex-shrink:0;font-family:Consolas,monospace;font-size:11px;font-weight:bold;color:#eee}',
+        '.vs-ct-up .vs-cn{color:var(--vs-good-head)}',
+        '.vs-ct-down .vs-cn{color:var(--vs-bad)}',
+        '.vs-cm{flex-shrink:0;font-family:Consolas,monospace;font-size:11px;font-weight:bold;color:var(--vs-text)}',
         // A hover box moved to stay on screen: its arrow is moved back by the same amount, so it still points at its bar
         // or badge. The game anchors a box by its top or, on the last rows, by its bottom; the margins move either.
         '.status-panel .status-tooltip::after,.status-panel .buff-tooltip::after{margin-top:var(--vs-arrow,0px);margin-bottom:calc(-1 * var(--vs-arrow,0px))}',
         '.vs-mark{position:absolute;top:0;bottom:0;width:1px;margin-left:-.5px;background:rgba(255,255,255,.6);pointer-events:none}',
         '.vs-mark-until{background:rgba(255,255,255,.3)}',
         '.vs-loss{position:absolute;top:0;bottom:0;pointer-events:none;background:repeating-linear-gradient(135deg,rgba(0,0,0,.55) 0 2px,rgba(0,0,0,.25) 2px 4px)}',
-        '.vs-st{margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,.15)}',
+        '.vs-st{margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--vs-edge)}',
         '.vs-st:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}',
         '.status-tooltip[data-vs-no-game-text] > .st-body:not(.vs-st):not(.vs-fit-dup){display:none}',
-        '.vs-row{font-size:11px;line-height:1.5;color:#ccc}',
-        '.vs-good{color:#a5d6a7}',
-        '.vs-bad{color:#ff8a80}',
-        '.vs-warn{color:#ffc107}',
+        '.vs-row{font-size:11px;line-height:1.5;color:var(--vs-muted)}',
+        '.vs-good{color:var(--vs-good)}',
+        '.vs-bad{color:var(--vs-bad)}',
+        '.vs-warn{color:var(--vs-warn)}',
         // The stat hover boxes as dark as the buff ones, so the HUD behind them does not show through.
-        '.status-panel .status-tooltip{background-color:rgba(14,16,19,.93);border-color:rgba(255,255,255,.14)}',
-        '.status-panel .status-tooltip::after{border-left-color:rgba(14,16,19,.93)}',
+        '.status-panel .status-tooltip{background-color:var(--vs-panel);border-color:var(--vs-edge)}',
+        '.status-panel .status-tooltip::after{border-left-color:var(--vs-panel)}',
         // The Fitness row is built like the game's own bars, so the game's styles draw it. It is the panel's last child,
         // so the game's last-row rules (hover boxes that open upward, to stay on screen) are given to it and to the row
         // above it, which they no longer reach.
@@ -175,9 +221,9 @@
         '.status-panel[' + FIT_MARK + '] > .status-row:nth-last-child(2) .progress-bar-wrapper .status-tooltip{top:auto;bottom:0;transform:none}',
         '.status-panel[' + FIT_MARK + '] > .status-row:nth-last-child(2) .progress-bar-wrapper .status-tooltip::after{top:auto;bottom:6px;transform:none}',
         '.status-panel[' + FIT_MARK + '] > .status-row:nth-last-child(2) .progress-bar-wrapper:hover .status-tooltip{transform:translateX(-5px)}',
-        '.vs-head{color:#eee;margin-top:4px}',
+        '.vs-head{color:var(--vs-text);margin-top:4px}',
         '.vs-timer{position:absolute;left:0;right:0;bottom:0;height:2px;background:rgba(255,255,255,.75);transform-origin:left;transition:transform ' + STEP_SECONDS + 's linear;pointer-events:none}',
-        '.vs-timer.vs-timer-low{background:#ffc107}',
+        '.vs-timer.vs-timer-low{background:var(--vs-warn)}',
         '.bf-leave-active .vs-timer{transition:none}',
         // Badges near the bar's own label size, so at the same BuffSize and BarSize they sit in proportion to the bar.
         // Their zoom (BuffSize) is set apart from the bar's.
@@ -185,40 +231,40 @@
         '.status-panel .buff{padding:3px 6px;font-size:10.5px;line-height:13px}',
         // A buff tooltip with our block: the name and time on one line, then the effects, the cures and the game text
         // last in smaller type. The children are placed by order, because Vue adds the header and text after our block.
-        '.buff-tooltip[data-vs-tip]{display:flex;flex-wrap:wrap;align-items:baseline;width:196px;padding:6px 8px 7px;background-color:rgba(14,16,19,.93);border-color:rgba(255,255,255,.14)}',
-        '.buff-tooltip[data-vs-tip]::after{border-left-color:rgba(14,16,19,.93)}',
+        '.buff-tooltip[data-vs-tip]{display:flex;flex-wrap:wrap;align-items:baseline;width:196px;padding:6px 8px 7px;background-color:var(--vs-panel);border-color:var(--vs-edge)}',
+        '.buff-tooltip[data-vs-tip]::after{border-left-color:var(--vs-panel)}',
         '[data-vs-tip] > .bt-header{order:0;flex:1 1 0;min-width:0;margin:0;padding:0;border:0}',
         '[data-vs-tip] .bt-title{font-size:12px;line-height:15px;letter-spacing:.2px}',
         '[data-vs-tip][data-vs-timed] .bt-timer{display:none}',
-        '.vs-btime{order:1;flex:0 0 auto;margin-left:8px;font-family:Consolas,monospace;font-size:10.5px;font-weight:bold;color:#eee}',
-        '[data-vs-tip] > .vs-bt{order:2;flex:0 0 100%;margin-top:4px;padding-top:3px;border-top:1px solid rgba(255,255,255,.14)}',
+        '.vs-btime{order:1;flex:0 0 auto;margin-left:8px;font-family:Consolas,monospace;font-size:10.5px;font-weight:bold;color:var(--vs-text)}',
+        '[data-vs-tip] > .vs-bt{order:2;flex:0 0 100%;margin-top:4px;padding-top:3px;border-top:1px solid var(--vs-edge)}',
         '[data-vs-tip] > .vs-bt.vs-bt-timed{margin-top:0;padding-top:0;border-top:0}',
         // The game's text drawn again by us, a sentence to a line, in place of its one block.
         '[data-vs-tip] > .bt-body{display:none}',
-        '[data-vs-tip] > .vs-bd{order:3;flex:0 0 100%;margin-top:6px;padding-top:5px;border-top:1px solid rgba(255,255,255,.12)}',
-        '.vs-bd .vs-row{font-size:10.5px;line-height:1.45;color:#b4bbc2}',
+        '[data-vs-tip] > .vs-bd{order:3;flex:0 0 100%;margin-top:6px;padding-top:5px;border-top:1px solid var(--vs-edge)}',
+        '.vs-bd .vs-row{font-size:10.5px;line-height:1.45;color:var(--vs-faint)}',
         '.vs-bd .vs-row + .vs-row{margin-top:3px}',
         '.vs-bt .vs-row{font-size:10.5px;line-height:1.45}',
         '.vs-kv{display:flex;justify-content:space-between;align-items:baseline;gap:8px}',
-        '.vs-kv .vs-k{min-width:0;color:#c4c9ce}',
-        '.vs-kv .vs-v{flex-shrink:0;font-family:Consolas,monospace;font-weight:bold;color:#eee}',
-        '.vs-kv.vs-good .vs-v{color:#a5d6a7}',
-        '.vs-kv.vs-bad .vs-v{color:#ff8a80}',
-        '.vs-bt .vs-head{margin-top:5px;font-size:9.5px;line-height:1.4;letter-spacing:.4px;text-transform:uppercase;color:#8f98a1}',
+        '.vs-kv .vs-k{min-width:0;color:var(--vs-key)}',
+        '.vs-kv .vs-v{flex-shrink:0;font-family:Consolas,monospace;font-weight:bold;color:var(--vs-text)}',
+        '.vs-kv.vs-good .vs-v{color:var(--vs-good)}',
+        '.vs-kv.vs-bad .vs-v{color:var(--vs-bad)}',
+        '.vs-bt .vs-head{margin-top:5px;font-size:9.5px;line-height:1.4;letter-spacing:.4px;text-transform:uppercase;color:var(--vs-head)}',
         '.vs-tbar{height:2px;margin:4px 0;background:rgba(255,255,255,.15)}',
         '.vs-tfill{height:100%;background:rgba(255,255,255,.75)}',
-        '.vs-tbar.vs-timer-low .vs-tfill{background:#ffc107}',
-        '.vs-item{display:flex;align-items:center;gap:4px;font-size:10.5px;line-height:1.5;color:#ddd}',
+        '.vs-tbar.vs-timer-low .vs-tfill{background:var(--vs-warn)}',
+        '.vs-item{display:flex;align-items:center;gap:4px;font-size:10.5px;line-height:1.5;color:var(--vs-text)}',
         '.vs-item img{width:13px;height:13px;object-fit:contain;flex-shrink:0}',
-        '.vs-item .vs-count{margin-left:auto;font-family:Consolas,monospace;font-size:10px;color:#eee}',
+        '.vs-item .vs-count{margin-left:auto;font-family:Consolas,monospace;font-size:10px;color:var(--vs-text)}',
         '.vs-item.vs-none{opacity:.45}',
         '.vs-weight{position:absolute;left:0;right:0;bottom:4px;font-size:9px;line-height:10px;text-align:center;color:#cfd3d5;pointer-events:none;font-variant-numeric:tabular-nums}',
-        '.vs-weight.vs-near{color:#ffc107}',
-        '.vs-weight.vs-over{color:#ff8a80}',
+        '.vs-weight.vs-near{color:var(--vs-warn)}',
+        '.vs-weight.vs-over{color:var(--vs-bad)}',
         '.vs-wbar{position:absolute;left:4px;right:4px;bottom:1px;height:2px;background:rgba(255,255,255,.18);pointer-events:none}',
-        '.vs-wfill{position:absolute;left:0;top:0;bottom:0;background:#81c784}',
-        '.vs-wbar.vs-near .vs-wfill{background:#ffc107}',
-        '.vs-wbar.vs-over .vs-wfill{background:#ff8a80}',
+        '.vs-wfill{position:absolute;left:0;top:0;bottom:0;background:var(--vs-wfill)}',
+        '.vs-wbar.vs-near .vs-wfill{background:var(--vs-warn)}',
+        '.vs-wbar.vs-over .vs-wfill{background:var(--vs-bad)}',
         '.vs-wgap{position:absolute;top:-1px;bottom:-1px;width:2px;margin-left:-1px;background:#111}',
         '.vs-weight-tip{margin-top:4px;white-space:pre-line}'
     ].join('\n');
@@ -234,6 +280,8 @@
     var drawnTip = null;
     // The bar or badge under the mouse, whose hover box is kept on screen.
     var fitHost = null;
+    // Per stat, readings of its bar [game second, part full], oldest first, for the trend arrows.
+    var samples = {};
 
     function apply(now, data) {
         clock = now;
@@ -253,6 +301,7 @@
             return 'noplayer';
         }
 
+        drawLook(held.look);
         drawZoom(held.zoom, held.buffZoom, held.tipZoom);
         drawWeight(held);
 
@@ -297,6 +346,21 @@
     function isTooltipOn() { return option(2); }
     function isGameTextOn() { return option(3); }
     function isCureOn() { return option(4); }
+    function isTrendOn() { return option(5); }
+
+    // ===== Look =====
+
+    // On the page's root, where our stylesheet reads them: the HUD style match, colour-blind colours, the bar look.
+    function drawLook(look) {
+        var root = document.documentElement;
+        var parts = look || [1, 0, 0];
+
+        if (!root) return;
+
+        setMark(root, 'data-vs-match', parts[0] === 1);
+        setMark(root, 'data-vs-cb', parts[2] === 1);
+        setValue(root, 'data-vs-bars', BAR_LOOKS[parts[1]] || null);
+    }
 
     // ===== Stat bars =====
 
@@ -339,10 +403,53 @@
         drawChip(row, bar, ratios ? ratios[0] : 0, stat, names);
         drawMarks(mask, wellFed);
         drawLoss(mask, stat, item);
+        drawTrend(mask, stat, item);
 
         if (stat === LIFE) drawHeart(mask);
 
         if (tip) drawStatTip(tip, stat, item, ratios, wellFed, names);
+    }
+
+    // An arrow by the value when the stat rose or fell over the last game hour; none until ten game minutes are seen.
+    function drawTrend(mask, stat, item) {
+        var text = mask.querySelector('.progress-text');
+        var arrow = text ? ownChild(text, 'vs-trend') : null;
+        var value = item ? Number(item.value) : NaN;
+        var way = text && isTrendOn() && stat >= 0 && isFinite(value) ? trendOf(stat, value) : 0;
+
+        if (!way) {
+            if (arrow) text.removeChild(arrow);
+
+            return;
+        }
+
+        if (!arrow) arrow = text.appendChild(element('i', 'vs-trend'));
+
+        setClass(arrow, 'vs-trend-up', way > 0);
+        setClass(arrow, 'vs-trend-down', way < 0);
+        setText(arrow, way > 0 ? '\u25B2' : '\u25BC');
+    }
+
+    // 1 risen, -1 fallen, 0 neither, against the oldest reading kept: one about an hour old once there is one. A
+    // clock that went back (another save loaded) starts the readings again.
+    function trendOf(stat, value) {
+        var list = samples[stat] || (samples[stat] = []);
+        var last = list.length ? list[list.length - 1] : null;
+
+        if (last && clock < last[0]) {
+            list.length = 0;
+            last = null;
+        }
+
+        if (!last || clock - last[0] >= TREND_STEP) list.push([clock, value]);
+
+        while (list.length > 1 && clock - list[1][0] >= TREND_SECONDS) list.shift();
+
+        if (clock - list[0][0] < TREND_MIN_SECONDS) return 0;
+
+        var change = value - list[0][1];
+
+        return change > TREND_EPSILON ? 1 : change < -TREND_EPSILON ? -1 : 0;
     }
 
     // The game shows a shield on the Life row; the heart is the stat's own mark.
@@ -712,12 +819,22 @@
                 if (isTimed) seen[key] = true;
 
                 drawTimer(badges[i], isTimed && isStripeOn() ? badges[i].__vs.part : -1);
+                setMark(badges[i], ENDING, isTimed && isEnding(id, copy, now));
             }
         }
 
         for (var k in lengths) {
             if (!seen[k]) delete lengths[k];
         }
+    }
+
+    // BuffEndingPulse: a good buff, or with BuffEndingDebuffs any buff, with no more than the set time left.
+    function isEnding(id, copy, now) {
+        var ending = held.ending;
+
+        if (!ending || copy[1] - now > ending[0]) return false;
+
+        return ending[1] === 1 || (!!held.good && held.good.indexOf(id) >= 0);
     }
 
     function isBadge(node) {
@@ -1089,6 +1206,12 @@
             lines.push(isOver ? text.over(name, kgUp(carried - line)) : text.left(name, kgDown(line - carried)));
         }
 
+        var heavy = data.heavy || [];
+
+        if (heavy.length) lines.push(text.heaviest);
+
+        for (var h = 0; h < heavy.length; h++) lines.push(text.heavy(heavy[h][0], heavy[h][2], kgUp(heavy[h][1])));
+
         if (!label) label = button.appendChild(element('span', 'vs-weight'));
 
         setClass(label, 'vs-over', isOver);
@@ -1208,6 +1331,15 @@
 
         if (zoom && zoom.parentElement) zoom.parentElement.removeChild(zoom);
 
+        var badges = document.querySelectorAll('.buff');
+
+        for (var b = 0; b < badges.length; b++) setMark(badges[b], ENDING, false);
+
+        var root = document.documentElement;
+
+        for (var l = 0; root && l < LOOK_MARKS.length; l++) setValue(root, LOOK_MARKS[l], null);
+
+        samples = {};
         lengths = {};
         drawnTip = null;
         fitHost = null;
@@ -1266,6 +1398,15 @@
 
         if (isOn) target.setAttribute(name, '');
         else target.removeAttribute(name);
+    }
+
+    // An attribute with a value; null takes it away. Written only when it changed.
+    function setValue(target, name, value) {
+        if (value === null) {
+            if (target.hasAttribute(name)) target.removeAttribute(name);
+        } else if (target.getAttribute(name) !== value) {
+            target.setAttribute(name, value);
+        }
     }
 
     function element(tagName, className) {

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using BepInEx;
@@ -17,7 +18,7 @@ namespace VitalSigns;
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.vitalsigns";
-    private const string Version = "0.7.5";
+    private const string Version = "0.8.0";
     private const string FitnessBarGuid = "com.dev.survivallog.fitnessbar";
     private const string ModManagerGuid = "com.dev.survivallog.modmanager";
     private const string TimersFileName = "VitalSigns.Timers.json";
@@ -116,9 +117,15 @@ public sealed class Plugin : BasePlugin
             new AcceptableValueRange<float>((float)Limits.UseAbove, (float)Limits.Max)));
 
     private sealed record DisplaySettings(ConfigEntry<bool> Weight, ConfigEntry<bool> Stripes, ConfigEntry<bool> Tooltips, ConfigEntry<bool> GameText,
-        ConfigEntry<bool> Cures, ConfigEntry<bool> Fitness, ConfigEntry<int> BarSize, ConfigEntry<int> BuffSize, ConfigEntry<int> TooltipSize)
+        ConfigEntry<bool> Cures, ConfigEntry<bool> Fitness, ConfigEntry<int> BarSize, ConfigEntry<int> BuffSize, ConfigEntry<int> TooltipSize,
+        ConfigEntry<int> HeavyItems, ConfigEntry<bool> Trends, ConfigEntry<bool> MatchHud, ConfigEntry<string> BarLook, ConfigEntry<bool> ColourBlind,
+        ConfigEntry<bool> EndingPulse, ConfigEntry<int> EndingMinutes, ConfigEntry<bool> EndingDebuffs)
     {
-        public ConfigEntryBase[] All => new ConfigEntryBase[] { Weight, Stripes, Tooltips, GameText, Cures, Fitness, BarSize, BuffSize, TooltipSize };
+        public ConfigEntryBase[] All => new ConfigEntryBase[]
+        {
+            Weight, Stripes, Tooltips, GameText, Cures, Fitness, BarSize, BuffSize, TooltipSize, HeavyItems, Trends, MatchHud, BarLook, ColourBlind, EndingPulse,
+            EndingMinutes, EndingDebuffs
+        };
     }
 
     private sealed record AlertSettings(ConfigEntry<bool> Satiety, ConfigEntry<bool> Morale, ConfigEntry<bool> Stamina, ConfigEntry<bool> Life, ConfigEntry<bool> Fitness,
@@ -128,7 +135,9 @@ public sealed class Plugin : BasePlugin
     }
 
     private static Options ReadOptions(DisplaySettings d) => new(d.Weight.Value, d.Stripes.Value, d.Tooltips.Value, d.GameText.Value, d.Cures.Value,
-        d.BarSize.Value, d.BuffSize.Value, d.Fitness.Value, d.TooltipSize.Value);
+        d.BarSize.Value, d.BuffSize.Value, d.Fitness.Value, d.TooltipSize.Value, Math.Clamp(d.HeavyItems.Value, Heaviest.Min, Heaviest.Max), d.Trends.Value,
+        d.MatchHud.Value, d.BarLook.Value, d.ColourBlind.Value, d.EndingPulse.Value, Math.Clamp(d.EndingMinutes.Value, Ending.MinMinutes, Ending.MaxMinutes),
+        d.EndingDebuffs.Value);
 
     private static AlertOptions ReadAlerts(AlertSettings a) => new(a.Satiety.Value, a.Morale.Value, a.Stamina.Value, a.Life.Value, a.Fitness.Value,
         System.Math.Clamp(a.LowAt.Value, AlertOptions.MinLowAt, AlertOptions.MaxLowAt));
@@ -167,7 +176,37 @@ public sealed class Plugin : BasePlugin
             "「饱腹」「心情」「体力」「生命」和健康条悬停提示的显示大小，为游戏原尺寸的百分比，范围 50 到 150，不受 BarSize 影响。100 为游戏原尺寸。",
             new AcceptableValueRange<int>(Core.BarSize.Min, Core.BarSize.Max)));
 
-        return new DisplaySettings(weight, stripes, tooltips, gameText, cures, fitness, barSize, buffSize, tooltipSize);
+        var heavyItems = Config.Bind("Display", "HeaviestItems", Heaviest.Default, new ConfigDescription(
+            "How many of the heaviest items in your bag the Inventory button's hover box lists, from 0 to 10, with their weight. Stacks of the same item count as one. 0 lists none. Only applies when WeightReadout is on.\n" +
+            "「背包」按钮的悬停提示中列出背包里最重的几种物品及其重量，范围 0 到 10。同一物品的多组算作一种。0 为不列出。仅在开启 WeightReadout 时生效。",
+            new AcceptableValueRange<int>(Heaviest.Min, Heaviest.Max)));
+        var trends = Bind("TrendArrows",
+            "Show an arrow on each stat bar when the stat has risen or fallen over the last game hour.",
+            "属性在过去一小时（游戏时间）内上升或下降时，在属性条上显示箭头。");
+        var matchHud = Bind("MatchHudStyle",
+            "Draw the hover boxes, the multiplier chips and the bar frames in the colours of the HUD style chosen in Exiled's Toolkit (HudStyle). With the classic style, or an older Toolkit, they keep this mod's own colours.",
+            "按照 Exiled's Toolkit 中选择的界面风格（HudStyle）的配色绘制悬停提示、倍率标签和属性条边框。使用经典风格或旧版 Toolkit 时，保持本模组自己的配色。");
+        var barLook = Config.Bind("Display", "BarLook", BarLook.Game, new ConfigDescription(
+            "How the stat bars are drawn. Game: the game's own look. Flat: no frame or shadow. Segmented: split into tenths, so you can read the level at a glance.\n" +
+            "属性条的样式。Game：游戏原本的样式。Flat：无边框、无阴影。Segmented：分成十格，一眼就能看出数值。",
+            new AcceptableValueList<string>(BarLook.Choices)));
+        var colourBlind = Config.Bind("Display", "ColourBlind", false, new ConfigDescription(
+            "Use colours that stay apart for red-green colour blindness: blue in place of green and orange in place of red, on the bars, the buffs, the multiplier chips and the hover boxes.\n" +
+            "使用红绿色盲也能分辨的配色：在属性条、状态、倍率标签和悬停提示中，用蓝色代替绿色，用橙色代替红色。"));
+
+        var endingPulse = Config.Bind("Alerts", "BuffEndingPulse", true, new ConfigDescription(
+            "Make a good buff pulse when it is about to end, so you can renew it in time. How soon is BuffEndingMinutes.\n" +
+            "增益状态即将结束时闪烁提示，方便及时续上。提前多久由 BuffEndingMinutes 决定。"));
+        var endingMinutes = Config.Bind("Alerts", "BuffEndingMinutes", Ending.DefaultMinutes, new ConfigDescription(
+            "How many game minutes before a buff ends it starts to pulse, from 5 to 720. 60 is one game hour.\n" +
+            "状态结束前多少分钟（游戏时间）开始闪烁，范围 5 到 720。60 为游戏中的一小时。",
+            new AcceptableValueRange<int>(Ending.MinMinutes, Ending.MaxMinutes)));
+        var endingDebuffs = Config.Bind("Alerts", "BuffEndingDebuffs", false, new ConfigDescription(
+            "Make debuffs pulse too when they are about to end. Only applies when BuffEndingPulse is on.\n" +
+            "负面状态即将结束时也闪烁提示。仅在开启 BuffEndingPulse 时生效。"));
+
+        return new DisplaySettings(weight, stripes, tooltips, gameText, cures, fitness, barSize, buffSize, tooltipSize, heavyItems, trends, matchHud, barLook,
+            colourBlind, endingPulse, endingMinutes, endingDebuffs);
 
         ConfigEntry<bool> Bind(string key, string english, string chinese) =>
             Config.Bind("Display", key, true, new ConfigDescription(english + "\n" + chinese));
