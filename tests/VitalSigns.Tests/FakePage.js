@@ -105,6 +105,15 @@ var FakeElement = class {
         return descendantsOf(this).filter(function (element) { return element.matches(selector); });
     }
 
+    // In a document: the element's top ancestor is the html element.
+    get isConnected() {
+        var element = this;
+
+        while (element.parentElement) element = element.parentElement;
+
+        return element.tagName === 'html' || element.tagName === 'HTML';
+    }
+
     querySelector(selector) {
         return this.querySelectorAll(selector)[0] || null;
     }
@@ -285,7 +294,23 @@ function buildTop(isShown) {
         documentElement: root,
         getElementById: function (id) { return descendantsOf(root).filter(function (element) { return element.id === id; })[0] || null; },
         createElement: function (tagName) { return new FakeElement(tagName); },
-        querySelectorAll: function (selector) { return root.querySelectorAll(selector); },
+        searches: 0,
+        frameReads: 0,
+        querySelectorAll: function (selector) { top.searches++; return root.querySelectorAll(selector); },
+        // A live list, as the browser's: it always holds the frames there are now. Each frame read is counted.
+        getElementsByTagName: function (tagName) {
+            return new Proxy({}, {
+                get: function (_, key) {
+                    var list = root.querySelectorAll(tagName);
+
+                    if (key === 'length') return list.length;
+
+                    top.frameReads++;
+
+                    return list[key];
+                }
+            });
+        },
         defaultView: {
             getComputedStyle: function (frame) { return { display: frame.style.display || 'block', visibility: 'visible', opacity: '1' }; },
             MutationObserver: class { observe() {} disconnect() {} }

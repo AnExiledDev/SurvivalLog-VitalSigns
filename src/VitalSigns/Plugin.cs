@@ -78,8 +78,6 @@ public sealed class Plugin : BasePlugin
         VsTicker.Hud = hud;
         AddComponent<VsTicker>();
 
-        var hasDifficulty = DifficultyHook.Apply(new Harmony(Guid + ".difficulty"), log.Write);
-
         var settings = StartTimers(enabled.Value, log.Write);
         var wasOn = (bool?)null;
 
@@ -101,8 +99,17 @@ public sealed class Plugin : BasePlugin
             wasOn = isOn;
         });
 
-        // Off, every stat changes by the game's own numbers again.
-        if (hasDifficulty) OptionalLive.Watch(() => DifficultyHook.Settings = enabled.Value ? ReadDifficulty(difficulty) : Difficulty.Off, difficulty.All.Append(enabled).ToArray());
+        // Off, every stat changes by the game's own numbers again. The hook goes in only once a multiplier is set.
+        var difficultyHooks = new Harmony(Guid + ".difficulty");
+
+        OptionalLive.Watch(() =>
+        {
+            var wanted = enabled.Value ? ReadDifficulty(difficulty) : Difficulty.Off;
+
+            if (!wanted.IsOff) DifficultyHook.Apply(difficultyHooks, log.Write);
+
+            DifficultyHook.Settings = wanted;
+        }, difficulty.All.Append(enabled).ToArray());
     }
 
     /// <summary>

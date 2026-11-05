@@ -1367,12 +1367,24 @@
         }
     }
 
+    function isExploreFrame(frame) {
+        return /\/ExploreMap\//i.test(String(frame.getAttribute('src') || ''));
+    }
+
+    // The frame found last is kept on the Root page and reused while it is still there with the same page; the frame
+    // list is a live one, so a miss walks it without a search.
     function exploreFrame(top) {
-        var frames = top.querySelectorAll('iframe');
+        var kept = top.__slvExploreFrame;
+
+        if (kept && kept.isConnected && isExploreFrame(kept)) return kept;
+
+        var frames = top.__slvFrames || (top.__slvFrames = top.getElementsByTagName('iframe'));
 
         for (var i = 0; i < frames.length; i++) {
-            if (/\/ExploreMap\//i.test(String(frames[i].getAttribute('src') || ''))) return frames[i];
+            if (isExploreFrame(frames[i])) return (top.__slvExploreFrame = frames[i]);
         }
+
+        top.__slvExploreFrame = null;
 
         return null;
     }

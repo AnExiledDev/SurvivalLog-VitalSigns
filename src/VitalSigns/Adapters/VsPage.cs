@@ -195,7 +195,7 @@ internal sealed class VsPage
 
     /// <summary>
     /// The clicks' plans and the Actions tab every frame, and which character the stat difficulty scales, once a
-    /// second. These run even when the page has nothing new to send.
+    /// second while a multiplier is set. These run even when the page has nothing new to send.
     /// </summary>
     private void StepActs(double now)
     {
@@ -203,7 +203,7 @@ internal sealed class VsPage
         {
             _acts.Tick(now, _vitals, Hud, Acts, Tab?.IsShown == true);
 
-            if (now >= _nextHeroAt)
+            if (now >= _nextHeroAt && !DifficultyHook.Settings.IsOff)
             {
                 _nextHeroAt = now + HeroEverySeconds;
                 DifficultyHook.HeroId = GameSingleton.Existing<BattleLogicWorld>()?._AgentManager?.GetLeadingRole()?.InstanceId ?? 0;

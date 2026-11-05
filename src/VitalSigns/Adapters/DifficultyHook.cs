@@ -12,14 +12,17 @@ namespace VitalSigns.Adapters;
 /// the 6-argument one forwards to it): the slow drain and recovery over time (AttrRecoveryComponent.UpdateCd), food,
 /// rest, buffs and furniture alike. A rise is positive, a fall negative (the method's own check at its start). The
 /// prefix scales the amount before the game applies its own ratios, for the player alone: every other character costs
-/// one compare. Its first 14 bytes hold no relative jump or call. With every multiplier at 1 it returns at once. A
-/// failure is logged once and the hook goes quiet: a stat change must never break because of this mod.
+/// one compare. Its first 14 bytes hold no relative jump or call. The method runs for every character's every stat
+/// change, so the hook goes in only once a multiplier is set off 1, and then stays in; with every multiplier back at 1
+/// it returns at once. A failure is logged once and the hook goes quiet: a stat change must never break because of this
+/// mod.
 /// </summary>
 internal static class DifficultyHook
 {
     private static Difficulty _settings = Difficulty.Off;
     private static long _heroId;
     private static int _isQuiet;
+    private static int _tried;
     private static Action<string> _log = _ => { };
 
     public static Difficulty Settings
@@ -35,8 +38,11 @@ internal static class DifficultyHook
         set => Interlocked.Exchange(ref _heroId, value);
     }
 
-    public static bool Apply(Harmony harmony, Action<string> log)
+    /// <summary>Puts the hook in the first time it is called; later calls do nothing.</summary>
+    public static void Apply(Harmony harmony, Action<string> log)
     {
+        if (Interlocked.Exchange(ref _tried, 1) != 0) return;
+
         _log = log;
 
         try
@@ -46,14 +52,11 @@ internal static class DifficultyHook
                          ?? throw new MissingMethodException(nameof(AttributeComponent) + "." + nameof(AttributeComponent.CostAttrValue));
 
             harmony.Patch(target, prefix: new HarmonyMethod(typeof(DifficultyHook), nameof(Before)));
-
-            return true;
+            log("stat difficulty hooked");
         }
         catch (Exception ex)
         {
             log("could not hook stat changes, the Difficulty settings do nothing: " + ex.Message);
-
-            return false;
         }
     }
 

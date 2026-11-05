@@ -298,6 +298,31 @@ public class HudPageTests
     }
 
     [Fact]
+    public void The_travel_map_frame_is_found_once_and_kept_while_it_stays()
+    {
+        // The plugin sends a reading every couple of seconds, and the Root page changes often: a search of its frames
+        // on each would cost every time.
+        var page = PageScript.On("{values:[0.1,0.4,0.9,0.6]}");
+
+        page.Run("var root = buildTop(true);");
+        page.Apply(0, Readings.Data(hud: new HudOptions(Explore: HudChoices.CornerBottomLeft)));
+
+        var reads = page.Number("root.document.frameReads");
+
+        page.Apply(1, Readings.Data(hud: new HudOptions(Explore: HudChoices.CornerBottomLeft)));
+        page.Apply(2, Readings.Data(hud: new HudOptions(Explore: HudChoices.CornerBottomLeft)));
+
+        Assert.True(page.Is("root.document.getElementById('vs-explore')"));
+        Assert.Equal(reads, page.Number("root.document.frameReads"));
+        Assert.Equal(0, page.Number("root.document.searches"));
+
+        page.Run("root.frame.parentElement.removeChild(root.frame);");
+        page.Apply(3, Readings.Data(hud: new HudOptions(Explore: HudChoices.CornerBottomLeft)));
+
+        Assert.False(page.Is("root.document.getElementById('vs-explore')"));
+    }
+
+    [Fact]
     public void With_the_explore_bars_off_nothing_is_drawn_on_the_travel_map()
     {
         var page = PageScript.On();
