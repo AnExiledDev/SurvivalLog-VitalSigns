@@ -57,6 +57,9 @@ public static class PageCalls
         return literal.Append('"').ToString();
     }
 
+    /// <summary>Opens or closes the HUD layout editor; answers "ok", or Missing when the page lost the script.</summary>
+    public static string Edit(bool on) => Wrap($"if(!{Api})return '{PageAnswer.Missing}';return String({Api}.edit({(on ? "true" : "false")}));");
+
     private static string Apply(int now, string? data) => $"return String({Api}.apply({Number(now)}{(data == null ? "" : "," + data)}));";
 
     private static string Wrap(string body) => "(function(){try{" + FindFrame + body + "}catch(e){return 'error: '+e;}})()";

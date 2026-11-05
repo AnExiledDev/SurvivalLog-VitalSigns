@@ -11,6 +11,7 @@
   <!-- The pure core is compiled straight in, so the tests need none of the game or BepInEx assemblies. -->
   <ItemGroup>
     <Compile Include="..\..\src\VitalSigns\Core\*.cs" Link="Core\%(Filename)%(Extension)" />
+    <Compile Include="..\..\src\VitalSigns\Core\Acts\*.cs" Link="Core\Acts\%(Filename)%(Extension)" />
     <Compile Include="..\..\src\VitalSigns\Timers\Core\*.cs" Link="Timers\Core\%(Filename)%(Extension)" />
   </ItemGroup>
 
@@ -18,6 +19,7 @@
   <ItemGroup>
     <EmbeddedResource Include="..\..\src\VitalSigns\vitalsigns.js" LogicalName="VitalSigns.vitalsigns.js" Link="vitalsigns.js" />
     <EmbeddedResource Include="..\..\src\VitalSigns\timers.js" LogicalName="VitalSigns.timers.js" Link="timers.js" />
+    <EmbeddedResource Include="..\..\src\VitalSigns\actions.js" LogicalName="VitalSigns.actions.js" Link="actions.js" />
     <EmbeddedResource Include="FakePage.js" LogicalName="VitalSigns.Tests.FakePage.js" />
   </ItemGroup>
 

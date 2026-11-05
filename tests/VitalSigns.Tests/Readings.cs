@@ -14,9 +14,9 @@ internal static class Readings
 
     public static string Data(IReadOnlyList<StatRatios>? stats = null, IReadOnlyList<BuffTime>? buffs = null, CarryWeight? weight = null, WellFedLine? wellFed = null,
         bool isChinese = false, GameNames? names = null, Details? details = null, Options? options = null, FitnessReading? fitness = null, bool hasOtherFitnessBar = false,
-        IReadOnlyList<HeavyItem>? heavy = null) =>
+        IReadOnlyList<HeavyItem>? heavy = null, HudOptions? hud = null, HudReading? reading = null) =>
         PageData.Of(new Vitals(stats ?? Stats(), buffs ?? Array.Empty<BuffTime>(), 0, weight, wellFed, details, fitness, Heavy: heavy), names ?? English, isChinese, options,
-            hasOtherFitnessBar);
+            hasOtherFitnessBar, hud, reading);
 
     public static readonly double[] None = { 0, 0, 0, 0 };
 

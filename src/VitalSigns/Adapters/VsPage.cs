@@ -1,7 +1,10 @@
 using System;
 using System.IO;
+using GameCore.HotUpdate;
+using GameCore.HotUpdate.Battle.Logic;
 using GameCore.HotUpdate.ReduxUI;
 using VitalSigns.Core;
+using VitalSigns.Core.Acts;
 
 namespace VitalSigns.Adapters;
 
@@ -15,6 +18,7 @@ namespace VitalSigns.Adapters;
 internal sealed class VsPage
 {
     private const string ScriptResource = "VitalSigns.vitalsigns.js";
+    private const double HeroEverySeconds = 1;
 
     private readonly PageWatch _watch = new();
     private readonly ReplySlot _replies = new();
@@ -22,6 +26,10 @@ internal sealed class VsPage
     private readonly AlertWatch _alerts = new();
     private readonly Action<string> _log;
     private readonly Func<bool> _isOtherFitnessBarIn;
+    private readonly HudActs _acts;
+    private Vitals? _vitals;
+    private double _nextHeroAt;
+    private bool _isEditing;
     private string? _script;
     private bool _isWeightLogged;
     private bool _hasSent;
@@ -32,7 +40,26 @@ internal sealed class VsPage
     {
         _log = log;
         _isOtherFitnessBarIn = isOtherFitnessBarIn;
+        _acts = new HudActs(log);
     }
+
+    /// <summary>The HUD section: the bars' look, the buff tray, and what clicks on them do.</summary>
+    public HudOptions Hud { get; set; } = new();
+
+    /// <summary>The Actions section: what a click on each bar queues.</summary>
+    public ActOptions Acts { get; set; } = new();
+
+    /// <summary>The bar clicks, for the test buttons.</summary>
+    public HudActs Clicks => _acts;
+
+    /// <summary>The Actions tab in the Mod Manager.</summary>
+    public ActionsTab? Tab { get; set; }
+
+    /// <summary>Saves a shift-click on a buff: pins it or unpins it.</summary>
+    public Action<int> Favourite { get; set; } = _ => { };
+
+    /// <summary>Saves what the layout editor sends when it closes with Save.</summary>
+    public Action<HudCommand.Layout> SaveLayout { get; set; } = _ => { };
 
     public Options Options { get; set; } = new();
 
@@ -47,6 +74,10 @@ internal sealed class VsPage
             if (value && !_isOn) _alerts.Reset();
 
             _isOn = value;
+
+            if (Tab != null) Tab.IsOn = value;
+
+            if (!value) DifficultyHook.HeroId = 0;
         }
     }
 
@@ -55,6 +86,8 @@ internal sealed class VsPage
         var reply = _replies.Take();
 
         if (reply != null) _held.Answered(reply);
+
+        StepActs(now);
 
         // Off, with nothing on the page: a page never sent anything has nothing to take away. A reply still goes to
         // the watch first, so it is not left waiting on it.
@@ -69,18 +102,119 @@ internal sealed class VsPage
         var isChinese = GameLanguage.IsChinese();
         var options = Options;
         var vitals = _isOn ? PlayerVitals.Read(options, isChinese) : null;
-        var data = PageData.Of(vitals, GameTexts.Names(isChinese), isChinese, options, HasOtherFitnessBar());
+        var data = PageData.Of(vitals, GameTexts.Names(isChinese), isChinese, options, HasOtherFitnessBar(), _isOn ? Hud : null, _isOn ? _acts.Reading : null);
         var clock = vitals?.Now ?? PlayerVitals.Now();
 
         if (_isOn) Warn(vitals, isChinese);
 
+        _vitals = vitals;
+
         _hasSent = true;
+
+        // A fresh install is a fresh page, with no editor open, whatever the last one had.
+        if (turn.Send == PageSend.Install) _isEditing = false;
+
         var javaScript = turn.Send == PageSend.Install ? PageCalls.Install(Script(), clock, _held.ToInstall(data)) : PageCalls.Check(clock, _held.ToSend(data));
 
         LogWeightOnce(vitals);
 
         if (Run(javaScript, now) is { } line) _log(line);
     }
+
+    /// <summary>A message from the HUD or the Actions tab.</summary>
+    public void Handle(HudCommand command, double now)
+    {
+        switch (command)
+        {
+            case HudCommand.Act act:
+                if (_isOn) _acts.Act(act.Stat, now, Fresh(), Hud, Acts);
+
+                return;
+            case HudCommand.Cure cure:
+                if (_isOn) _acts.Cure(cure.BuffId, now, Fresh(), Hud, Acts);
+
+                return;
+            case HudCommand.Favourite favourite:
+                if (_isOn) Favourite(favourite.BuffId);
+
+                return;
+            case HudCommand.Layout layout:
+                _isEditing = false;
+                SaveLayout(layout);
+
+                return;
+            case HudCommand.Edit { On: false }:
+                _isEditing = false;
+
+                return;
+            case HudCommand.Edit:
+                Edit(true);
+
+                return;
+            case HudCommand.Unknown unknown:
+                _log("a message the mod does not know: " + (unknown.Message.Length > 80 ? unknown.Message.Substring(0, 80) + "..." : unknown.Message));
+
+                return;
+            default:
+                if (Tab != null && !Tab.Handle(command, _acts, Acts)) _log("a message the mod does not know: " + command);
+
+                return;
+        }
+    }
+
+    /// <summary>The layout editor key: opens the editor, or closes it without saving.</summary>
+    public void ToggleEdit() => Edit(!_isEditing);
+
+    /// <summary>Opens or closes the HUD layout editor. The page answers when it has no HUD to edit; the next check puts the script back.</summary>
+    public void Edit(bool on)
+    {
+        if (!_isOn) return;
+
+        var webView = GameSingleton.Existing<ReduxUISystem>()?.GetWebUILayer()?.canvasWebViewPrefab?.WebView;
+
+        if (webView == null) return;
+
+        _isEditing = on;
+
+        try
+        {
+            webView.ExecuteJavaScript(PageCalls.Edit(on), (Action<string>)(result =>
+            {
+                if (result == "ok") return;
+
+                _isEditing = false;
+                _log("the layout editor did not open: " + result);
+            }));
+        }
+        catch (Exception ex)
+        {
+            _isEditing = false;
+            _log("could not open the layout editor: " + ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// The clicks' plans and the Actions tab every frame, and which character the stat difficulty scales, once a
+    /// second. These run even when the page has nothing new to send.
+    /// </summary>
+    private void StepActs(double now)
+    {
+        if (_isOn)
+        {
+            _acts.Tick(now, _vitals, Hud, Acts, Tab?.IsShown == true);
+
+            if (now >= _nextHeroAt)
+            {
+                _nextHeroAt = now + HeroEverySeconds;
+                DifficultyHook.HeroId = GameSingleton.Existing<BattleLogicWorld>()?._AgentManager?.GetLeadingRole()?.InstanceId ?? 0;
+            }
+        }
+
+        Tab?.Tick(now, _acts, Acts);
+    }
+
+    /// <summary>The stats as they are this moment, for a click: the last reading can be a second old.</summary>
+    private Vitals? Fresh() => PlayerVitals.Read(Options, GameLanguage.IsChinese()) ?? _vitals;
 
     private void Warn(Vitals? vitals, bool isChinese)
     {

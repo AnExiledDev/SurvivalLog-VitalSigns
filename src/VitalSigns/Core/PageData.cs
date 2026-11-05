@@ -22,7 +22,10 @@ public static class PageData
     /// null when off. heavy: the heaviest items in the bag, [name, grams, count].
     /// </remarks>
     /// <param name="hasOtherFitnessBar">The Fitness Bar mod is installed too: the Fitness reading carries a third value, 1, and the bar's hover box says so.</param>
-    public static string Of(Vitals? vitals, GameNames names, bool isChinese, Options? options = null, bool hasOtherFitnessBar = false)
+    /// <param name="hud">The HUD settings, with WarnAt already a percent; null sends none and the page keeps the game's HUD.</param>
+    /// <param name="reading">What the HUD shows that changes with the game: the queue's projection, cures at hand, clicks.</param>
+    public static string Of(Vitals? vitals, GameNames names, bool isChinese, Options? options = null, bool hasOtherFitnessBar = false, HudOptions? hud = null,
+        HudReading? reading = null)
     {
         if (vitals == null) return NoPlayer;
 
@@ -60,9 +63,87 @@ public static class PageData
             data.Append(']');
         }
 
+        if (hud != null) AppendHud(data, hud, reading);
+
         if (vitals.Details is { } details) AppendDetails(data, details);
 
         return data.Append('}').ToString();
+    }
+
+    /// <summary>The hud object the page reads; its fields are described where vitalsigns.js reads them (HUD_PREFIX).</summary>
+    private static void AppendHud(StringBuilder data, HudOptions hud, HudReading? reading)
+    {
+        data.Append(",hud:{hide:");
+        data.Append(hud.HideFull ? $"[{Whole(System.Math.Clamp(hud.HideAbove, HudChoices.MinHideAbove, HudChoices.MaxHideAbove))},{Flag(hud.KeepWithBuffs)}]" : "null");
+        data.Append(",warn:").Append(hud.WarnPulse ? Whole(System.Math.Clamp(hud.WarnAt, 0, 100)) : "0");
+        data.Append(",sort:").Append(Whole(HudChoices.Index(HudChoices.Sorts, hud.Sort)));
+        data.Append(",group:").Append(Whole(HudChoices.Index(HudChoices.Groups, hud.Group)));
+        data.Append(",fav:[");
+        AppendList(data, hud.Favourites ?? System.Array.Empty<int>(), (text, id) => text.Append(Whole(id)));
+        data.Append("],favSize:").Append(Ratio(System.Math.Clamp(hud.FavouriteSize, HudChoices.MinFavouriteSize, HudChoices.MaxFavouriteSize) / 100.0));
+        data.Append(",col:").Append(Flag(hud.Collapse));
+        data.Append(",lay:");
+
+        if (hud.Layout is { IsHome: false } layout)
+        {
+            data.Append('[');
+            AppendList(data, layout.Parts, (text, part) => text.Append('[').Append(Whole(part.X)).Append(',').Append(Whole(part.Y)).Append(',').Append(Whole(part.Size))
+                .Append(']'));
+            data.Append(']');
+        }
+        else
+        {
+            data.Append("null");
+        }
+
+        data.Append(",tray:").Append(Whole(HudChoices.Index(HudChoices.Trays, hud.Tray)));
+
+        var corner = HudChoices.Index(HudChoices.Corners, hud.Explore);
+
+        data.Append(",exp:").Append(corner > 0
+            ? $"[{Whole(corner)},{Ratio(System.Math.Clamp(hud.ExploreSize, HudChoices.MinExploreSize, HudChoices.MaxExploreSize) / 100.0)}]"
+            : "null");
+        data.Append(",proj:");
+
+        if (hud.Projection && reading?.Projected is { } projected)
+        {
+            data.Append('[');
+            AppendList(data, projected, (text, share) => text.Append(share is { } value ? Ratio(value) : "null"));
+            data.Append(']');
+        }
+        else
+        {
+            data.Append("null");
+        }
+
+        data.Append(",cure:[");
+        AppendList(data, reading?.Curable ?? System.Array.Empty<int>(), (text, id) => text.Append(Whole(id)));
+        data.Append("],cureOn:").Append(Flag(hud.Cure));
+        data.Append(",act:");
+
+        if (hud.ClickBars && reading?.CanAct is { } canAct)
+        {
+            data.Append('[');
+            AppendList(data, canAct, (text, can) => text.Append(Flag(can)));
+            data.Append("],tips:[");
+
+            for (var i = 0; i < canAct.Count; i++)
+            {
+                if (i > 0) data.Append(',');
+
+                var tip = reading.Tips != null && i < reading.Tips.Count ? reading.Tips[i] : "";
+
+                data.Append('[').Append(PageCalls.Quote(tip ?? "")).Append(',').Append(Flag(canAct[i])).Append(']');
+            }
+
+            data.Append(']');
+        }
+        else
+        {
+            data.Append("null");
+        }
+
+        data.Append('}');
     }
 
     /// <summary>

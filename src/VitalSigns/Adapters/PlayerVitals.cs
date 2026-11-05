@@ -4,6 +4,7 @@ using GameCore.HotUpdate;
 using GameCore.HotUpdate.Battle.Logic;
 using Il2CppInterop.Runtime;
 using VitalSigns.Core;
+using VitalSigns.Core.Acts;
 
 namespace VitalSigns.Adapters;
 
@@ -308,6 +309,40 @@ internal static class PlayerVitals
 
             if (Math.Abs(ratio) > 0.00005) mods.Add(new FoodMod(stat, food, ratio));
         }
+    }
+
+    /// <summary>
+    /// The player's modifiers on a stat change, for what a click plans: the stats' Gain and Loss ratios, every food
+    /// type's ratio and the difficulty's bonus on Life from items. Null before a player exists.
+    /// </summary>
+    public static StatScale? ReadScale()
+    {
+        var role = GameSingleton.Existing<BattleLogicWorld>()?._AgentManager?.GetLeadingRole();
+        var attributes = role == null ? null : AgentTools.GetAgentComponent<AttributeComponent>(role);
+
+        if (attributes?.AttrDict == null) return null;
+
+        double lifeBonus;
+
+        try
+        {
+            lifeBonus = DifficultyTools.GetVitalityItemAddDelta();
+        }
+        catch (Exception)
+        {
+            lifeBonus = 0;
+        }
+
+        return new StatScale(Stats(attributes), FoodMods(attributes), lifeBonus);
+    }
+
+    /// <summary>Each bar's value and maximum now, for what a click plans: the HUD's reading may be two seconds old. Null before a player exists.</summary>
+    public static IReadOnlyList<StatLevel>? ReadLevels()
+    {
+        var role = GameSingleton.Existing<BattleLogicWorld>()?._AgentManager?.GetLeadingRole();
+        var attributes = role == null ? null : AgentTools.GetAgentComponent<AttributeComponent>(role);
+
+        return attributes?.AttrDict == null ? null : Levels(attributes);
     }
 
     /// <summary>The game clock alone, for the checks that send nothing else.</summary>

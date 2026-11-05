@@ -36,7 +36,7 @@
         '.status-panel > .status-row > .vs-chip';
     var BUFF_BOXES = '.status-panel > .status-row > .buff-container';
     var BAR_TIPS = '.status-panel .progress-bar-wrapper > .status-tooltip,.status-panel .vs-chip > .vs-ct';
-    var DRAWN = ['vs-trend', 'vs-chip', 'vs-mark', 'vs-loss', 'vs-st', 'vs-timer', 'vs-bt', 'vs-btime', 'vs-bd', 'vs-weight', 'vs-wbar', 'vs-weight-tip', FIT_ROW];
+    var DRAWN = ['vs-trend', 'vs-chip', 'vs-mark', 'vs-loss', 'vs-st', 'vs-timer', 'vs-bt', 'vs-btime', 'vs-bd', 'vs-weight', 'vs-wbar', 'vs-weight-tip', FIT_ROW, 'vs-proj', 'vs-ftime'];
     // Attributes put on the game's own tooltips, taken off again by clear. Attributes, not classes: Vue writes the whole
     // class of a tooltip each time it shows or hides it, which wiped a class of ours and showed the game's own look until
     // the next call drew it again. Vue leaves attributes it does not own alone.
@@ -98,7 +98,20 @@
             aboveWeakened: function (above) { return above + ' above 30, where Weakened starts.'; },
             heaviest: 'Heaviest:',
             heavy: function (name, count, kg) { return name + (count > 1 ? ' x' + count : '') + ': ' + kg + ' kg'; },
-            otherFitnessBar: 'An old Fitness Bar mod is also installed, so you see two Fitness bars. Remove FitnessBar.dll from BepInEx/plugins, or update it to 0.1.2 or newer.'
+            otherFitnessBar: 'An old Fitness Bar mod is also installed, so you see two Fitness bars. Remove FitnessBar.dll from BepInEx/plugins, or update it to 0.1.2 or newer.',
+            afterQueue: function (value, max) { return 'After the queue ' + value + ' / ' + max; },
+            click: function (what) { return 'Click: ' + what; },
+            clickCure: 'Click to queue a cure',
+            pin: 'Shift+click to pin',
+            unpin: 'Shift+click to unpin',
+            editTitle: 'Move the bars',
+            editHelp: 'Drag a bar to move it, scroll on it to resize it. Hold Shift to move or resize all of them together.',
+            tray: 'Buffs: ',
+            trays: ['Left', 'Right', 'Above', 'Below'],
+            collapse: 'Collapse buffs',
+            reset: 'Reset',
+            cancel: 'Cancel',
+            save: 'Save'
         },
         zh: {
             stats: ['饱腹', '心情', '体力', '生命'],
@@ -139,7 +152,20 @@
             aboveWeakened: function (above) { return '比「亚健康」的界线30高 ' + above + ' 点。'; },
             heaviest: '最重的物品：',
             heavy: function (name, count, kg) { return name + (count > 1 ? ' x' + count : '') + '：' + kg + ' 千克'; },
-            otherFitnessBar: '同时安装了旧版 Fitness Bar 模组，所以会显示两个健康条。请从 BepInEx/plugins 中删除 FitnessBar.dll，或将其更新到 0.1.2 或更高版本。'
+            otherFitnessBar: '同时安装了旧版 Fitness Bar 模组，所以会显示两个健康条。请从 BepInEx/plugins 中删除 FitnessBar.dll，或将其更新到 0.1.2 或更高版本。',
+            afterQueue: function (value, max) { return '队列完成后 ' + value + ' / ' + max; },
+            click: function (what) { return '点击：' + what; },
+            clickCure: '点击加入治疗',
+            pin: 'Shift+点击置顶',
+            unpin: 'Shift+点击取消置顶',
+            editTitle: '调整属性条',
+            editHelp: '拖动属性条可移动，在上面滚动滚轮可缩放。按住 Shift 可一起移动或缩放全部属性条。',
+            tray: '状态位置：',
+            trays: ['左侧', '右侧', '上方', '下方'],
+            collapse: '收起状态',
+            reset: '重置',
+            cancel: '取消',
+            save: '保存'
         }
     };
 
@@ -176,6 +202,56 @@
         '.buff[data-vs-ending]::before{content:"";position:absolute;inset:-1px;border-radius:inherit;border:1px solid var(--vs-warn);' +
             'box-shadow:0 0 6px 1px var(--vs-warn);opacity:0;animation:vs-ending 1.6s ease-in-out infinite;pointer-events:none}',
         '@keyframes vs-ending{0%,100%{opacity:0}50%{opacity:1}}',
+        // HideFullBars: a bar full enough is taken out of the panel.
+        '.status-panel > [data-vs-hide]{display:none!important}',
+        // WarnPulse: an amber glow at the warning line, before the game's own red one at 20%.
+        '.status-panel .progress-bar-wrapper[data-vs-warn]::before{content:"";position:absolute;inset:-2px;z-index:6;border-radius:var(--vs-radius);' +
+            'border:1px solid var(--vs-warn);box-shadow:0 0 7px 1px var(--vs-warn);opacity:0;animation:vs-ending 1.8s ease-in-out infinite;pointer-events:none}',
+        '.status-panel .progress-bar-wrapper[data-vs-act="1"]{cursor:pointer}',
+        '.status-panel .progress-bar-wrapper[data-vs-act="1"]:hover .bar-mask{filter:brightness(1.18)}',
+        // The level after the queue: a striped segment from the bar's end, light when it rises, dark when it falls.
+        '.vs-proj{position:absolute;top:0;bottom:0;z-index:2;pointer-events:none;transition:left .5s ease,width .5s ease;' +
+            'background:repeating-linear-gradient(135deg,rgba(165,214,167,.55) 0 3px,rgba(165,214,167,.22) 3px 6px);box-shadow:inset 0 0 0 1px rgba(165,214,167,.5)}',
+        '.vs-proj.vs-proj-down{background:repeating-linear-gradient(135deg,rgba(0,0,0,.55) 0 3px,rgba(0,0,0,.3) 3px 6px);box-shadow:inset 0 0 0 1px rgba(255,138,128,.55)}',
+        'html[data-vs-cb] .vs-proj{background:repeating-linear-gradient(135deg,rgba(86,180,233,.55) 0 3px,rgba(86,180,233,.22) 3px 6px);box-shadow:inset 0 0 0 1px rgba(86,180,233,.5)}',
+        // Pinned buffs: bigger, with their time on the badge.
+        '.status-panel .buff[data-vs-fav]{zoom:var(--vs-fav,1.3);box-shadow:0 0 0 1px rgba(255,255,255,.35),.7px .7px 2.1px rgba(0,0,0,.5)}',
+        '.vs-ftime{position:absolute;left:50%;bottom:-1px;transform:translate(-50%,100%);padding:0 2px;font-family:Consolas,monospace;font-size:7.5px;line-height:9px;' +
+            'font-weight:bold;color:#fff;white-space:nowrap;background:rgba(0,0,0,.7);border-radius:2px;pointer-events:none;z-index:3}',
+        '.status-panel .buff[data-vs-fav]{margin-bottom:8px}',
+        // A debuff with a cure at hand: a small green corner, and a click queues it.
+        '.status-panel .buff[data-vs-cure]{cursor:pointer;background-image:radial-gradient(circle at 85% 15%,var(--vs-good) 0 2.4px,transparent 2.9px)}',
+        // CollapseBuffs: other buffs shrink to dots until the row is hovered.
+        '.status-panel[data-vs-col] .status-row:not(:hover) .buff-container > .buff:not([data-vs-fav]):not(.bf-leave-active){width:7px!important;height:7px!important;' +
+            'min-width:0!important;padding:0!important;font-size:0!important;border-radius:50%;overflow:hidden;transition:width .15s,height .15s}',
+        '.status-panel[data-vs-col] .status-row:not(:hover) .buff-container > .buff:not([data-vs-fav]) > *{display:none}',
+        // BuffTray: the buffs right of, above or below their bar.
+        '.status-panel[data-vs-tray="right"] .status-row > .buff-container{order:3;justify-content:flex-start}',
+        '.status-panel[data-vs-tray="right"] .status-row > .progress-bar-wrapper{order:2}',
+        '.status-panel[data-vs-tray="above"] .status-row,.status-panel[data-vs-tray="below"] .status-row{flex-wrap:wrap}',
+        '.status-panel[data-vs-tray="above"] .status-row > .buff-container,.status-panel[data-vs-tray="below"] .status-row > .buff-container{flex-basis:100%;justify-content:flex-end;order:0}',
+        '.status-panel[data-vs-tray="above"] .status-row > :not(.buff-container){order:1}',
+        '.status-panel[data-vs-tray="below"] .status-row > .buff-container{order:3}',
+        '.status-panel [data-vs-moved]:hover,.status-panel[data-vs-moved]:hover{z-index:50}',
+        '.status-panel > [data-vs-moved]{position:relative}',
+        // The layout editor: each part outlined, the picked one bright, a dim backdrop that keeps clicks from the world.
+        '.status-panel[data-vs-editing],.status-panel[data-vs-editing] > [data-vs-part]{outline:1px dashed rgba(255,255,255,.45);outline-offset:2px;cursor:move;user-select:none}',
+        '.status-panel[data-vs-editing]{outline-color:rgba(255,193,7,.35);outline-offset:6px}',
+        '.status-panel[data-vs-editing] [data-vs-pick]{outline:2px solid var(--vs-warn)}',
+        '.status-panel[data-vs-editing] *{pointer-events:none}',
+        '.status-panel[data-vs-editing] > [data-vs-part]{pointer-events:auto}',
+        '#vs-edit{position:fixed;inset:0;z-index:-1;background:rgba(0,0,0,.35);pointer-events:auto}',
+        '#vs-edit-bar{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:100000;display:flex;flex-direction:column;align-items:center;gap:6px;' +
+            'padding:10px 14px;max-width:560px;background:var(--vs-panel);border:1px solid var(--vs-edge);border-radius:6px;box-shadow:0 4px 18px rgba(0,0,0,.55);color:var(--vs-text);text-align:center}',
+        '.vs-et{font-size:14px;font-weight:900;color:var(--vs-good-head)}',
+        '.vs-eh{font-size:11px;line-height:15px;color:var(--vs-muted)}',
+        '.vs-eb{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:2px}',
+        '.vs-btn{font:inherit;font-size:11.5px;padding:4px 10px;border-radius:4px;border:1px solid var(--vs-edge);background:rgba(255,255,255,.07);color:var(--vs-text);cursor:pointer}',
+        '.vs-btn:hover{background:rgba(255,255,255,.16)}',
+        '.vs-btn.vs-on{border-color:var(--vs-warn);color:var(--vs-warn)}',
+        '.vs-btn.vs-main{background:var(--vs-up);border-color:var(--vs-up-edge);color:#fff;font-weight:bold}',
+        '.vs-act{color:var(--vs-good)}',
+        '.vs-hint{color:var(--vs-faint);font-style:italic}',
         '.status-panel .progress-text{text-shadow:-.6px -.6px 0 rgba(0,0,0,.85),.6px -.6px 0 rgba(0,0,0,.85),-.6px .6px 0 rgba(0,0,0,.85),.6px .6px 0 rgba(0,0,0,.85)}',
         // The multiplier: a solid chip of its own left of the bar, with the bar's corners and the buffs' shadow, so the
         // bar's name and value keep their whole width. Zoomed with the bar (BarSize).
@@ -305,6 +381,10 @@
         drawZoom(held.zoom, held.buffZoom, held.tipZoom);
         drawWeight(held);
 
+        var list = attrList();
+
+        drawExplore(list);
+
         var rows = document.querySelectorAll('.status-panel > .status-row');
 
         if (!rows.length) {
@@ -313,7 +393,6 @@
             return 'nobar';
         }
 
-        var list = attrList();
         var isListed = !!list && list.length === rows.length;
         var names = statNames(isListed ? list : null, rows.length);
 
@@ -325,6 +404,7 @@
 
         drawTimers(rows, isListed ? list : null, held.buffs, now);
         drawFitness(rows[rows.length - 1].parentElement);
+        drawHud(rows, isListed ? list : null);
 
         if (hovered) drawBuffTip(hovered, names);
 
@@ -648,7 +728,7 @@
 
         if (wellFed) rows.push([text.wellFed(held.names.wellFed, wellFed[0], wellFed[1])]);
 
-        return rows;
+        return rows.concat(hudRows(stat, value));
     }
 
     // A ratio as the percentage it adds or takes; nothing when it rounds to no change. A loss growing is bad news.
@@ -666,6 +746,770 @@
 
     function foodName(type) {
         return held.foods && held.foods[type - 1] ? held.foods[type - 1] : '#' + type;
+    }
+
+    // ===== HUD: hiding, warning line, buff tray, layout, explore strip, clicks =====
+
+    // What the plugin sends as hud: hide [percent, keep with buffs], warn (percent, 0 none), sort and group (0 the
+    // game's), fav (pinned buff ids), favSize, col (collapse), lay (per part [dx, dy, size], or null), tray (0 left,
+    // 1 right, 2 above, 3 below), exp ([corner, size] or null), proj (per stat the level after the queue, or null),
+    // cure (debuff ids with a cure at hand), cureOn, act (per stat 1 when a click has something to do, or null when
+    // clicks are off), tips (per stat [what a click does, 1 when it can]).
+    var HUD_PREFIX = 'slmod|vitalsigns|hud|';
+    var TRAYS = [null, 'right', 'above', 'below'];
+    var CORNERS = [null, 'tl', 'tr', 'bl', 'br'];
+    var PARTS = 6;
+    var FIT_PART = 4;
+    var PANEL_PART = 5;
+    var PART_MARK = 'data-vs-part';
+    var HOME = [0, 0, 100];
+    var SIZE_STEP = 5;
+    var MIN_PART_SIZE = 50;
+    var MAX_PART_SIZE = 200;
+    var MAX_SHIFT = 4000;
+    var EDIT_ID = 'vs-edit';
+    var EDIT_BAR_ID = 'vs-edit-bar';
+    var EXPLORE_ID = 'vs-explore';
+    var EXPLORE_STYLE_ID = 'vs-explore-style';
+    var ROW_MARKS = ['data-vs-hide', PART_MARK, 'data-vs-moved'];
+    var BAR_MARKS = ['data-vs-warn', 'data-vs-act'];
+    var BADGE_MARKS = ['data-vs-fav', 'data-vs-cure'];
+    var PANEL_MARKS = ['data-vs-tray', 'data-vs-col', 'data-vs-editing', PART_MARK, 'data-vs-moved'];
+    var EXPLORE_CSS = [
+        '#' + EXPLORE_ID + '{position:fixed;z-index:999990;display:flex;flex-direction:column;gap:4px;padding:7px 8px;min-width:176px;box-sizing:border-box;' +
+            'background:rgba(14,16,19,.82);border:1px solid rgba(255,255,255,.14);border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,.45);pointer-events:none;' +
+            'font-family:inherit;color:#eee}',
+        '#' + EXPLORE_ID + '[data-corner="tl"]{top:14px;left:14px}',
+        '#' + EXPLORE_ID + '[data-corner="tr"]{top:14px;right:14px}',
+        '#' + EXPLORE_ID + '[data-corner="bl"]{bottom:14px;left:14px}',
+        '#' + EXPLORE_ID + '[data-corner="br"]{bottom:14px;right:14px}',
+        '.vse-row{position:relative;height:17px;border-radius:2.8px;overflow:hidden;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.12);box-sizing:border-box}',
+        '.vse-fill{position:absolute;left:0;top:0;bottom:0;background:rgba(76,175,80,.7);transition:width .6s ease}',
+        '.vse-row.vse-mid .vse-fill{background:rgba(255,193,7,.6)}',
+        '.vse-row.vse-low .vse-fill{background:rgba(211,47,47,.75)}',
+        '#' + EXPLORE_ID + '[data-cb] .vse-fill{background:rgba(0,114,178,.7)}',
+        '#' + EXPLORE_ID + '[data-cb] .vse-row.vse-mid .vse-fill{background:rgba(240,228,66,.55)}',
+        '#' + EXPLORE_ID + '[data-cb] .vse-row.vse-low .vse-fill{background:rgba(204,121,167,.75)}',
+        '.vse-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 6px;font-size:10.5px;font-weight:bold;' +
+            'line-height:15px;text-shadow:0 0 2px rgba(0,0,0,.9);font-variant-numeric:tabular-nums}',
+        '.vse-name{display:flex;gap:4px;align-items:center;min-width:0;white-space:nowrap;overflow:hidden}'
+    ].join('\n');
+
+    // The layout being edited, or null: per part [dx, dy, size], the tray side, collapse, the part picked and a drag.
+    var editing = null;
+    // What the last call left in place that the page's click areas depend on; a change measures them again.
+    var hudKey = '';
+    // The Root frame list watched for the travel map opening and closing.
+    var exploreWatch = null;
+    var exploreSoon = 0;
+
+    function hudOf() {
+        return held && held.hud ? held.hud : null;
+    }
+
+    function drawHud(rows, list) {
+        var h = hudOf();
+        var panel = rows[0].parentElement;
+        var parts = editing ? editing.parts : h && h.lay ? h.lay : null;
+        var key = [];
+
+        setValue(panel, 'data-vs-tray', TRAYS[editing ? editing.tray : h ? h.tray : 0] || null);
+        setMark(panel, 'data-vs-col', editing ? editing.col === 1 : !!h && h.col === 1);
+        setMark(panel, 'data-vs-editing', !!editing);
+        setVar(panel, '--vs-fav', h && h.favSize > 0 ? String(h.favSize) : '');
+
+        for (var r = 0; r < rows.length; r++) {
+            var item = list ? list[r] : null;
+
+            key.push(drawRowHud(rows[r], statOf(item, r), item ? Number(item.value) : NaN, h, parts));
+        }
+
+        var fit = ownChild(panel, FIT_ROW);
+
+        if (fit) key.push(drawRowHud(fit, FIT_PART, held.fit && held.fit[1] > 0 ? held.fit[0] / held.fit[1] : NaN, h, parts));
+
+        place(panel, PANEL_PART, parts ? parts[PANEL_PART] : null, 'right top');
+        key.push(panel.style.transform, panel.getAttribute('data-vs-tray'), panel.hasAttribute('data-vs-col'));
+
+        var joined = key.join('|');
+
+        if (joined !== hudKey) {
+            hudKey = joined;
+            syncClicks();
+        }
+    }
+
+    // One row's part of the HUD: hidden when full enough, pulsing at the warning line, the level after the queue,
+    // clickable, and moved. Returns what changes the page's click areas.
+    function drawRowHud(row, part, level, h, parts) {
+        var bar = ownChild(row, 'progress-bar-wrapper');
+        var container = ownChild(row, 'buff-container');
+        var hasBuffs = !!container && Array.prototype.some.call(container.children, isBadge);
+        var isKnown = part >= 0 && isFinite(level);
+        var isHidden = !editing && !!h && !!h.hide && isKnown && level * 100 >= h.hide[0] - 1e-6 && !(h.hide[1] === 1 && hasBuffs);
+        var isWarned = !!h && h.warn > 0 && isKnown && level * 100 <= h.warn && !!bar && !bar.classList.contains('is-low');
+        var canClick = !editing && !!h && !!h.act && part >= 0 && part < FIT_PART;
+
+        setMark(row, 'data-vs-hide', isHidden);
+
+        if (bar) {
+            setMark(bar, 'data-vs-warn', isWarned);
+            setValue(bar, 'data-vs-act', canClick ? (h.act[part] ? '1' : '0') : null);
+            drawProjection(bar, part, level, h);
+        }
+
+        place(row, part, part >= 0 && parts ? parts[part] : null, 'right center');
+
+        return (isHidden ? 'h' : '') + row.style.transform;
+    }
+
+    // A ghost segment from the bar's level to where the queue leaves it: light when it rises, dark when it falls.
+    function drawProjection(bar, part, level, h) {
+        var mask = ownChild(bar, 'bar-mask');
+        var shade = mask ? ownChild(mask, 'vs-proj') : null;
+        var to = h && h.proj && part >= 0 && part < FIT_PART ? h.proj[part] : null;
+
+        if (!mask) return;
+
+        if (typeof to !== 'number' || !isFinite(level) || Math.abs(to - level) < 0.005) {
+            if (shade) mask.removeChild(shade);
+
+            return;
+        }
+
+        to = Math.max(0, Math.min(1, to));
+
+        if (!shade) shade = mask.appendChild(element('div', 'vs-proj'));
+
+        setClass(shade, 'vs-proj-down', to < level);
+        setStyle(shade, 'left', percent(Math.min(to, Math.max(0, level))));
+        setStyle(shade, 'width', percent(Math.abs(to - Math.max(0, level))));
+    }
+
+    // Moves and sizes a part from where the game puts it; the transform's origin keeps the right edge, where the HUD
+    // is anchored, in place as it grows.
+    function place(node, part, spot, origin) {
+        var s = spot || HOME;
+        var isHome = s[0] === 0 && s[1] === 0 && s[2] === 100;
+
+        setValue(node, PART_MARK, part >= 0 ? String(part) : null);
+        setMark(node, 'data-vs-moved', !isHome);
+        setStyle(node, 'transform', isHome ? '' : 'translate(' + s[0] + 'px,' + s[1] + 'px) scale(' + s[2] / 100 + ')');
+        setStyle(node, 'transformOrigin', isHome ? '' : origin);
+    }
+
+    // Pinned buffs, then good or bad apart, then by time left, each kept in the game's order otherwise. The first sits
+    // next to the bar: at the far right of a tray left of, above or below it, at the far left of one right of it.
+    function drawTray(container, badges, now) {
+        var h = hudOf();
+        var fav = h && h.fav ? h.fav : [];
+        var sort = h ? h.sort : 0;
+        var group = h ? h.group : 0;
+        var ranked = [];
+        var i;
+
+        for (i = 0; i < badges.length; i++) {
+            var shown = badges[i].__vs || {};
+            var pin = fav.indexOf(shown.id);
+            var left = shown.copy && shown.copy[1] >= 0 ? shown.copy[1] - now : Infinity;
+
+            setMark(badges[i], 'data-vs-fav', pin >= 0);
+            setMark(badges[i], 'data-vs-cure', isCurable(shown.id));
+            drawPinTime(badges[i], pin >= 0 && isFinite(left) ? left : -1);
+            ranked.push({ badge: badges[i], at: i, pin: pin, good: badges[i].classList.contains('buff-pos'), left: left });
+        }
+
+        if (!(sort > 0 || group > 0 || fav.length > 0)) {
+            for (i = 0; i < badges.length; i++) setStyle(badges[i], 'order', '');
+
+            return;
+        }
+
+        ranked.sort(function (a, b) {
+            if ((a.pin >= 0) !== (b.pin >= 0)) return a.pin >= 0 ? -1 : 1;
+            if (a.pin >= 0) return a.pin - b.pin;
+            if (group > 0 && a.good !== b.good) return a.good === (group === 1) ? -1 : 1;
+            if (sort === 1 && a.left !== b.left) return a.left < b.left ? -1 : 1;
+            if (sort === 2 && a.left !== b.left) return a.left > b.left ? -1 : 1;
+
+            return a.at - b.at;
+        });
+
+        var isRight = (editing ? editing.tray : h.tray) === 1;
+
+        for (i = 0; i < ranked.length; i++) setStyle(ranked[i].badge, 'order', String(isRight ? i : ranked.length - 1 - i));
+    }
+
+    function isCurable(id) {
+        var h = hudOf();
+
+        return !!h && h.cureOn === 1 && !!h.cure && h.cure.indexOf(id) >= 0;
+    }
+
+    // A pinned buff's time left, written on its badge.
+    function drawPinTime(badge, left) {
+        var time = ownChild(badge, 'vs-ftime');
+
+        if (left < 0) {
+            if (time) badge.removeChild(time);
+
+            return;
+        }
+
+        if (!time) time = badge.insertBefore(element('span', 'vs-ftime'), ownChild(badge, 'buff-tooltip'));
+
+        setText(time, duration(left));
+    }
+
+    // The rows a stat's hover box gets from the HUD settings: its level after the queue, and what a click does.
+    function hudRows(stat, value) {
+        var h = hudOf();
+        var text = say();
+        var rows = [];
+        var max = held.max ? held.max[stat] : 0;
+        var to = h && h.proj ? h.proj[stat] : null;
+
+        if (typeof to === 'number' && max > 0 && isFinite(value) && Math.abs(to - value) >= 0.005) {
+            rows.push([text.afterQueue(number(Math.max(0, Math.min(1, to)) * max), number(max)), to > value ? 'vs-good' : 'vs-bad']);
+        }
+
+        var tip = h && h.act && h.tips ? h.tips[stat] : null;
+
+        if (tip && tip[0]) rows.push([text.click(tip[0]), tip[1] ? 'vs-act' : 'vs-hint']);
+
+        return rows;
+    }
+
+    // The rows a buff's hover box gets from the HUD settings: its cure on a click, pinning on a shift-click.
+    function hudBuffRows(id) {
+        var h = hudOf();
+        var text = say();
+        var rows = [];
+
+        if (!h) return rows;
+
+        if (isCurable(id)) rows.push([text.clickCure, 'vs-act']);
+
+        rows.push([(h.fav || []).indexOf(id) >= 0 ? text.unpin : text.pin, 'vs-hint']);
+
+        return rows;
+    }
+
+    // One capturing listener: a click on a bar queues its action, on a curable debuff its cure, and a shift-click on a
+    // buff pins or unpins it. The game's own click still runs.
+    function onClick(event) {
+        if (editing || !hudOf()) return;
+
+        var badge = badgeOf(event.target);
+
+        if (badge) {
+            var id = badge.__vs ? badge.__vs.id : null;
+
+            if (typeof id !== 'number') return;
+
+            if (event.shiftKey) post('fav|' + id);
+            else if (badge.hasAttribute('data-vs-cure')) post('cure|' + id);
+
+            return;
+        }
+
+        var host = hostOf(event.target);
+
+        if (!host || !host.classList.contains('progress-bar-wrapper') || !host.hasAttribute('data-vs-act')) return;
+
+        var part = Number(host.parentElement.getAttribute(PART_MARK));
+
+        if (part >= 0 && part < FIT_PART) post('act|' + part);
+    }
+
+    function post(message) {
+        var bridge = window.vuplex;
+
+        try {
+            if (!bridge && window.top) bridge = window.top.vuplex;
+        } catch (e) {
+            bridge = null;
+        }
+
+        if (bridge && typeof bridge.postMessage === 'function') bridge.postMessage(HUD_PREFIX + message);
+    }
+
+    // ===== Layout editor =====
+
+    // The plugin turns it on and off (its key, or the Mod Manager's button). Drag a part to move it, scroll on it to
+    // size it, Shift for the whole panel. Save sends the layout to the plugin, which keeps it in the config.
+    function edit(isOn) {
+        if (!isOn) {
+            stopEdit();
+
+            return 'ok';
+        }
+
+        if (editing) return 'ok';
+
+        var h = hudOf();
+        var parts = [];
+
+        for (var i = 0; i < PARTS; i++) parts.push((h && h.lay && h.lay[i] ? h.lay[i] : HOME).slice());
+
+        editing = { parts: parts, tray: h ? h.tray : 0, col: h ? h.col : 0, pick: -1, drag: null };
+        drawEditor();
+
+        if (held) apply(clock);
+
+        return 'ok';
+    }
+
+    function stopEdit() {
+        if (!editing) return;
+
+        editing = null;
+        removeById(document, EDIT_ID);
+        removeById(document, EDIT_BAR_ID);
+
+        var picked = document.querySelectorAll('[data-vs-pick]');
+
+        for (var i = 0; i < picked.length; i++) setMark(picked[i], 'data-vs-pick', false);
+
+        if (held) apply(clock);
+
+        syncClicks();
+    }
+
+    // A dim backdrop under the HUD that keeps clicks from the world while editing, and the bar of buttons.
+    function drawEditor() {
+        var text = say();
+        var back = element('div', '');
+        var bar = element('div', '');
+
+        back.id = EDIT_ID;
+        back.setAttribute('data-interactive', '');
+        bar.id = EDIT_BAR_ID;
+        bar.setAttribute('data-interactive', '');
+        bar.appendChild(element('div', 'vs-et')).textContent = text.editTitle;
+        bar.appendChild(element('div', 'vs-eh')).textContent = text.editHelp;
+
+        var buttons = bar.appendChild(element('div', 'vs-eb'));
+
+        button(buttons, 'vs-tray', trayLabel(), function () {
+            editing.tray = (editing.tray + 1) % TRAYS.length;
+            this.textContent = trayLabel();
+            apply(clock);
+        });
+        button(buttons, 'vs-col', text.collapse, function () {
+            editing.col = editing.col === 1 ? 0 : 1;
+            setClass(this, 'vs-on', editing.col === 1);
+            apply(clock);
+        });
+        setClass(ownChild(buttons, 'vs-col'), 'vs-on', editing.col === 1);
+        button(buttons, 'vs-reset', text.reset, function () {
+            for (var i = 0; i < PARTS; i++) editing.parts[i] = HOME.slice();
+
+            placeAll();
+        });
+        button(buttons, 'vs-cancel', text.cancel, function () {
+            stopEdit();
+            post('edit|0');
+        });
+        button(buttons, 'vs-save vs-main', text.save, function () {
+            var saved = editing;
+            var h = hudOf();
+
+            // Kept on the page until the plugin sends the saved settings back, so nothing jumps.
+            if (h) {
+                h.lay = isHomeLayout(saved.parts) ? null : saved.parts;
+                h.tray = saved.tray;
+                h.col = saved.col;
+            }
+
+            stopEdit();
+            post('layout|' + layoutText(saved.parts) + '|' + saved.tray + '|' + saved.col);
+        });
+
+        document.body.appendChild(back);
+        document.body.appendChild(bar);
+        syncClicks();
+    }
+
+    function button(parent, className, label, onPress) {
+        var made = parent.appendChild(element('button', 'vs-btn ' + className));
+
+        made.type = 'button';
+        made.textContent = label;
+        made.addEventListener('click', function (event) {
+            event.stopPropagation();
+
+            if (editing) onPress.call(made, event);
+        });
+
+        return made;
+    }
+
+    function trayLabel() {
+        var text = say();
+
+        return text.tray + text.trays[editing ? editing.tray : 0];
+    }
+
+    function isHomeLayout(parts) {
+        for (var i = 0; i < parts.length; i++) {
+            if (parts[i][0] !== 0 || parts[i][1] !== 0 || parts[i][2] !== 100) return false;
+        }
+
+        return true;
+    }
+
+    function layoutText(parts) {
+        if (isHomeLayout(parts)) return '';
+
+        return parts.map(function (part) { return part.join(','); }).join(';');
+    }
+
+    // Every part placed from the layout being edited, without a whole redraw; for drags and the wheel.
+    function placeAll() {
+        var panel = document.querySelector('.status-panel');
+
+        if (!panel || !editing) return;
+
+        var nodes = panel.querySelectorAll('[' + PART_MARK + ']');
+
+        for (var i = 0; i < nodes.length; i++) {
+            var part = Number(nodes[i].getAttribute(PART_MARK));
+
+            place(nodes[i], part, editing.parts[part], 'right center');
+            setMark(nodes[i], 'data-vs-pick', part === editing.pick);
+        }
+
+        place(panel, PANEL_PART, editing.parts[PANEL_PART], 'right top');
+        setMark(panel, 'data-vs-pick', editing.pick === PANEL_PART);
+    }
+
+    // The part under the pointer: a row, the Fitness row, or the panel itself between them.
+    function partOf(node) {
+        for (; node && node !== document.body; node = node.parentElement) {
+            if (node.id === EDIT_BAR_ID) return -1;
+
+            if (node.hasAttribute && node.hasAttribute(PART_MARK) && (node.classList.contains('status-panel') || node.parentElement.classList.contains('status-panel'))) {
+                return Number(node.getAttribute(PART_MARK));
+            }
+        }
+
+        return -1;
+    }
+
+    function partNode(part) {
+        var panel = document.querySelector('.status-panel');
+
+        if (!panel || part === PANEL_PART) return panel;
+
+        return panel.querySelector('[' + PART_MARK + '="' + part + '"]');
+    }
+
+    // How many screen pixels one of the part's own pixels is, from its parent's drawn size: a move is in its parent's.
+    function scaleOf(node) {
+        var parent = node ? node.parentElement : null;
+        var width = parent ? parent.offsetWidth : 0;
+        var scale = width > 0 ? parent.getBoundingClientRect().width / width : 1;
+
+        return scale > 0 && isFinite(scale) ? scale : 1;
+    }
+
+    function onDown(event) {
+        if (!editing || event.button !== 0) return;
+
+        var part = partOf(event.target);
+
+        if (part < 0) return;
+
+        if (event.shiftKey) part = PANEL_PART;
+
+        editing.pick = part;
+        editing.drag = { part: part, x: event.clientX, y: event.clientY, from: editing.parts[part].slice(), scale: scaleOf(partNode(part)) };
+        placeAll();
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    function onMove(event) {
+        var drag = editing ? editing.drag : null;
+
+        if (!drag) return;
+
+        var spot = editing.parts[drag.part];
+
+        spot[0] = clampShift(drag.from[0] + (event.clientX - drag.x) / drag.scale);
+        spot[1] = clampShift(drag.from[1] + (event.clientY - drag.y) / drag.scale);
+        placeAll();
+        event.preventDefault();
+    }
+
+    function onUp() {
+        if (!editing || !editing.drag) return;
+
+        editing.drag = null;
+        syncClicks();
+    }
+
+    function onWheel(event) {
+        if (!editing) return;
+
+        var part = partOf(event.target);
+
+        if (part < 0) return;
+
+        if (event.shiftKey) part = PANEL_PART;
+
+        var spot = editing.parts[part];
+
+        spot[2] = Math.max(MIN_PART_SIZE, Math.min(MAX_PART_SIZE, spot[2] + (event.deltaY < 0 ? SIZE_STEP : -SIZE_STEP)));
+        editing.pick = part;
+        placeAll();
+        syncClicks();
+        event.preventDefault();
+    }
+
+    function clampShift(value) {
+        return Math.max(-MAX_SHIFT, Math.min(MAX_SHIFT, Math.round(value)));
+    }
+
+    // ===== Bars on the travel map =====
+
+    // The travel map is a page of its own over the HUD. While it shows, a small copy of the bars sits in a corner of
+    // the window above every page; it takes no clicks.
+    function drawExplore(list) {
+        var h = hudOf();
+        var top = topDocument();
+
+        if (!top) return;
+
+        var frame = exploreFrame(top);
+        var isShown = !!h && !!h.exp && !!list && list.length > 0 && isFrameShown(frame);
+
+        watchExplore(top, !!h && !!h.exp);
+
+        var strip = top.getElementById(EXPLORE_ID);
+
+        if (!isShown) {
+            if (strip) strip.parentElement.removeChild(strip);
+
+            return;
+        }
+
+        addExploreStyle(top);
+
+        if (!strip) {
+            strip = top.createElement('div');
+            strip.id = EXPLORE_ID;
+            top.body.appendChild(strip);
+        }
+
+        setValue(strip, 'data-corner', CORNERS[h.exp[0]] || 'tr');
+        setMark(strip, 'data-cb', !!held.look && held.look[2] === 1);
+        setStyle(strip, 'zoom', String(h.exp[1] > 0 ? h.exp[1] : 1));
+
+        var names = statNames(list, list.length);
+        var lines = [];
+
+        for (var r = 0; r < list.length; r++) {
+            var stat = statOf(list[r], r);
+            var value = Number(list[r].value);
+
+            if (stat < 0 || !isFinite(value)) continue;
+
+            lines.push([stat === LIFE ? HEART : ICONS[stat], names[stat], value, String(list[r].barValue === undefined ? '' : list[r].barValue)]);
+        }
+
+        if (held.fit && held.fit[1] > 0) lines.push([FIT_ICON, say().fitness, held.fit[0] / held.fit[1], String(held.fit[0])]);
+
+        drawExploreRows(top, strip, lines);
+    }
+
+    function drawExploreRows(top, strip, lines) {
+        var key = JSON.stringify(lines);
+
+        if (strip.__vsKey === key) return;
+
+        strip.__vsKey = key;
+
+        while (strip.children.length < lines.length) {
+            var row = strip.appendChild(top.createElement('div'));
+            var fill = row.appendChild(top.createElement('div'));
+            var text = row.appendChild(top.createElement('div'));
+            var name = text.appendChild(top.createElement('span'));
+
+            row.className = 'vse-row';
+            fill.className = 'vse-fill';
+            text.className = 'vse-text';
+            name.className = 'vse-name';
+            text.appendChild(top.createElement('span'));
+        }
+
+        while (strip.children.length > lines.length) strip.removeChild(strip.lastChild);
+
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i];
+            var node = strip.children[i];
+            var level = Math.max(0, Math.min(1, line[2]));
+
+            setClass(node, 'vse-low', level <= 0.2);
+            setClass(node, 'vse-mid', level > 0.2 && level <= 0.5);
+            setStyle(node.children[0], 'width', percent(level));
+            setText(node.children[1].children[0], line[0] + ' ' + line[1]);
+            setText(node.children[1].children[1], line[3]);
+        }
+    }
+
+    function topDocument() {
+        try {
+            return window.top && window.top !== window ? window.top.document : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function exploreFrame(top) {
+        var frames = top.querySelectorAll('iframe');
+
+        for (var i = 0; i < frames.length; i++) {
+            if (/\/ExploreMap\//i.test(String(frames[i].getAttribute('src') || ''))) return frames[i];
+        }
+
+        return null;
+    }
+
+    function isFrameShown(frame) {
+        if (!frame || frame.style.display === 'none') return false;
+
+        var view = frame.ownerDocument.defaultView;
+        var style = view ? view.getComputedStyle(frame) : null;
+
+        return !style || (style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity) > 0.05);
+    }
+
+    // Root shows and hides pages by their frame's style: one watcher on its frame list redraws soon after, so the
+    // strip does not wait for the plugin's next check. Only while the strip is on.
+    function watchExplore(top, isOn) {
+        if (!isOn) {
+            unwatchExplore();
+
+            return;
+        }
+
+        if (exploreWatch) return;
+
+        var list = top.getElementById('iframe-container') || top.body;
+        var Watcher = (top.defaultView && top.defaultView.MutationObserver) || window.MutationObserver;
+
+        if (!list || !Watcher) return;
+
+        // A watcher left by a HUD page that has since gone away lives on in the Root page; this one replaces it.
+        if (top.__slvExploreWatch) {
+            try {
+                top.__slvExploreWatch.disconnect();
+            } catch (e) {
+                // Its page is gone; nothing left to stop.
+            }
+        }
+
+        exploreWatch = new Watcher(function () {
+            // This HUD page was taken off the screen: stop watching, the next install watches again.
+            if (!document.defaultView) {
+                exploreWatch.disconnect();
+
+                return;
+            }
+
+            if (exploreSoon) return;
+
+            exploreSoon = setTimeout(function () {
+                exploreSoon = 0;
+
+                if (held && isHeld) drawExplore(attrList());
+            }, 60);
+        });
+        exploreWatch.observe(list, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'src'] });
+        top.__slvExploreWatch = exploreWatch;
+    }
+
+    function unwatchExplore() {
+        if (exploreWatch) {
+            exploreWatch.disconnect();
+
+            var top = topDocument();
+
+            if (top && top.__slvExploreWatch === exploreWatch) top.__slvExploreWatch = null;
+        }
+
+        if (exploreSoon) clearTimeout(exploreSoon);
+
+        exploreWatch = null;
+        exploreSoon = 0;
+    }
+
+    function addExploreStyle(top) {
+        if (top.getElementById(EXPLORE_STYLE_ID)) return;
+
+        var style = top.createElement('style');
+
+        style.id = EXPLORE_STYLE_ID;
+        style.textContent = EXPLORE_CSS;
+        top.head.appendChild(style);
+    }
+
+    function removeById(doc, id) {
+        var node = doc ? doc.getElementById(id) : null;
+
+        if (node && node.parentElement) node.parentElement.removeChild(node);
+    }
+
+    function setVar(target, name, value) {
+        if (!target.style.setProperty) return;
+
+        if (!value) {
+            if (target.style.getPropertyValue(name)) target.style.removeProperty(name);
+        } else if (target.style.getPropertyValue(name) !== value) {
+            target.style.setProperty(name, value);
+        }
+    }
+
+    // Everything the HUD settings left on the game's nodes and the Root page.
+    function clearHud() {
+        stopEdit();
+
+        var i;
+        var m;
+        var nodes = document.querySelectorAll('[' + PART_MARK + '],.status-panel');
+
+        for (i = 0; i < nodes.length; i++) {
+            for (m = 0; m < ROW_MARKS.length; m++) setValue(nodes[i], ROW_MARKS[m], null);
+            for (m = 0; m < PANEL_MARKS.length; m++) setValue(nodes[i], PANEL_MARKS[m], null);
+
+            setStyle(nodes[i], 'transform', '');
+            setStyle(nodes[i], 'transformOrigin', '');
+            setVar(nodes[i], '--vs-fav', '');
+        }
+
+        var bars = document.querySelectorAll('[data-vs-warn],[data-vs-act]');
+
+        for (i = 0; i < bars.length; i++) {
+            for (m = 0; m < BAR_MARKS.length; m++) setValue(bars[i], BAR_MARKS[m], null);
+        }
+
+        var badges = document.querySelectorAll('.buff');
+
+        for (i = 0; i < badges.length; i++) {
+            for (m = 0; m < BADGE_MARKS.length; m++) setValue(badges[i], BADGE_MARKS[m], null);
+
+            setStyle(badges[i], 'order', '');
+        }
+
+        unwatchExplore();
+
+        var top = topDocument();
+
+        removeById(top, EXPLORE_ID);
+        removeById(top, EXPLORE_STYLE_ID);
+        hudKey = '';
     }
 
     // ===== Fitness =====
@@ -821,6 +1665,8 @@
                 drawTimer(badges[i], isTimed && isStripeOn() ? badges[i].__vs.part : -1);
                 setMark(badges[i], ENDING, isTimed && isEnding(id, copy, now));
             }
+
+            drawTray(container, badges, now);
         }
 
         for (var k in lengths) {
@@ -1047,7 +1893,7 @@
             addItems(rows, text.suppressWith, info[5]);
         }
 
-        return rows;
+        return rows.concat(hudBuffRows(shown.id));
     }
 
     function addEffects(rows, info, layers, names) {
@@ -1307,6 +2153,7 @@
     }
 
     function clear() {
+        clearHud();
         dropFitness();
 
         for (var i = 0; i < DRAWN.length; i++) {
@@ -1454,6 +2301,11 @@
     }
 
     document.addEventListener('mouseover', onOver, true);
+    document.addEventListener('click', onClick, true);
+    document.addEventListener('mousedown', onDown, true);
+    document.addEventListener('mousemove', onMove, true);
+    document.addEventListener('mouseup', onUp, true);
+    document.addEventListener('wheel', onWheel, { capture: true, passive: false });
 
-    window.__slvitals = { apply: apply, texts: TEXTS };
+    window.__slvitals = { apply: apply, texts: TEXTS, edit: edit };
 })();

@@ -228,7 +228,7 @@ internal static class BuffBook
     }
 
     /// <summary>The game answers a key it has no text for with the key itself.</summary>
-    private static string? Text(ConfigManager config, string? key, bool isChinese)
+    internal static string? Text(ConfigManager config, string? key, bool isChinese)
     {
         if (string.IsNullOrEmpty(key)) return null;
 

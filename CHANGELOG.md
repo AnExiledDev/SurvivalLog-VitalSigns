@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.9.0
+
+- Click a stat bar to queue what raises it. Satiety eats to the maximum, to Well Fed, or a set percent past it. Stamina sleeps or naps in the best bed at home. Morale does the action that also raises another stat first, then the biggest gain, and a second click takes the next one; or set a routine and a click runs all of it. Life uses the items you choose. Turn each bar off with ClickSatiety, ClickMorale, ClickStamina and ClickLife.
+- A new Actions tab on Vital Signs' page in the Mod Manager sets up the clicks. It lists every furniture action and item each click can use, greys out the ones your base or bag lacks, shows what each click would queue now, and has every setting behind it.
+- Set how a click uses each bed type: Auto, Sleep, Nap or Skip. Auto naps when only NapBelow percent or less of Stamina is missing.
+- Click a debuff to queue its cure, from the bag first, then from the home storage. A debuff with a cure at hand is marked. Turn it off with ClickCures.
+- A bar can hide while it is full, or above a level you set, and come back as soon as the stat drops. Turn it on with HideFullBars.
+- A bar pulses once it drops to the warning line, before the game turns it red. Turn it off with WarnPulse.
+- Each bar marks where the stat will be once the actions in the queue are done. Turn it off with QueueProjection.
+- Small Satiety, Morale, Stamina and Life bars show in a corner while you explore, where the game hides its own. Set the corner and size with ExploreBars and ExploreBarsSize.
+- Sort the buffs by time left, keep good buffs and debuffs apart, move them to another side of the bars, or fold each row into one badge. Shift-click a buff to pin it to the front and draw it larger.
+- A layout editor moves and resizes each bar and the buffs. Open it with the 「Edit HUD layout」 button in the Actions tab, or set EditLayoutKey.
+- Difficulty multiplies how fast each stat falls and how much it rises, from 0 to 5, for your character only.
+- Made for Survival Log 1.1.20151.
+
 ## 0.8.0
 
 - Trend arrows: a small arrow by a stat's value shows when it rose or fell over the last game hour.

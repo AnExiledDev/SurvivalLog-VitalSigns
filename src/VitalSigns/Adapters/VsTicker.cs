@@ -11,6 +11,7 @@ public sealed class VsTicker : MonoBehaviour
 
     internal static VsPage? Page;
     internal static Action<string> Log = _ => { };
+    internal static Plugin.HudSettings? Hud;
 
     private static readonly HashSet<string> ReportedFailures = new();
 
@@ -24,7 +25,13 @@ public sealed class VsTicker : MonoBehaviour
 
         try
         {
-            Page.Tick(Time.unscaledTime);
+            var now = Time.unscaledTime;
+
+            while (Timers.Adapters.PageMessages.TryTakeHud(out var command)) Page.Handle(command, now);
+
+            if (Hud is { } hud && hud.EditKey.Value != KeyCode.None && Input.GetKeyDown(hud.EditKey.Value) && !Timers.Adapters.OptionalLive.IsTyping()) Page.ToggleEdit();
+
+            Page.Tick(now);
         }
         catch (Exception ex)
         {

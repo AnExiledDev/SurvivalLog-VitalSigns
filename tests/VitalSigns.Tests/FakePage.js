@@ -17,7 +17,8 @@ var FakeElement = class {
         // Custom properties set through setProperty are kept by name beside the plain ones.
         this.style = {
             setProperty: function (name, value) { element.style[name] = String(value); },
-            removeProperty: function (name) { delete element.style[name]; }
+            removeProperty: function (name) { delete element.style[name]; },
+            getPropertyValue: function (name) { return element.style[name] === undefined ? '' : String(element.style[name]); }
         };
         // The box getBoundingClientRect answers, set by a test in the window's pixels; offsetHeight is in the element's own.
         this.rect = null;
@@ -30,6 +31,8 @@ var FakeElement = class {
     }
 
     get className() { return this.classes.join(' '); }
+    get lastChild() { return this.children[this.children.length - 1] || null; }
+    addEventListener(name, listener) { ((this.listeners = this.listeners || {})[name] = this.listeners[name] || []).push(listener); }
 
     set className(value) { this.classes = String(value).split(' ').filter(function (c) { return c; }); }
 
@@ -80,7 +83,12 @@ var FakeElement = class {
     }
 
     // ".a > .b" is the child combinator: the last step names this element, each step before it the parent above.
+    // "a, b" matches either list item.
     matches(selector) {
+        var self = this;
+
+        if (selector.indexOf(',') >= 0) return selector.split(',').some(function (one) { return self.matches(one.trim()); });
+
         var steps = selector.split('>').map(function (step) { return step.trim(); });
         var element = this;
 
@@ -104,6 +112,12 @@ var FakeElement = class {
 
 function matchesStep(element, step) {
     if (/^\.[\w-]+$/.test(step)) return element.classList.contains(step.slice(1));
+
+    if (/^[a-z]+$/.test(step)) return element.tagName === step;
+
+    var attribute = /^\[([\w-]+)\]$/.exec(step);
+
+    if (attribute) return element.hasAttribute(attribute[1]);
 
     throw new Error('the fake page does not know the selector "' + step + '"');
 }
@@ -244,6 +258,51 @@ function tipOf(row) {
 // A mouseover on the node, as the browser sends it to the document's listeners.
 function hover(node) {
     (listeners.mouseover || []).forEach(function (listener) { listener({ target: node }); });
+}
+
+// A click on the node: the document's capturing listeners first, then the node's own and its parents' while nothing
+// stops it, as a browser sends it.
+function click(node, isShift) {
+    var isStopped = false;
+    var event = { target: node, shiftKey: !!isShift, stopPropagation: function () { isStopped = true; }, preventDefault: function () {} };
+
+    (listeners.click || []).forEach(function (listener) { listener(event); });
+
+    for (var at = node; at && !isStopped; at = at.parentElement) {
+        ((at.listeners || {}).click || []).forEach(function (listener) { listener(event); });
+    }
+}
+
+// The messages the script posts to the plugin.
+var sent = [];
+
+window.vuplex = { postMessage: function (message) { sent.push(message); } };
+
+// The Root page above the HUD's frame, with one frame for the travel map; shown says whether the map is open.
+function buildTop(isShown) {
+    var root = new FakeElement('html');
+    var top = {
+        documentElement: root,
+        getElementById: function (id) { return descendantsOf(root).filter(function (element) { return element.id === id; })[0] || null; },
+        createElement: function (tagName) { return new FakeElement(tagName); },
+        querySelectorAll: function (selector) { return root.querySelectorAll(selector); },
+        defaultView: {
+            getComputedStyle: function (frame) { return { display: frame.style.display || 'block', visibility: 'visible', opacity: '1' }; },
+            MutationObserver: class { observe() {} disconnect() {} }
+        }
+    };
+
+    top.head = root.appendChild(new FakeElement('head'));
+    top.body = root.appendChild(new FakeElement('body'));
+
+    var frame = top.body.appendChild(new FakeElement('iframe'));
+
+    frame.setAttribute('src', 'https://root/ExploreMap/index.html');
+    frame.ownerDocument = top;
+    frame.style.display = isShown ? '' : 'none';
+    window.top = { document: top };
+
+    return { document: top, frame: frame };
 }
 
 // The text of each row of our block in a tooltip, one per line, or '' when there is none.
