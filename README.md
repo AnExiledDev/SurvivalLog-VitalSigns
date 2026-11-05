@@ -93,7 +93,7 @@ For buff times, open the Mod Manager, go to Vital Signs and pick the Timers tab.
 
 Tested on Survival Log 1.1.20151 with BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.9.0 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
+Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.9.1 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
 
 Once a game has loaded, look for `page script sent to CoreUI1 (install 1): the stat bars show the readings`. A line ending `no stat bars on the HUD right now` means the mod could not find the stat bars.
 
@@ -113,6 +113,7 @@ To reach me directly, message `exiled.dev` on Discord; you can find me in the [o
 
 ## Changelog
 
+- **0.9.1**: The food note in the Actions tab now says what a Satiety click eats.
 - **0.9.0**: Click a bar to eat, sleep, raise Morale or use Life items, an Actions tab to set it up, click a debuff to cure it, a compact HUD, a warning pulse, queue projection, bars while exploring, buff sorting and pinning, a layout editor and stat difficulty.
 - **0.8.0**: Trend arrows on the bars, a pulse on buffs about to end, the heaviest items in the Inventory hover box, colours that match the Toolkit's HUD style, flat or segmented bars, and colour-blind colours.
 - **0.7.5**: The Mod Manager no longer says settings need a restart; they all apply right away.

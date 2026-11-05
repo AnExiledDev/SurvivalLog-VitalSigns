@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.1
+
+- The food note in the Actions tab now says what a Satiety click eats: just enough to reach the goal, never past full.
+
 ## 0.9.0
 
 - Click a stat bar to queue what raises it. Satiety eats to the maximum, to Well Fed, or a set percent past it. Stamina sleeps or naps in the best bed at home. Morale does the action that also raises another stat first, then the biggest gain, and a second click takes the next one; or set a routine and a click runs all of it. Life uses the items you choose. Turn each bar off with ClickSatiety, ClickMorale, ClickStamina and ClickLife.

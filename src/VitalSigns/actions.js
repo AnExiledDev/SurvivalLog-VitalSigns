@@ -508,7 +508,7 @@
       '<div class="hint">' + L('Food that would go past the maximum is not eaten.', '会超出上限的食物不会吃。') + '</div></div>' +
       '<div class="box"><span class="lbl">' + L('AT MOST PER CLICK', '每次点击最多') + '</span>' + stepper(K.foodMost, lim('foodMost', 1, 10), 4) +
       '<span class="count" style="margin-left:8px">' + L('items', '件食物') + '</span><div style="margin-top:10px">' + toggle(K.avoidMorale, L('Avoid food that lowers Morale', '避开降低心情的食物')) + '</div></div></div>' +
-      '<div class="sec"><span class="lbl">' + L('FOOD', '食物') + '</span><span class="hint" style="margin:0">' + L('Smallest first, so little is wasted. Skip any you want to keep.', '先吃小份，少浪费。不想吃的可以跳过。') + '</span></div>' +
+      '<div class="sec"><span class="lbl">' + L('FOOD', '食物') + '</span><span class="hint" style="margin:0">' + L('A click eats just enough to reach the goal, never past full. Skip any you want to keep.', '每次点击只吃到目标所需的量，绝不吃撑。不想吃的可以跳过。') + '</span></div>' +
       searchBar('food', L('Search food', '搜索食物'), food.length, shown.length) +
       '<div class="list tall" data-scroll="food">' + (rows || '<div class="empty">' + L('No food found', '没有找到食物') + '</div>') + '</div>';
   }
