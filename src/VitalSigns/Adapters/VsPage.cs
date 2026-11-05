@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using ExiledToolkit.Game;
+using ExiledToolkit.Kit;
 using GameCore.HotUpdate;
 using GameCore.HotUpdate.Battle.Logic;
 using GameCore.HotUpdate.ReduxUI;

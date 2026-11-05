@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using ExiledToolkit.Web;
 
 namespace VitalSigns.Core;
 
@@ -44,7 +45,7 @@ public static class PageData
         data.Append(vitals.Weight is { } weight ? $"[{Whole(weight.Carried)},{Whole(weight.Max)},{Whole(weight.Overweight)}]" : "null");
         data.Append(",wellFed:");
         data.Append(vitals.WellFed is { } wellFed ? $"[{Whole(wellFed.From)},{Whole(wellFed.Until)},{Whole(wellFed.Max)}]" : "null");
-        data.Append(",names:{wellFed:").Append(PageCalls.Quote(names.WellFed)).Append(",overweight:").Append(PageCalls.Quote(names.Overweight)).Append('}');
+        data.Append(",names:{wellFed:").Append(JsText.Literal(names.WellFed)).Append(",overweight:").Append(JsText.Literal(names.Overweight)).Append('}');
         data.Append(",opt:[").Append(Flag(options.Weight)).Append(',').Append(Flag(options.Stripes)).Append(',').Append(Flag(options.Tooltips)).Append(',')
             .Append(Flag(options.GameText)).Append(',').Append(Flag(options.Cures)).Append(',').Append(Flag(options.Trends)).Append(']');
         data.Append(",look:[").Append(Flag(options.MatchHud)).Append(',').Append(BarLook.Index(options.BarLook)).Append(',').Append(Flag(options.ColourBlind)).Append(']');
@@ -58,7 +59,7 @@ public static class PageData
         if (vitals.Weight != null && vitals.Heavy is { } heavy)
         {
             data.Append(",heavy:[");
-            AppendList(data, heavy, (text, item) => text.Append('[').Append(PageCalls.Quote(item.Name)).Append(',').Append(Whole(item.Grams)).Append(',')
+            AppendList(data, heavy, (text, item) => text.Append('[').Append(JsText.Literal(item.Name)).Append(',').Append(Whole(item.Grams)).Append(',')
                 .Append(Whole(item.Count)).Append(']'));
             data.Append(']');
         }
@@ -133,7 +134,7 @@ public static class PageData
 
                 var tip = reading.Tips != null && i < reading.Tips.Count ? reading.Tips[i] : "";
 
-                data.Append('[').Append(PageCalls.Quote(tip ?? "")).Append(',').Append(Flag(canAct[i])).Append(']');
+                data.Append('[').Append(JsText.Literal(tip ?? "")).Append(',').Append(Flag(canAct[i])).Append(']');
             }
 
             data.Append(']');
@@ -167,7 +168,7 @@ public static class PageData
         data.Append("],info:{");
         AppendList(data, details.Rules, (text, rule) =>
         {
-            text.Append(Whole(rule.Id)).Append(":[").Append(PageCalls.Quote(rule.Name)).Append(',').Append(Flag(rule.IsGood)).Append(',')
+            text.Append(Whole(rule.Id)).Append(":[").Append(JsText.Literal(rule.Name)).Append(',').Append(Flag(rule.IsGood)).Append(',')
                 .Append(Ratio(rule.Interval / 3600)).Append(",[");
             AppendList(text, EffectLines.Of(rule, details.ColdFactor), (line, fx) => line.Append("[\"").Append(Kinds[(int)fx.Kind]).Append("\",")
                 .Append(Whole(fx.Index)).Append(',').Append(Ratio(fx.Value)).Append(']'));
@@ -178,10 +179,10 @@ public static class PageData
             text.Append("],").Append(Flag(rule.IsSuppressible)).Append(']');
         });
         data.Append("},items:{");
-        AppendList(data, details.Items, (text, item) => text.Append(Whole(item.Id)).Append(":[").Append(PageCalls.Quote(item.Name)).Append(',')
-            .Append(PageCalls.Quote(item.Icon)).Append(',').Append(Whole(item.Count)).Append(']'));
-        data.Append("},by:").Append(PageCalls.Quote(details.SuppressedBy)).Append(",foods:[");
-        AppendList(data, details.Foods, (text, name) => text.Append(PageCalls.Quote(name)));
+        AppendList(data, details.Items, (text, item) => text.Append(Whole(item.Id)).Append(":[").Append(JsText.Literal(item.Name)).Append(',')
+            .Append(JsText.Literal(item.Icon)).Append(',').Append(Whole(item.Count)).Append(']'));
+        data.Append("},by:").Append(JsText.Literal(details.SuppressedBy)).Append(",foods:[");
+        AppendList(data, details.Foods, (text, name) => text.Append(JsText.Literal(name)));
         data.Append("],food:[");
         AppendList(data, details.FoodMods, (text, mod) => text.Append('[').Append(Whole(mod.Stat)).Append(',').Append(Whole(mod.Food)).Append(',')
             .Append(Ratio(mod.Ratio)).Append(']'));
@@ -200,7 +201,7 @@ public static class PageData
         AppendList(data, details.Sources, (text, stat) =>
         {
             text.Append('[');
-            AppendList(text, stat, (line, source) => line.Append('[').Append(PageCalls.Quote(source.Name)).Append(',').Append(Ratio(source.Ratio)).Append(']'));
+            AppendList(text, stat, (line, source) => line.Append('[').Append(JsText.Literal(source.Name)).Append(',').Append(Ratio(source.Ratio)).Append(']'));
             text.Append(']');
         });
         data.Append(']');

@@ -1,6 +1,6 @@
 // The Actions tab in the Mod Manager: what a click on each HUD bar does, set up by hand. It shows what the base has
 // (furniture actions and items, greyed out when the base lacks them), what each click would queue right now, and every
-// setting behind it. Talks to the plugin through vuplex.postMessage("slmod|vitalsigns|actions|...") and is answered
+// setting behind it. Talks to the plugin through the Toolkit's send("slmod|vitalsigns|actions|...") and is answered
 // through window.__slvactions. Every change is saved at once, as on the Mods screen. The plugin sends this script again
 // whenever the web view loses it.
 (function () {
@@ -171,14 +171,36 @@
     }).join('\n');
   }
 
+  let css = '';
+
+  // Through the Toolkit's page API; a tab drawn before it is there gets its style when it arrives.
   function injectStyle() {
-    if (document.getElementById(STYLE_ID)) return;
+    if (!etk) return;
 
-    const style = document.createElement('style');
+    css = css || scopedCss();
+    etk.addStyle(document, STYLE_ID, css);
+  }
 
-    style.id = STYLE_ID;
-    style.textContent = scopedCss();
-    document.head.appendChild(style);
+  // ===== Toolkit =====
+
+  let etk = null;
+  const waiting = [];
+
+  function send(msg) {
+    post(PREFIX, msg);
+  }
+
+  // Through the Toolkit's bridge. A message sent before its page API is there waits for it.
+  function post(prefix, msg) {
+    if (etk) etk.send(prefix, msg);
+    else waiting.push([prefix, msg]);
+  }
+
+  function startWithToolkit(api) {
+    etk = api;
+    waiting.splice(0).forEach(m => etk.send(m[0], m[1]));
+
+    if (st.root) injectStyle();
   }
 
   // ===== State =====
@@ -206,10 +228,6 @@
   const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const arr = v => isArr(v) ? v : [];
   const statName = i => L(STATS[i].en, STATS[i].zh);
-
-  function send(msg) {
-    try { window.vuplex.postMessage(PREFIX + msg); } catch (e) {}
-  }
 
   // ===== Settings =====
 
@@ -757,8 +775,7 @@
       if (window.__modmanager && typeof window.__modmanager.close === 'function') window.__modmanager.close();
     } catch (err) {}
 
-    try { window.vuplex.postMessage('slmod|modmanager|close'); } catch (e) {}
-
+    post('slmod|modmanager|', 'close');
     send('edit|1');
   }
 
@@ -811,4 +828,7 @@
   try {
     if (window.__modmanager && typeof window.__modmanager.tabsChanged === 'function') window.__modmanager.tabsChanged();
   } catch (err) {}
+
+  // Last, so the Toolkit finds every part of the tab set up, whichever script the game ran first.
+  (window.ExiledToolkitReady = window.ExiledToolkitReady || []).push(startWithToolkit);
 })();

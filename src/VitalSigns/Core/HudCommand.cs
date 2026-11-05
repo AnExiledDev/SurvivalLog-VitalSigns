@@ -38,9 +38,6 @@ public abstract record HudCommand
 
     public sealed record Unknown(string Message) : HudCommand;
 
-    public static bool IsOurs(string? message) =>
-        message is not null && (message.StartsWith(HudPrefix, StringComparison.Ordinal) || message.StartsWith(TabPrefix, StringComparison.Ordinal));
-
     public static HudCommand Parse(string message)
     {
         if (message.StartsWith(TabPrefix, StringComparison.Ordinal)) return ParseTab(message, message.Substring(TabPrefix.Length));

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ExiledToolkit.Game;
 using GameCore.HotUpdate;
-using VitalSigns.Adapters;
 using VitalSigns.Timers.Core;
 
 namespace VitalSigns.Timers.Adapters;
@@ -31,8 +31,10 @@ internal static class GameBuffs
         {
             if (buff == null || !Scope.IsTimedVisible(buff.IsHide, buff.BuffDuring)) continue;
 
-            var name = BuffText.Pick(isChinese, Current(config, buff.Name), Text(config, buff.Name, LanguageType.English), Text(config, buff.Name, LanguageType.Chinese), NonEmpty(buff.Name_Local));
-            var des = BuffText.Pick(isChinese, Current(config, buff.Des), Text(config, buff.Des, LanguageType.English), Text(config, buff.Des, LanguageType.Chinese), NonEmpty(buff.Des_Local));
+            var name = BuffText.Pick(isChinese, GameNames.Translate(config, buff.Name), GameNames.Translate(config, buff.Name, LanguageType.English),
+                GameNames.Translate(config, buff.Name, LanguageType.Chinese), GameNames.NonEmpty(buff.Name_Local));
+            var des = BuffText.Pick(isChinese, GameNames.Translate(config, buff.Des), GameNames.Translate(config, buff.Des, LanguageType.English),
+                GameNames.Translate(config, buff.Des, LanguageType.Chinese), GameNames.NonEmpty(buff.Des_Local));
 
             entries.Add(new BuffEntry(buff.ID, buff.IsGood, buff.BuffDisplayType, buff.BuffDuring, name.En, name.Zh, des.En, des.Zh));
         }
@@ -48,23 +50,6 @@ internal static class GameBuffs
         return _entries;
     }
 
-    /// <summary>The text of the language the game is showing, which it has from the start.</summary>
-    private static string? Current(ConfigManager config, string? key)
-    {
-        if (string.IsNullOrEmpty(key)) return null;
-
-        try
-        {
-            var text = config.GetLocalTxt(key);
-
-            return string.IsNullOrWhiteSpace(text) || text == key ? null : text;
-        }
-        catch (Exception)
-        {
-            return null;
-        }
-    }
-
     private static bool BothLanguagesLoaded(ConfigManager config)
     {
         try
@@ -78,23 +63,4 @@ internal static class GameBuffs
             return false;
         }
     }
-
-    /// <summary>The game answers a key it has no text for with the key itself.</summary>
-    private static string? Text(ConfigManager config, string? key, LanguageType language)
-    {
-        if (string.IsNullOrEmpty(key)) return null;
-
-        try
-        {
-            var text = config.GetLocalTxtByLanguage(key, language);
-
-            return string.IsNullOrWhiteSpace(text) || text == key ? null : text;
-        }
-        catch (Exception)
-        {
-            return null;
-        }
-    }
-
-    private static string? NonEmpty(string? text) => string.IsNullOrWhiteSpace(text) ? null : text;
 }

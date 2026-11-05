@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using ExiledToolkit.Game;
+using ExiledToolkit.Kit;
 using GameCore.HotUpdate;
 using GameCore.HotUpdate.Battle.Logic;
 using VitalSigns.Core;

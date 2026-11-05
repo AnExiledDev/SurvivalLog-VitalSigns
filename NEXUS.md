@@ -53,10 +53,10 @@ Values are read every couple of seconds, so a change can take that long to show.
 
 [size=5]Requirements[/size]
 [list]
-[*]Survival Log 1.1.20151. A game update can break it until the mod is updated.[/*]
+[*]Survival Log 1.1.20719. A game update can break it until the mod is updated.[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/12]BepInEx for Survival Log[/url]. Install it first.[/*]
 [*]Optional: [url=https://www.nexusmods.com/survivallog/mods/73]Mod Manager[/url]. The Timers tab, where you see every buff and set single buffs, and the Actions tab, where you set up the bar clicks, are on this mod's page in the Mod Manager. Without it, use the config file.[/*]
-[*][url=https://www.nexusmods.com/survivallog/mods/61]Exiled's Toolkit[/url] 0.11.0 or newer. The warnings are its pop-ups, and settings take effect at once through it. The colours that match its HUD style need 0.18.0 or newer.[/*]
+[*][url=https://www.nexusmods.com/survivallog/mods/61]Exiled's Toolkit[/url] 0.19.0 or newer. Vital Signs does not load without it. The warnings are its pop-ups, settings take effect at once through it, and the colours that match its HUD style come from it.[/*]
 [/list]
 
 [size=5]Installation[/size]
@@ -137,10 +137,10 @@ Vital Signs 最初的灵感来自 ivmakk0 的 [url=https://www.nexusmods.com/sur
 
 [size=5]前置要求[/size]
 [list]
-[*]Survival Log 1.1.20151。游戏更新后模组可能暂时失效，直到模组更新为止。[/*]
+[*]Survival Log 1.1.20719。游戏更新后模组可能暂时失效，直到模组更新为止。[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/12]BepInEx for Survival Log[/url]，请先安装。[/*]
 [*]可选：[url=https://www.nexusmods.com/survivallog/mods/73]Mod Manager[/url]。查看所有状态、设置单个状态的「计时」标签页，以及设置点击属性条的「行动」标签页，都在 Mod Manager 里本模组的页面上。没装的话，请使用配置文件。[/*]
-[*][url=https://www.nexusmods.com/survivallog/mods/61]Exiled's Toolkit[/url] 0.11.0 或更新版本。提醒弹窗由它显示，设置也通过它立即生效。跟随其界面风格的配色需要 0.18.0 或更新版本。[/*]
+[*][url=https://www.nexusmods.com/survivallog/mods/61]Exiled's Toolkit[/url] 0.19.0 或更新版本。没有它本模组不会加载。提醒弹窗由它显示，设置也通过它立即生效，跟随其界面风格的配色也来自它。[/*]
 [/list]
 
 [size=5]安装[/size]

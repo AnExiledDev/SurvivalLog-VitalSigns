@@ -24,7 +24,7 @@ internal static class GameTexts
     {
         if (_names != null && _namesAreChinese == isChinese) return _names;
 
-        var config = GameSingleton.Existing<ConfigManager>();
+        var config = ExiledToolkit.Game.GameSingleton.Existing<ConfigManager>();
 
         if (config?._Config_Buff_Dict == null || config._Config_Buff_Dict.Count == 0) return Fallback(isChinese);
 
@@ -49,7 +49,7 @@ internal static class GameTexts
     /// <summary>The passive's effect holds the buff it gives (IntValue0), the Satiety that gives it (1) and the Satiety below which it goes (3).</summary>
     private static void ReadWellFed()
     {
-        var config = GameSingleton.Existing<ConfigManager>();
+        var config = ExiledToolkit.Game.GameSingleton.Existing<ConfigManager>();
         var buffs = config?._Config_Buff_Dict;
         var effects = config?._Config_Effect_Dict;
 
@@ -68,17 +68,13 @@ internal static class GameTexts
         if (effect != null && effect.IntValue1 > 0 && effect.IntValue3 > 0) _wellFed = (effect.IntValue0, effect.IntValue1, effect.IntValue3);
     }
 
-    /// <summary>The game answers a key it has no text for with the key itself.</summary>
     private static string? BuffName(ConfigManager config, int buffId, LanguageType language)
     {
         try
         {
             if (!config._Config_Buff_Dict.ContainsKey(buffId)) return null;
 
-            var key = config._Config_Buff_Dict[buffId]?.Name;
-            var text = string.IsNullOrEmpty(key) ? null : config.GetLocalTxtByLanguage(key, language);
-
-            return string.IsNullOrWhiteSpace(text) || text == key ? null : text.Trim();
+            return ExiledToolkit.Game.GameNames.Translate(config, config._Config_Buff_Dict[buffId]?.Name, language)?.Trim();
         }
         catch (Exception)
         {

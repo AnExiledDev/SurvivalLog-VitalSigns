@@ -149,6 +149,26 @@ public class ActionsTabTests
 
         Assert.IsType<HudCommand.TabLoad>(HudCommand.Parse(tab.Text("sent[0]")));
         Assert.Equal(new HudCommand.Shown(false), HudCommand.Parse(tab.Text("sent[1]")));
+        Assert.Equal("slva-css", tab.Text("head.children[0].id"));
+    }
+
+    /// <summary>The game can run the tab's script before the Toolkit's: a tab opened meanwhile still asks for its data and gets its style.</summary>
+    [Fact]
+    public void A_tab_opened_before_the_toolkit_loads_asks_for_its_data_and_gets_its_style_once_it_does()
+    {
+        var tab = new TabScript(isToolkitFirst: false);
+
+        tab.Show();
+
+        Assert.Equal(0, tab.Number("sent.length"));
+        Assert.Equal(0, tab.Number("head.children.length"));
+
+        tab.LoadToolkit();
+
+        Assert.Equal(1, tab.Number("sent.length"));
+        Assert.IsType<HudCommand.TabLoad>(HudCommand.Parse(tab.Text("sent[0]")));
+        Assert.Equal("slva-css", tab.Text("head.children[0].id"));
+        Assert.Contains("#slmm .slva", tab.Text("head.children[0].textContent"));
     }
 
     [Fact]
@@ -252,13 +272,19 @@ public class ActionsTabTests
 
         private readonly Engine _engine = new();
 
-        public TabScript()
+        /// <param name="isToolkitFirst">Whether the game ran Exiled's Toolkit's page API before the tab's script.</param>
+        public TabScript(bool isToolkitFirst = true)
         {
             _engine.Execute(Dom);
+
+            if (isToolkitFirst) LoadToolkit();
+
             Reinstall();
         }
 
-        public void Reinstall() => _engine.Execute(Resource());
+        public void Reinstall() => _engine.Execute(Resource("VitalSigns.actions.js"));
+
+        public void LoadToolkit() => _engine.Execute(Resource("ExiledToolkit.api.js"));
 
         public void Show() => _engine.Execute("window.__modmanagerTabs[0].show(host, ctx)");
 
@@ -274,9 +300,9 @@ public class ActionsTabTests
 
         public double Number(string expression) => _engine.Evaluate($"Number({expression})").AsNumber();
 
-        private static string Resource()
+        private static string Resource(string name)
         {
-            using var stream = typeof(TabScript).Assembly.GetManifestResourceStream("VitalSigns.actions.js") ?? throw new InvalidOperationException("actions.js is not embedded");
+            using var stream = typeof(TabScript).Assembly.GetManifestResourceStream(name) ?? throw new InvalidOperationException(name + " is not embedded");
             using var reader = new StreamReader(stream);
 
             return reader.ReadToEnd();

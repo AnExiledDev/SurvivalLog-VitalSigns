@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using ExiledToolkit.Game;
 using GameCore.HotUpdate.Battle.Logic;
-using VitalSigns.Adapters;
 using VitalSigns.Timers.Core;
 
 namespace VitalSigns.Timers.Adapters;

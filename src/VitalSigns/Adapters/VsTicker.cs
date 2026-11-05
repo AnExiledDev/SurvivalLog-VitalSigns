@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
+using ExiledToolkit;
+using ExiledToolkit.Kit;
+using ExiledToolkit.Web;
 using UnityEngine;
+using VitalSigns.Core;
 
 namespace VitalSigns.Adapters;
 
@@ -12,6 +16,9 @@ public sealed class VsTicker : MonoBehaviour
     internal static VsPage? Page;
     internal static Action<string> Log = _ => { };
     internal static Plugin.HudSettings? Hud;
+
+    /// <summary>The HUD's and the Actions tab's messages.</summary>
+    internal static PageMailbox? Messages;
 
     private static readonly HashSet<string> ReportedFailures = new();
 
@@ -27,9 +34,9 @@ public sealed class VsTicker : MonoBehaviour
         {
             var now = Time.unscaledTime;
 
-            while (Timers.Adapters.PageMessages.TryTakeHud(out var command)) Page.Handle(command, now);
+            while (Messages != null && Messages.TryTake(out var message)) Page.Handle(HudCommand.Parse(message), now);
 
-            if (Hud is { } hud && hud.EditKey.Value != KeyCode.None && Input.GetKeyDown(hud.EditKey.Value) && !Timers.Adapters.OptionalLive.IsTyping()) Page.ToggleEdit();
+            if (Hud is { } hud && KeyGate.Fires(hud.EditKey.Value, KeyCode.None, Input.GetKeyDown, () => Typing.IsActive)) Page.ToggleEdit();
 
             Page.Tick(now);
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ExiledToolkit.Game;
 using GameCore.HotUpdate;
 using GameCore.HotUpdate.Battle.Logic;
 using HarmonyLib;
@@ -17,10 +18,11 @@ namespace VitalSigns.Timers.Adapters;
 /// </summary>
 internal static class BuffHooks
 {
+    private const string HookFailing = "multiplying a buff's time, that buff kept the game's time";
+
     private static volatile MultiplierPlan _plan = MultiplierPlan.Unchanged;
     private static int _loadingDepth;
-    private static Action<string> _log = _ => { };
-    private static bool _hasReportedFailure;
+    private static PatchKit? _hooks;
 
     /// <summary>Every BuffComponent seen, held weakly so the game can still free them; the running buffs are found through these.</summary>
     private static readonly Dictionary<IntPtr, IntPtr> Seen = new();
@@ -34,17 +36,18 @@ internal static class BuffHooks
     /// <summary>All or nothing: with only some hooks in, saved buffs could be multiplied again on every load.</summary>
     public static bool Apply(Harmony harmony, Action<string> log)
     {
-        _log = log;
+        var hooks = _hooks = new PatchKit(harmony, log);
 
         try
         {
             var buffs = typeof(BuffComponent);
             var effects = typeof(BTEffectManager);
+            var self = typeof(BuffHooks);
 
-            harmony.Patch(AccessTools.Method(buffs, nameof(BuffComponent.LoadGame)), prefix: Hook(nameof(BeforeLoad)), finalizer: Hook(nameof(AfterLoad)));
-            harmony.Patch(AccessTools.Method(effects, nameof(BTEffectManager.TriggerBuffDuringFix)), postfix: Hook(nameof(AfterRatio)));
-            harmony.Patch(AccessTools.Method(effects, nameof(BTEffectManager.TriggerBuffDuringAdd)), postfix: Hook(nameof(AfterBonus)));
-            harmony.Patch(AccessTools.Method(buffs, nameof(BuffComponent.PlayBuff)), prefix: Hook(nameof(BeforePlay)));
+            hooks.PatchOrThrow(self, buffs, nameof(BuffComponent.LoadGame), prefix: nameof(BeforeLoad), finalizer: nameof(AfterLoad));
+            hooks.PatchOrThrow(self, effects, nameof(BTEffectManager.TriggerBuffDuringFix), postfix: nameof(AfterRatio));
+            hooks.PatchOrThrow(self, effects, nameof(BTEffectManager.TriggerBuffDuringAdd), postfix: nameof(AfterBonus));
+            hooks.PatchOrThrow(self, buffs, nameof(BuffComponent.PlayBuff), prefix: nameof(BeforePlay));
             log("buff time hooks in");
 
             return true;
@@ -52,7 +55,7 @@ internal static class BuffHooks
         catch (Exception ex)
         {
             harmony.UnpatchSelf();
-            log("could not hook buff times, every buff keeps the game's own time: " + ex.Message);
+            log(HookFailure.Prefix + " buff times, every buff keeps the game's own time: " + ex.Message);
 
             return false;
         }
@@ -78,8 +81,6 @@ internal static class BuffHooks
 
         return live;
     }
-
-    private static HarmonyMethod Hook(string name) => new(typeof(BuffHooks), name);
 
     private static void BeforeLoad(BuffComponent __instance)
     {
@@ -167,11 +168,5 @@ internal static class BuffHooks
         Seen[pointer] = IL2CPP.il2cpp_gchandle_new_weakref(pointer, false);
     }
 
-    private static void ReportOnce(Exception ex)
-    {
-        if (_hasReportedFailure) return;
-
-        _hasReportedFailure = true;
-        _log("a buff time hook failed, that buff kept the game's time (reported once): " + ex);
-    }
+    private static void ReportOnce(Exception ex) => _hooks?.Fail(HookFailing, ex);
 }

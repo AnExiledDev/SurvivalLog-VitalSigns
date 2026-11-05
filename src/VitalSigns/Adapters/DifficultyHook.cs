@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using ExiledToolkit.Game;
 using GameCore.HotUpdate;
 using GameCore.HotUpdate.Battle.Logic;
 using HarmonyLib;
@@ -45,19 +46,9 @@ internal static class DifficultyHook
 
         _log = log;
 
-        try
-        {
-            var target = AccessTools.Method(typeof(AttributeComponent), nameof(AttributeComponent.CostAttrValue),
-                             new[] { typeof(AttrName), typeof(float), typeof(long), typeof(EffectArgsType), typeof(bool), typeof(bool), typeof(VitalityChangeSourceType), typeof(int) })
-                         ?? throw new MissingMethodException(nameof(AttributeComponent) + "." + nameof(AttributeComponent.CostAttrValue));
-
-            harmony.Patch(target, prefix: new HarmonyMethod(typeof(DifficultyHook), nameof(Before)));
-            log("stat difficulty hooked");
-        }
-        catch (Exception ex)
-        {
-            log("could not hook stat changes, the Difficulty settings do nothing: " + ex.Message);
-        }
+        new PatchKit(harmony, log).Patch(typeof(DifficultyHook), typeof(AttributeComponent), nameof(AttributeComponent.CostAttrValue),
+            new[] { typeof(AttrName), typeof(float), typeof(long), typeof(EffectArgsType), typeof(bool), typeof(bool), typeof(VitalityChangeSourceType), typeof(int) },
+            prefix: nameof(Before), done: "stat difficulty hooked", consequence: "the Difficulty settings do nothing");
     }
 
     private static void Before(AttributeComponent __instance, AttrName attrName, ref float value)

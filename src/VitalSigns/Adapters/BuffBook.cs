@@ -227,20 +227,7 @@ internal static class BuffBook
         return false;
     }
 
-    /// <summary>The game answers a key it has no text for with the key itself.</summary>
-    internal static string? Text(ConfigManager config, string? key, bool isChinese)
-    {
-        if (string.IsNullOrEmpty(key)) return null;
-
-        try
-        {
-            var text = config.GetLocalTxtByLanguage(key, isChinese ? LanguageType.Chinese : LanguageType.English);
-
-            return string.IsNullOrWhiteSpace(text) || text == key ? null : text.Trim();
-        }
-        catch (Exception)
-        {
-            return null;
-        }
-    }
+    /// <summary>The game's text for a key in the language given, trimmed; null when it has none.</summary>
+    internal static string? Text(ConfigManager config, string? key, bool isChinese) =>
+        ExiledToolkit.Game.GameNames.Translate(config, key, isChinese ? LanguageType.Chinese : LanguageType.English)?.Trim();
 }

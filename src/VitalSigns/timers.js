@@ -1,5 +1,5 @@
 // The Timers tab in the Mod Manager: every visible buff with a timer, how long it lasts in the game, and how long it
-// lasts with the multipliers set here. Talks to the plugin through vuplex.postMessage("slmod|vitalsigns|timers|...") and is
+// lasts with the multipliers set here. Talks to the plugin through the Toolkit's send("slmod|vitalsigns|timers|...") and is
 // answered through window.__slvtimers. The plugin sends this script again whenever the web view loses it.
 (function () {
   if (window.__slvtimers) return;
@@ -94,14 +94,32 @@
     }).join('\n');
   }
 
+  let css = '';
+
+  // Through the Toolkit's page API; a tab drawn before it is there gets its style when it arrives.
   function injectStyle() {
-    if (document.getElementById(STYLE_ID)) return;
+    if (!etk) return;
 
-    const style = document.createElement('style');
+    css = css || scopedCss();
+    etk.addStyle(document, STYLE_ID, css);
+  }
 
-    style.id = STYLE_ID;
-    style.textContent = scopedCss();
-    document.head.appendChild(style);
+  // ===== Toolkit =====
+
+  let etk = null;
+  const waiting = [];
+
+  // Through the Toolkit's bridge. A message sent before its page API is there waits for it.
+  function send(msg) {
+    if (etk) etk.send(PREFIX, msg);
+    else waiting.push(msg);
+  }
+
+  function startWithToolkit(api) {
+    etk = api;
+    waiting.splice(0).forEach(msg => etk.send(PREFIX, msg));
+
+    if (st.root) injectStyle();
   }
 
   // ===== State =====
@@ -134,10 +152,6 @@
   const numText = v => String(Math.round(v * 10000) / 10000);
   const minOf = () => st.data && isNum(st.data.min) ? st.data.min : 0.1;
   const maxOf = () => st.data && isNum(st.data.max) ? st.data.max : 100;
-
-  function send(msg) {
-    try { window.vuplex.postMessage(PREFIX + msg); } catch (e) {}
-  }
 
   // ===== Numbers =====
 
@@ -558,6 +572,9 @@
   try {
     if (window.__modmanager && typeof window.__modmanager.tabsChanged === 'function') window.__modmanager.tabsChanged();
   } catch (err) {}
+
+  // Last, so the Toolkit finds every part of the tab set up, whichever script the game ran first.
+  (window.ExiledToolkitReady = window.ExiledToolkitReady || []).push(startWithToolkit);
 
   // Asked once the script is in, so the tab has its data before the player opens it.
   load();

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using ExiledToolkit.Web;
 
 namespace VitalSigns.Timers.Core;
 
@@ -31,7 +32,7 @@ public abstract record SaveRequest
 /// </summary>
 public static class TabPage
 {
-    private const string Receiver = "window.__slvtimers";
+    public const string Receiver = "window.__slvtimers";
 
     public static string DataCall(MultiplierPlan plan, IReadOnlyList<BuffEntry> buffs, int timeScale, IReadOnlyList<string> problems) =>
         Receiver + "&&" + Receiver + ".data(" + DataJson(plan, buffs, timeScale, problems) + ")";

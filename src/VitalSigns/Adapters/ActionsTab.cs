@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using BepInEx.Configuration;
+using ExiledToolkit.Game;
+using ExiledToolkit.Web;
 using GameCore.HotUpdate;
 using VitalSigns.Core;
 using VitalSigns.Core.Acts;
-using VitalSigns.Timers.Adapters;
 
 namespace VitalSigns.Adapters;
 
@@ -28,7 +29,7 @@ internal sealed class ActionsTab
     public ActionsTab(Action<string> log, IEnumerable<(TabSetting Setting, ConfigEntryBase Entry)> settings)
     {
         _log = log;
-        _page = new WebPage(log, "VitalSigns.actions.js", ActionsPage.Receiver, HudCommand.TabPrefix, "Actions");
+        _page = new WebPage(typeof(ActionsTab).Assembly, "VitalSigns.actions.js", ActionsPage.Receiver, HudCommand.TabPrefix + "noscript", log) { Name = "Actions tab" };
 
         foreach (var (setting, entry) in settings) _settings[setting.Name] = (setting, entry);
     }
@@ -41,7 +42,7 @@ internal sealed class ActionsTab
 
     public void Tick(double now, HudActs acts, ActOptions options)
     {
-        if (IsOn) _page.KeepInstalled((float)now);
+        if (IsOn) _page.KeepInstalled(now);
 
         if (!IsShown || now < _nextSendAt) return;
 
@@ -123,7 +124,7 @@ internal sealed class ActionsTab
         if (json == _lastJson) return;
 
         _lastJson = json;
-        _page.Call(json);
+        _page.Run(json);
     }
 
     private ActionsView View(HudActs acts, ActOptions options, bool isChinese)

@@ -5,6 +5,9 @@ using System.Linq;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Unity.IL2CPP;
+using ExiledToolkit;
+using ExiledToolkit.Kit;
+using ExiledToolkit.Web;
 using HarmonyLib;
 using UnityEngine;
 using VitalSigns.Adapters;
@@ -16,12 +19,16 @@ using VitalSigns.Timers.Core;
 namespace VitalSigns;
 
 [BepInPlugin(Guid, "Vital Signs", Version)]
-[BepInDependency(OptionalLive.ToolkitGuid, OptionalLive.ToolkitVersion)]
+[BepInDependency(ToolkitGuid, ToolkitVersion)]
 [BepInDependency(ModManagerGuid, BepInDependency.DependencyFlags.SoftDependency)]
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.vitalsigns";
-    private const string Version = "0.9.2";
+    private const string Version = "0.9.3";
+
+    /// <summary>Exiled's Toolkit: its shared helpers, toasts, live settings and typing check all come from it.</summary>
+    private const string ToolkitGuid = "com.dev.survivallog.exiledtoolkit";
+    private const string ToolkitVersion = ">=0.19.0";
     private const string FitnessBarGuid = "com.dev.survivallog.fitnessbar";
     private const string ModManagerGuid = "com.dev.survivallog.modmanager";
     private const string TimersFileName = "VitalSigns.Timers.json";
@@ -43,7 +50,7 @@ public sealed class Plugin : BasePlugin
         var enabled = Config.Bind("VitalSigns", "Enabled", true, new ConfigDescription(
             "Show more on the HUD: how each stat's gains and losses are scaled, shading for the losses still to come, the Well Fed lines on the Satiety bar, a timer stripe on each buff that ends, buff effects and cures in the tooltips, the weight you carry on the Inventory button and a Fitness bar under the Life bar. Also applies the buff time multipliers and shows the low stat warnings. Off: everything the mod draws goes away, no warnings show and every buff goes back to the game's own time.\n" +
             "在屏幕上显示更多信息：各项属性的增减倍率、即将扣除数值的阴影、「饱腹」条上的「饱腹富余」界线、每个有时限的状态上的计时条、提示中的状态效果与解药，「背包」按钮上的当前负重，以及「生命」条下方的健康条。同时应用状态持续时间倍数并显示属性偏低提醒。关闭后本模组显示的内容全部消失，不再提醒，所有状态恢复游戏原本的时间。"));
-        var log = new VsLog(Log, Path.Combine(Paths.BepInExRootPath, "vital-signs.log"));
+        var log = new ModLog(Log, "vital-signs.log");
 
         log.Write($"===== Vital Signs {Version} started" + (enabled.Value ? "" : ": off, VitalSigns/Enabled is false"));
 
@@ -55,9 +62,6 @@ public sealed class Plugin : BasePlugin
         var acts = ActEntries();
         var difficulty = DifficultyEntries();
 
-        // Its own Harmony id: the HUD's clicks and both tabs need it, even when the buff hooks could not go in.
-        PageMessages.Apply(new Harmony(Guid + ".pages"), log.Write);
-
         page.Tab = new ActionsTab(log.Write, acts.Tab);
         page.Favourite = id => hud.Favourites.Value = HudChoices.Toggle(hud.Favourites.Value, id);
         page.SaveLayout = saved =>
@@ -68,20 +72,21 @@ public sealed class Plugin : BasePlugin
             log.Write("HUD layout saved");
         };
 
-        OptionalLive.Watch(() => page.Options = ReadOptions(display), display.All);
-        OptionalLive.Watch(() => page.Alerts = ReadAlerts(alerts), alerts.All);
-        OptionalLive.Watch(() => page.Hud = ReadHud(hud, alerts.LowAt.Value), hud.All.Append(alerts.LowAt).ToArray());
-        OptionalLive.Watch(() => page.Acts = ReadActs(acts), acts.All);
+        LiveSettings.Watch(() => page.Options = ReadOptions(display), display.All);
+        LiveSettings.Watch(() => page.Alerts = ReadAlerts(alerts), alerts.All);
+        LiveSettings.Watch(() => page.Hud = ReadHud(hud, alerts.LowAt.Value), hud.All.Append(alerts.LowAt).ToArray());
+        LiveSettings.Watch(() => page.Acts = ReadActs(acts), acts.All);
 
         VsTicker.Log = log.Write;
         VsTicker.Page = page;
         VsTicker.Hud = hud;
+        VsTicker.Messages = PageInbox.Listen(HudCommand.HudPrefix, HudCommand.TabPrefix);
         AddComponent<VsTicker>();
 
         var settings = StartTimers(enabled.Value, log.Write);
         var wasOn = (bool?)null;
 
-        OptionalLive.Watch(enabled, isOn =>
+        LiveSettings.Watch(enabled, isOn =>
         {
             page.IsOn = isOn;
             TabTicker.IsOn = isOn;
@@ -103,7 +108,7 @@ public sealed class Plugin : BasePlugin
         var difficultyHooks = new Harmony(Guid + ".difficulty");
         var difficultyGate = new DifficultyHookGate(() => DifficultyHook.Apply(difficultyHooks, log.Write));
 
-        OptionalLive.Watch(() =>
+        LiveSettings.Watch(() =>
         {
             var wanted = enabled.Value ? ReadDifficulty(difficulty) : Difficulty.Off;
 
@@ -129,8 +134,9 @@ public sealed class Plugin : BasePlugin
         if (!BuffHooks.Apply(new Harmony(Guid + ".buffs"), log)) return null;
 
         settings.IsOn = isOn;
-        OptionalLive.Watch(settings.Apply, settings.Entries.ToArray());
-        TabTicker.Page = new WebPage(log);
+        LiveSettings.Watch(settings.Apply, settings.Entries.ToArray());
+        TabTicker.Page = new WebPage(typeof(Plugin).Assembly, "VitalSigns.timers.js", TabPage.Receiver, PageCommand.Prefix + "noscript", log) { Name = "Timers tab" };
+        TabTicker.Messages = PageInbox.Listen(PageCommand.Prefix);
         TabTicker.Settings = settings;
         TabTicker.Log = log;
         AddComponent<TabTicker>();
@@ -263,8 +269,8 @@ public sealed class Plugin : BasePlugin
             "Show an arrow on each stat bar when the stat has risen or fallen over the last game hour.",
             "属性在过去一小时（游戏时间）内上升或下降时，在属性条上显示箭头。");
         var matchHud = Bind("MatchHudStyle",
-            "Draw the hover boxes, the multiplier chips and the bar frames in the colours of the HUD style chosen in Exiled's Toolkit (HudStyle). With the classic style, or an older Toolkit, they keep this mod's own colours.",
-            "按照 Exiled's Toolkit 中选择的界面风格（HudStyle）的配色绘制悬停提示、倍率标签和属性条边框。使用经典风格或旧版 Toolkit 时，保持本模组自己的配色。");
+            "Draw the hover boxes, the multiplier chips and the bar frames in the colours of the HUD style chosen in Exiled's Toolkit (HudStyle). With the classic style they keep this mod's own colours.",
+            "按照 Exiled's Toolkit 中选择的界面风格（HudStyle）的配色绘制悬停提示、倍率标签和属性条边框。使用经典风格时，保持本模组自己的配色。");
         var barLook = Config.Bind("Display", "BarLook", BarLook.Game, new ConfigDescription(
             "How the stat bars are drawn. Game: the game's own look. Flat: no frame or shadow. Segmented: split into tenths, so you can read the level at a glance.\n" +
             "属性条的样式。Game：游戏原本的样式。Flat：无边框、无阴影。Segmented：分成十格，一眼就能看出数值。",

@@ -6,17 +6,38 @@ using Xunit;
 namespace VitalSigns.Tests.Timers;
 
 /// <summary>
-/// timers.js exactly as the plugin embeds it. The tab and the plugin only find each other through the mod's id, the
-/// message prefix and the receiver name, so these check the script and the C# side agree on all three.
+/// timers.js exactly as the plugin embeds it, with Exiled's Toolkit's page API loaded first. The tab and the plugin
+/// only find each other through the mod's id, the message prefix and the receiver name, so these check the script and
+/// the C# side agree on all three.
 /// </summary>
 public class TimersScriptTests
 {
+    private const string Bridge = "var window = this; var sent = []; window.vuplex = { postMessage: function (m) { sent.push(m); } };";
+
     private readonly Engine _engine = new();
 
     public TimersScriptTests()
     {
-        _engine.Execute("var window = this; var sent = []; window.vuplex = { postMessage: function (m) { sent.push(m); } };");
+        _engine.Execute(Bridge);
+        _engine.Execute(Resource("ExiledToolkit.api.js"));
         _engine.Execute(Resource("VitalSigns.timers.js"));
+    }
+
+    /// <summary>The game can run the tab's script before the Toolkit's: the tab still asks for its data, once the Toolkit is there.</summary>
+    [Fact]
+    public void A_tab_loaded_before_the_toolkit_asks_for_its_data_once_the_toolkit_loads()
+    {
+        var engine = new Engine();
+
+        engine.Execute(Bridge);
+        engine.Execute(Resource("VitalSigns.timers.js"));
+
+        Assert.Equal(0, engine.Evaluate("sent.length").AsNumber());
+
+        engine.Execute(Resource("ExiledToolkit.api.js"));
+
+        Assert.Equal(1, engine.Evaluate("sent.length").AsNumber());
+        Assert.IsType<PageCommand.Load>(PageCommand.Parse(engine.Evaluate("sent[0]").AsString()));
     }
 
     [Fact]

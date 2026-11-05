@@ -17,7 +17,7 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 - **Weight on the Inventory button**: the kilograms you carry and a bar with a mark where Overweight starts, amber when you are close to Overweight and red past it. Hover the button to see your carried weight, the most you can carry, where Overweight starts, how much room you have left and the 5 heaviest items in your bag (set how many, or none).
 - **Trend arrows**: a small green arrow up or red arrow down by a stat's value when it rose or fell over the last game hour.
 - **Buffs about to end pulse**: a good buff pulses when it has an hour of game time or less left, so you can renew it before it runs out. Set how soon, or make debuffs pulse too.
-- **Styles**: the hover boxes, the multiplier chips and the bar frames take the colours of the HUD style chosen in Exiled's Toolkit (0.18.0 or newer). The stat bars can be drawn flat or split into tenths, and a colour-blind setting uses blue and orange in place of green and red.
+- **Styles**: the hover boxes, the multiplier chips and the bar frames take the colours of the HUD style chosen in Exiled's Toolkit. The stat bars can be drawn flat or split into tenths, and a colour-blind setting uses blue and orange in place of green and red.
 - **Sizes**: the bars and the buffs next to them are drawn at 80% of the game's size by default, and the bars' hover boxes at the game's own size so their text stays easy to read. Set each from 50% to 150%.
 - **Darker hover boxes**: the stat hover boxes are as dark as the buff ones, so the HUD behind them no longer shows through.
 - **Any language**: the lines are in English, or in Simplified Chinese when the game is set to Chinese. Buff names come from the game.
@@ -63,15 +63,15 @@ Vital Signs was originally inspired by [Stats UI](https://www.nexusmods.com/surv
 
 ## Requirements
 
-- Survival Log 1.1.20151. Built and tested on this version; a game update can break it until the mod is updated.
+- Survival Log 1.1.20719. Built and tested on this version; a game update can break it until the mod is updated.
 - The [BepInEx Pack for Survival Log](https://www.nexusmods.com/survivallog/mods/12), the BepInEx 6 (IL2CPP) build for the game.
 - Optional: [Mod Manager](https://www.nexusmods.com/survivallog/mods/73). The Timers tab, where you see every buff and set single buffs, is on this mod's page in the Mod Manager. Without it, set the buff multipliers in the config files.
-- [Exiled's Toolkit](https://www.nexusmods.com/survivallog/mods/61) 0.11.0 or newer. The low stat warnings are its pop-ups, and settings changed on the Mod Manager's Mods screen take effect at once through it.
+- [Exiled's Toolkit](https://www.nexusmods.com/survivallog/mods/61) 0.19.0 or newer. Vital Signs does not load without it. The low stat warnings are its pop-ups, settings changed on the Mod Manager's Mods screen take effect at once through it, and the colours that match the HUD style come from it.
 
 ## Install
 
 1. Install the [BepInEx Pack for Survival Log](https://www.nexusmods.com/survivallog/mods/12) (if no other mods were installed before, start the game once so BepInEx finishes setup, then quit).
-2. Install [Exiled's Toolkit](https://www.nexusmods.com/survivallog/mods/61) 0.11.0 or newer.
+2. Install [Exiled's Toolkit](https://www.nexusmods.com/survivallog/mods/61) 0.19.0 or newer.
 3. Optional, for the Timers tab: install [Mod Manager](https://www.nexusmods.com/survivallog/mods/73) the same way.
 4. Download `VitalSigns-x.y.z.zip` from the [latest release](https://github.com/AnExiledDev/SurvivalLog-VitalSigns/releases/latest) or from [Nexus Mods](https://www.nexusmods.com/survivallog/mods/133).
 5. Extract the zip into the game folder (the folder with `SurvivalLog.exe`). It holds a `BepInEx` folder, so the DLL lands in the right place. When asked, merge the folders. The result should be:
@@ -91,9 +91,9 @@ For buff times, open the Mod Manager, go to Vital Signs and pick the Timers tab.
 
 ## Troubleshooting
 
-Tested on Survival Log 1.1.20151 with BepInEx `6.0.0-be.788`.
+Tested on Survival Log 1.1.20719 with BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.9.2 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
+Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.9.3 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
 
 Once a game has loaded, look for `page script sent to CoreUI1 (install 1): the stat bars show the readings`. A line ending `no stat bars on the HUD right now` means the mod could not find the stat bars.
 
@@ -101,7 +101,7 @@ Each warning writes a line such as `warning: Satiety Low at 18/100`. A line endi
 
 For buff times, look for `buff time hooks in`. A line starting with `could not hook buff times` means buff times cannot be changed on this game version; the HUD part still works.
 
-A click on a bar writes a line such as `click on Satiety: queued ...`. A line starting with `could not hook stat changes` means the Difficulty settings do nothing on this game version; the rest still works.
+A click on a bar writes a line such as `click on Satiety: queued ...`. A line starting with `could not hook AttributeComponent.CostAttrValue` means the Difficulty settings do nothing on this game version; the rest still works.
 
 The same lines are in `BepInEx\vital-signs.log`, with a timestamp each, and that file is kept across restarts.
 
@@ -113,6 +113,7 @@ To reach me directly, message `exiled.dev` on Discord; you can find me in the [o
 
 ## Changelog
 
+- **0.9.3**: Now uses Exiled's Toolkit for its shared parts, so it needs Exiled's Toolkit 0.19.0 or newer.
 - **0.9.2**: More tests for stat difficulty; nothing changes in play.
 - **0.9.1**: The food note in the Actions tab now says what a Satiety click eats.
 - **0.9.0**: Click a bar to eat, sleep, raise Morale or use Life items, an Actions tab to set it up, click a debuff to cure it, a compact HUD, a warning pulse, queue projection, bars while exploring, buff sorting and pinning, a layout editor and stat difficulty.

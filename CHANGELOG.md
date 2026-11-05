@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.3
+
+- Now uses Exiled's Toolkit for its shared parts, so it needs Exiled's Toolkit 0.19.0 or newer.
+- Made for Survival Log 1.1.20719.
+
 ## 0.9.2
 
 - More tests for when stat difficulty starts working. Nothing changes in play: the multipliers still do nothing until one is set off 1.

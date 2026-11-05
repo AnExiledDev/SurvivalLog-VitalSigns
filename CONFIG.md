@@ -22,7 +22,7 @@ Settings live in `BepInEx\config\com.dev.survivallog.vitalsigns.cfg`, created th
 | `BuffSize` | `80` | How big the buffs next to the bars are drawn, in percent of the game's size, from 50 to 150. Their hover boxes grow and shrink with them. At the same number as `BarSize` they sit in proportion to the bars. `100` is the game's size. |
 | `HeaviestItems` | `5` | How many of the heaviest items in your bag the Inventory button's hover box lists, from 0 to 10, with their weight. Stacks of the same item count as one. `0` lists none. Only applies when `WeightReadout` is on. |
 | `TrendArrows` | `true` | Shows an arrow by each stat's value when the stat rose or fell over the last game hour. An arrow shows once ten game minutes have been seen. |
-| `MatchHudStyle` | `true` | Draws the hover boxes, the multiplier chips and the bar frames in the colours of the HUD style chosen in Exiled's Toolkit (`HudStyle`). With the classic style, or a Toolkit older than 0.18.0, they keep this mod's own colours. |
+| `MatchHudStyle` | `true` | Draws the hover boxes, the multiplier chips and the bar frames in the colours of the HUD style chosen in Exiled's Toolkit (`HudStyle`). With the classic style they keep this mod's own colours. |
 | `BarLook` | `Game` | How the stat bars are drawn. `Game`: the game's own look. `Flat`: no frame or shadow. `Segmented`: split into tenths. |
 | `ColourBlind` | `false` | Uses colours that stay apart for red-green colour blindness: blue in place of green and orange in place of red, on the bars, the buffs, the multiplier chips and the hover boxes. |
 | `CuresInTooltips` | `true` | Lists the items that cure or suppress a debuff in its hover box, with how many of each you have. Only applies when `ExtendedTooltips` is on. |

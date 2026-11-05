@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ExiledToolkit.Web;
 using GameCore.HotUpdate;
 using VitalSigns.Timers.Core;
 using UnityEngine;
@@ -13,6 +14,7 @@ namespace VitalSigns.Timers.Adapters;
 public sealed class TabTicker : MonoBehaviour
 {
     internal static WebPage? Page;
+    internal static PageMailbox? Messages;
     internal static Multipliers? Settings;
     internal static Action<string> Log = _ => { };
 
@@ -26,13 +28,13 @@ public sealed class TabTicker : MonoBehaviour
 
     private void Update()
     {
-        if (Page == null || Settings == null) return;
+        if (Page == null || Messages == null || Settings == null) return;
 
         try
         {
             if (IsOn) Page.KeepInstalled(Time.unscaledTime);
 
-            while (PageMessages.TryTake(out var command)) Answer(command, Page, Settings);
+            while (Messages.TryTake(out var message)) Answer(PageCommand.Parse(message), Page, Settings);
         }
         catch (Exception ex)
         {
@@ -70,7 +72,7 @@ public sealed class TabTicker : MonoBehaviour
                 break;
             case SaveRequest.Refused refused:
                 Log("tab save refused: " + refused.Problem);
-                page.Call(TabPage.SavedCall(false, refused.Problem));
+                page.Run(TabPage.SavedCall(false, refused.Problem));
                 break;
         }
     }
@@ -84,14 +86,14 @@ public sealed class TabTicker : MonoBehaviour
         catch (Exception ex)
         {
             Log("could not save the multipliers: " + ex.Message);
-            page.Call(TabPage.SavedCall(false, ex.Message));
+            page.Run(TabPage.SavedCall(false, ex.Message));
 
             return;
         }
 
         foreach (var note in accepted.Notes) Log("tab save: " + note);
 
-        page.Call(TabPage.SavedCall(true, ""));
+        page.Run(TabPage.SavedCall(true, ""));
         SendData(page, settings, accepted.Notes);
     }
 
@@ -99,7 +101,7 @@ public sealed class TabTicker : MonoBehaviour
     {
         var buffs = GameBuffs.Entries(Log) ?? Array.Empty<BuffEntry>();
 
-        page.Call(TabPage.DataCall(settings.Current(), buffs, TimeScale(), problems));
+        page.Run(TabPage.DataCall(settings.Current(), buffs, TimeScale(), problems));
     }
 
     private static int TimeScale()
