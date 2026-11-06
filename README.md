@@ -83,7 +83,7 @@ Delete `VitalSigns.dll` from the `BepInEx\plugins` folder. For a clean slate, al
 
 Settings live in `BepInEx\config\com.dev.survivallog.vitalsigns.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Changes made on the Mods screen take effect at once. Each setting in the cfg file is explained in English and Simplified Chinese. Each part (the Fitness bar, the weight, the timer stripes, the hover box details, the game's own stat text and the cure lists) can be turned off, and `BarSize`, `BuffSize` and `BarTooltipSize` set how big the bars, the buffs and the bars' hover boxes are drawn. `HeaviestItems`, `TrendArrows`, `MatchHudStyle`, `BarLook` and `ColourBlind` set the heaviest items list, the arrows and the look. Under Alerts, each low stat warning can be turned off, `LowAt` sets how low a stat gets before it warns, and `BuffEndingPulse`, `BuffEndingMinutes` and `BuffEndingDebuffs` set which buffs pulse before they end, and how soon. Under Hud are the compact HUD, the warning pulse, the buff order and pins, the layout, the exploring bars, the queue projection and the clicks on bars and debuffs. Under Actions is what each click does, and under Difficulty how fast each stat falls and rises. See [CONFIG.md](CONFIG.md) for every setting.
 
-To set up the clicks, open the Mods screen, go to Vital Signs and find the Actions section. Add food to skip, the Morale routine and the Life items from their pickers, and click a bed's mode to change it.
+To set up the clicks, open the Mods screen, go to Vital Signs and find the Actions section. Add food to skip, the Morale routine and the Life items with ADD, and pick each bed's mode on its row.
 
 For buff times, set the good, bad and category multipliers under Timers and TimerCategories, and add single buffs to `Buffs` under Timers. The changes take effect at once, on buffs already running too.
 
@@ -91,7 +91,7 @@ For buff times, set the good, bad and category multipliers under Timers and Time
 
 Tested on Survival Log 1.1.20719 with BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.10.0 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
+Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.11.0 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
 
 Once a game has loaded, look for `page script sent to CoreUI1 (install 1): the stat bars show the readings`. A line ending `no stat bars on the HUD right now` means the mod could not find the stat bars.
 
@@ -111,6 +111,7 @@ To reach me directly, message `exiled.dev` on Discord; you can find me in the [o
 
 ## Changelog
 
+- **0.11.0**: The Wooden Bed and Iron Single Bed work with a click on Stamina, the bed list shows the beds you can have with their pictures, and the lists are filed under the game's categories.
 - **0.10.0**: The food to skip, the Morale routine, the Life items, the bed modes, the pinned buffs and single buff timers are picked from lists on the Mods screen. The Actions and Timers tabs are gone, single buff timers are a setting now, and the layout editor opens from the pause menu.
 - **0.9.3**: Now uses Exiled's Toolkit for its shared parts, so it needs Exiled's Toolkit 0.19.0 or newer.
 - **0.9.2**: More tests for stat difficulty; nothing changes in play.

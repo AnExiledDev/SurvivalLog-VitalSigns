@@ -273,9 +273,19 @@ internal static class BaseScan
 
             if (func.IsRest)
             {
-                if (funcId == GameCatalog.SleepFunc) sleep = option;
-                else if (funcId == GameCatalog.NapFunc) nap = option;
-                else beauty = option;
+                // A bed with two of one kind keeps the one that restores more.
+                switch (func.Rest)
+                {
+                    case RestKind.Sleep when sleep == null || option.Delta.Stamina > sleep.Delta.Stamina:
+                        sleep = option;
+                        break;
+                    case RestKind.Nap when nap == null || option.Delta.Stamina > nap.Delta.Stamina:
+                        nap = option;
+                        break;
+                    case RestKind.Beauty when beauty == null || option.Delta.Stamina > beauty.Delta.Stamina:
+                        beauty = option;
+                        break;
+                }
 
                 continue;
             }

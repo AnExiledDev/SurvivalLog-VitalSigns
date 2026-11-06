@@ -25,7 +25,7 @@ namespace VitalSigns;
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.vitalsigns";
-    private const string Version = "0.10.0";
+    private const string Version = "0.11.0";
 
     /// <summary>Exiled's Toolkit: its shared helpers, toasts, live settings and typing check all come from it.</summary>
     private const string ToolkitGuid = "com.dev.survivallog.exiledtoolkit";
@@ -65,6 +65,7 @@ public sealed class Plugin : BasePlugin
         var difficulty = DifficultyEntries();
 
         ModManagerAnswers.Log = log.Write;
+        ModManagerAnswers.SavedBedModes = () => acts.BedModes.Value;
         page.Favourite = id => hud.Favourites.Value = HudChoices.Toggle(hud.Favourites.Value, id);
         page.SaveLayout = saved =>
         {
@@ -264,10 +265,7 @@ public sealed class Plugin : BasePlugin
         Math.Clamp(a.NapBelow.Value, SleepPlan.MinNapBelow, SleepPlan.MaxNapBelow), a.MoraleMode.Value, ActKeys.Parse(a.Routine.Value), a.MoraleItems.Value,
         a.AvoidLifeLoss.Value, LifeKeys(a.LifeItems.Value), Math.Clamp(a.LifeMostItems.Value, LifePlan.MinMostItems, LifePlan.MaxMostItems));
 
-    /// <summary>The word a list the Mods screen fills in when blank is saved as when it is set to hold nothing.</summary>
-    private const string NoneValue = "none";
-
-    /// <summary>Blank leaves the choice to the mod (null: every Life item); anything else, "none" included, is the list itself.</summary>
+    /// <summary>Blank leaves the choice to the mod (null: every Life item); anything else is the list itself.</summary>
     private static IReadOnlyList<string>? LifeKeys(string text) => text.Trim().Length == 0 ? null : ActKeys.Parse(text);
 
     private static Difficulty ReadDifficulty(DifficultySettings d) => new(d.Drain.Select(e => (double)e.Value).ToArray(), d.Gain.Select(e => (double)e.Value).ToArray());
@@ -446,8 +444,8 @@ public sealed class Plugin : BasePlugin
             "Leave out food that lowers Morale.",
             "不吃会降低心情的食物。");
         var bedModes = Config.Bind("Actions", "BedModes", "", new ConfigDescription(
-            "How a click on Stamina uses each bed type, as type:mode split by commas (9076:Sleep). Auto naps when only NapBelow percent or less is missing and sleeps otherwise; Sleep and Nap always do that; Skip never uses that bed. A bed type not listed is Auto.\n" +
-            "点击「体力」时如何使用每种床，格式为 类型:方式，用逗号分隔（如 9076:Sleep）。Auto：只缺 NapBelow 百分比或更少时小睡，否则睡觉；Sleep 和 Nap 总是睡觉或小睡；Skip 不用这种床。未列出的床为 Auto。",
+            "How a click on Stamina uses each bed type, as type:mode split by commas (20001:Sleep). Auto naps when only NapBelow percent or less is missing and sleeps otherwise; Sleep and Nap always do that; Skip never uses that bed. A bed type not listed is Auto.\n" +
+            "点击「体力」时如何使用每种床，格式为 类型:方式，用逗号分隔（如 20001:Sleep）。Auto：只缺 NapBelow 百分比或更少时小睡，否则睡觉；Sleep 和 Nap 总是睡觉或小睡；Skip 不用这种床。未列出的床为 Auto。",
             null, ListTag, "ModManager.EntryChoices=" + string.Join("|", SleepPlan.Modes), "ModManager.ChoiceZh=Auto=自动", "ModManager.ChoiceZh=Sleep=睡觉",
             "ModManager.ChoiceZh=Nap=小睡", "ModManager.ChoiceZh=Skip=不用"));
         var napBelow = Whole("NapBelow", SleepPlan.DefaultNapBelow, SleepPlan.MinNapBelow, SleepPlan.MaxNapBelow,
@@ -466,9 +464,8 @@ public sealed class Plugin : BasePlugin
             "Leave out Morale actions that cost Life.",
             "不做会减少生命的心情行动。");
         var lifeItems = Keys("LifeItems",
-            "The items a click on Life uses, in order, as i and an item id, split by commas (i1203). Empty: every item that restores Life, smallest first. none: no items.",
-            "点击「生命」时使用的物品，按顺序填写 i 加物品编号，用逗号分隔（如 i1203）。留空为使用所有恢复生命的物品，先用小的。none 为不用任何物品。",
-            "ModManager.AutoWhenBlank");
+            "The items a click on Life uses, in order, as i and an item id, split by commas (i1203). Empty: any item that restores Life, smallest first.",
+            "点击「生命」时使用的物品，按顺序填写 i 加物品编号，用逗号分隔（如 i1203）。留空为使用任何恢复生命的物品，先用小的。");
         var lifeMost = Whole("LifeMostItems", LifePlan.DefaultMostItems, LifePlan.MinMostItems, LifePlan.MaxMostItems,
             "The most items one click on Life uses, from 1 to 10. It stops once Life is full.",
             "每次点击「生命」最多使用几件物品，范围 1 到 10。生命满了就停止。");
@@ -494,13 +491,14 @@ public sealed class Plugin : BasePlugin
             return Config.Bind("Actions", key, value, new ConfigDescription(english + "\n" + chinese, new AcceptableValueList<string>(choices)));
         }
 
-        // A list of i and f keys. Bare item ids, which earlier versions took, are written with their i once at start.
-        ConfigEntry<string> Keys(string key, string english, string chinese, params string[] tags)
+        // A list of i and f keys. Bare item ids, which earlier versions took, are written with their i once at start, and
+        // anything that is not a key goes (0.10.0 saved an emptied Life list as "none", which is now just blank).
+        ConfigEntry<string> Keys(string key, string english, string chinese)
         {
-            var entry = Config.Bind("Actions", key, "", new ConfigDescription(english + "\n" + chinese, null, tags.Prepend(ListTag).ToArray<object>()));
+            var entry = Config.Bind("Actions", key, "", new ConfigDescription(english + "\n" + chinese, null, ListTag));
             var text = entry.Value.Trim();
 
-            if (text.Length > 0 && !text.Equals(NoneValue, StringComparison.OrdinalIgnoreCase) && ActKeys.Join(ActKeys.Parse(text)) is var keys && keys != text) entry.Value = keys;
+            if (text.Length > 0 && ActKeys.Join(ActKeys.Parse(text)) is var keys && keys != text) entry.Value = keys;
 
             return entry;
         }

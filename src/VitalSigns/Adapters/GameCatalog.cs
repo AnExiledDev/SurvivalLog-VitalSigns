@@ -11,23 +11,21 @@ namespace VitalSigns.Adapters;
 /// <summary>An item kind a click can use: what one use does before the player's modifiers, and what the game needs to queue it.</summary>
 internal sealed record CatalogItem(int Id, int SubCategory, int UseAction, Config_Effect Effect, StatDelta Delta);
 
-/// <summary>A furniture action a click can queue: what it does before the player's modifiers, its button text key and icon, and the actions it runs.</summary>
-internal sealed record CatalogFunc(int Id, string NameKey, string Icon, StatDelta Delta, int[] ActionIds, bool IsRest);
+/// <summary>A furniture action a click can queue: what it does before the player's modifiers, its button text key and icon, the actions it runs, and what kind of rest it is.</summary>
+internal sealed record CatalogFunc(int Id, string NameKey, string Icon, StatDelta Delta, int[] ActionIds, RestKind Rest)
+{
+    public bool IsRest => Rest != RestKind.None;
+}
 
 /// <summary>
 /// What the game's tables say every usable item and furniture action does to the four stats, read a slice at a time
 /// and kept until the game swaps its tables. Only items whose use is a plain use or a drink count (placing ivy or a
 /// trap is an item use too). A furniture action counts when its config previews a stat change, or when it is one of the
-/// beds' rests, which the config does not preview: those are worked out from the sleep effect, a step of restore every
-/// interval for the action's length.
+/// beds' rests, which the config does not preview: those are known by their sleep effect (every bed has its own Sleep and
+/// Nap actions) and worked out from it, a step of restore every interval for the action's length.
 /// </summary>
 internal static class GameCatalog
 {
-    public const int SleepFunc = 2;
-    public const int NapFunc = 4;
-    public const int BeautyFunc = 51;
-    private static readonly int[] RestFuncs = { SleepFunc, NapFunc, BeautyFunc };
-
     private const string ItemEffectPrefix = "Action/Item_";
     private const string SleepEffectPrefix = "Action/Sleep_";
     private const int FurnitureActionFunc = 2;
@@ -169,8 +167,8 @@ internal static class GameCatalog
 
             if (row == null || row.FuncType != FurnitureActionFunc || row.ActionIds == null || row.ActionIds.Count == 0) continue;
 
-            var isRest = Array.IndexOf(RestFuncs, row.ID) >= 0;
-            var delta = isRest ? RestDelta(actions, effects, row.ActionIds[0]) : StatDelta.Parse(row.PreviewAttrDelta);
+            var rest = RestKinds.Of(EffectOf(actions, effects, row.ActionIds[0])?.ConfigName);
+            var delta = rest != RestKind.None ? RestDelta(actions, effects, row.ActionIds[0]) : StatDelta.Parse(row.PreviewAttrDelta);
 
             if (delta.IsNone) continue;
 
@@ -178,7 +176,7 @@ internal static class GameCatalog
 
             for (var i = 0; i < ids.Length; i++) ids[i] = row.ActionIds[i];
 
-            Funcs[row.ID] = new CatalogFunc(row.ID, row.BtnName ?? "", row.BtnIcon ?? "", delta, ids, isRest);
+            Funcs[row.ID] = new CatalogFunc(row.ID, row.BtnName ?? "", row.BtnIcon ?? "", delta, ids, rest);
 
             ByAction.TryAdd(ids[0], delta);
         }
@@ -222,6 +220,14 @@ internal static class GameCatalog
         }
 
         foreach (var id in unused) Funcs.Remove(id);
+    }
+
+    private static Config_Effect? EffectOf(Il2CppSystem.Collections.Generic.Dictionary<int, Config_Action> actions,
+        Il2CppSystem.Collections.Generic.Dictionary<int, Config_Effect> effects, int actionId)
+    {
+        if (!actions.TryGetValue(actionId, out var action) || action == null) return null;
+
+        return effects.TryGetValue(action.EffectConfigID, out var effect) ? effect : null;
     }
 
     /// <summary>A rest's Stamina: one step of the sleep effect every interval, for the length of the action.</summary>

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.11.0
+
+- The Wooden Bed and the Iron Single Bed now work with a click on Stamina. Before, Vital Signs only knew the plain bed's Sleep and Nap, so it never used these two, the best beds in the game.
+- The bed list on the Mods screen shows the beds you can have: the ones in your base, the Wooden Bed and the Iron Single Bed, each with its own picture and what its sleep and nap restore. The beds from places you only visit, and the sofas, are gone from it.
+- The lists on the Mods screen are filed under the game's own categories: Meds, Books, Household and the rest, and food under Staple Food, Meat, Fruit and its other kinds. Morale actions show the furniture's picture.
+- The buff lists are filed by kind (Food and sickness, Mood, Health and injury and the rest). Buffs a talent gives show the talent's picture, on their own Talents shelf, a buff named after an item (Bandage, Painkillers) shows the item's picture, and buffs that share a name show their id.
+- LifeItems is a plain list like the others. Left empty it uses any item that restores Life, smallest first, and the Mods screen says so instead of listing all of them.
+- Made for Survival Log 1.1.20719.
+
 ## 0.10.0
 
 - The list settings are picked from lists on the Mods screen, with Mod Manager 0.15.0 or newer: FoodSkip, MoraleRoutine and LifeItems from the game's items and furniture actions, BedModes from its beds with Auto, Sleep, Nap or Skip on each, and FavouriteBuffs from its buffs. Each entry shows its picture and name, and the picker says what it gives.

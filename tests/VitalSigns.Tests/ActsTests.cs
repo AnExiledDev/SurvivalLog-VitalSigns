@@ -207,7 +207,7 @@ public class ActsTests
     }
 
     [Fact]
-    public void A_blank_Life_list_uses_every_Life_item_smallest_first_and_none_uses_nothing()
+    public void A_blank_Life_list_uses_every_Life_item_smallest_first_and_a_set_one_only_its_own()
     {
         var kit = new ActOption("i6", ActKind.Item, 6, "k", "", new StatDelta(0, 0, 0, 40), ActState.Ready, Count: 1);
         var bandage = new ActOption("i5", ActKind.Item, 5, "b", "", new StatDelta(0, 0, 0, 10), ActState.Ready, Count: 5);
@@ -215,7 +215,6 @@ public class ActsTests
 
         Assert.Equal(new[] { "i5", "i6" }, ActPlanner.LifeItems(view, new ActOptions(LifeItems: null)).Select(item => item.Key));
         Assert.Equal(new[] { "i6" }, ActPlanner.LifeItems(view, new ActOptions(LifeItems: ActKeys.Parse("i6"))).Select(item => item.Key));
-        Assert.Empty(ActPlanner.LifeItems(view, new ActOptions(LifeItems: ActKeys.Parse("none"))));
     }
 
     [Fact]

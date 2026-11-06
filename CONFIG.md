@@ -2,7 +2,7 @@
 
 Settings live in `BepInEx\config\com.dev.survivallog.vitalsigns.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Changes made on the Mods screen take effect at once. Delete the file to get the defaults back.
 
-With Mod Manager 0.15.0 or newer, the list settings (`FavouriteBuffs`, `FoodSkip`, `BedModes`, `MoraleRoutine`, `LifeItems` and `Buffs` under Timers) are picked on the Mods screen: each shows its entries as cards with their picture and name, and a picker lists what the game has, with what each one gives or how long a buff lasts. In the file they are IDs split by commas.
+With Mod Manager 0.15.0 or newer, the list settings (`FavouriteBuffs`, `FoodSkip`, `BedModes`, `MoraleRoutine`, `LifeItems` and `Buffs` under Timers) are picked on the Mods screen: each shows its entries as rows with their picture, name and what they do, and ADD opens a list of what the game has, filed under the game's categories, with an Add button on each row. In the file they are IDs split by commas.
 
 ## VitalSigns
 
@@ -91,13 +91,13 @@ A click adds the same actions you could queue by hand. Furniture and beds come f
 | `FoodMostItems` | `4` | The most food one click on Satiety eats, from 1 to 10. |
 | `FoodSkip` | empty | Food a click never eats, as `i` and an item ID, split by commas, such as `i1203`. |
 | `FoodAvoidMoraleLoss` | `false` | Leaves out food that lowers Morale. |
-| `BedModes` | empty | How a click on Stamina uses each bed type, as type:mode split by commas, such as `9076:Sleep`. `Auto` naps when only `NapBelow` percent or less is missing and sleeps otherwise. `Sleep` always sleeps and `Nap` always naps. `Skip` never uses that bed. A bed type not listed is `Auto`. |
+| `BedModes` | empty | How a click on Stamina uses each bed type, as type:mode split by commas, such as `20001:Sleep` (the Wooden Bed). `Auto` naps when only `NapBelow` percent or less is missing and sleeps otherwise. `Sleep` always sleeps and `Nap` always naps. `Skip` never uses that bed. A bed type not listed is `Auto`. |
 | `NapBelow` | `25` | With a bed on `Auto`, naps when this much Stamina or less is missing, in percent of the maximum, from 0 to 100, and sleeps when more is. |
 | `MoraleMode` | `Best` | What a click on Morale queues. `Best`: one action, those that raise another stat too first, then the biggest gain. Clicking again while it is queued takes the next one. `Routine`: every action of `MoraleRoutine` that can be done now, in that order. |
 | `MoraleRoutine` | empty | Your Morale routine, in order: `f` and a furniture action ID, or `i` and an item ID, split by commas, such as `f12,i3001`. |
 | `MoraleItems` | `false` | Lets `Best` use items that raise Morale too, not only furniture. |
 | `AvoidLifeLoss` | `true` | Leaves out Morale actions that cost Life. |
-| `LifeItems` | empty | The items a click on Life uses, in order, as `i` and an item ID, split by commas. Empty: every item that restores Life, smallest first. `none`: no items. |
+| `LifeItems` | empty | The items a click on Life uses, in order, as `i` and an item ID, split by commas. Empty: any item that restores Life, smallest first. |
 | `LifeMostItems` | `1` | The most items one click on Life uses, from 1 to 10. It stops once Life is full. |
 
 ## Difficulty
