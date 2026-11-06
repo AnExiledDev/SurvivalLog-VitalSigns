@@ -14,6 +14,15 @@ public static class PickerGroups
 {
     public const int Food = 1;
 
+    /// <summary>The shelf of cooked dishes: every item a cooking recipe makes, whatever kind of food it is. No category's number reaches it.</summary>
+    public const int Dishes = 900;
+
+    /// <summary>
+    /// What an item's use counts for in the clicks and pickers: Satiety only from food. Fertilizer's use effect carries
+    /// Satiety too, which is what it feeds a plant, so without this a click on Satiety could eat it.
+    /// </summary>
+    public static StatDelta ItemDelta(int category, StatDelta delta) => category == Food || delta.Satiety == 0 ? delta : delta with { Satiety = 0 };
+
     /// <summary>Where an item sorts: its category's number, or food's kind after every other category.</summary>
     public static int Rank(int category, int subCategory) => category != Food ? category : 1000 + (subCategory > 0 ? subCategory : 999);
 

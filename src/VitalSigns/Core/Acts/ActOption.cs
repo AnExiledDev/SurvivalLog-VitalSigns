@@ -23,23 +23,43 @@ public enum ActKind
 /// One thing a click can queue, as the base has it now. Key is "i" and the item's config id, or "f" and the furniture
 /// action's id. Delta is what one use does, already scaled by the player's modifiers. Count is how many of the item
 /// there are in the bag and the home storage together, InBag how many of them are in the bag. Target is the furniture a
-/// furniture action is done at and Place its name. Why says, in the game's language, why it is not Ready.
+/// furniture action is done at and Place its name. Why says, in the game's language, why it is not Ready. Shelf is an
+/// item's shelf in the pickers (<see cref="PickerGroups.Rank"/>) and IsDish whether a cooking recipe makes it, which the
+/// group keys ("g" and a shelf) go by.
 /// </summary>
 public sealed record ActOption(string Key, ActKind Kind, int Id, string Name, string Icon, StatDelta Delta, ActState State, string Why = "", int Count = 0,
-    int InBag = 0, long Target = 0, string Place = "")
+    int InBag = 0, long Target = 0, string Place = "", int Shelf = 0, bool IsDish = false)
 {
     public bool IsReady => State == ActState.Ready;
 }
 
-/// <summary>The keys the settings keep lists of actions in: "f205,i2139".</summary>
+/// <summary>
+/// The keys the settings keep lists of actions in: "f205,i2139,g1002". A group key, "g" and a shelf, stands for every
+/// item of that kind the player has, such as every meat dish (g1002) or every cooked dish (g900).
+/// </summary>
 public static class ActKeys
 {
     public const char ItemMark = 'i';
     public const char FurnitureMark = 'f';
+    public const char GroupMark = 'g';
 
     public static string Item(int configId) => ItemMark + configId.ToString(CultureInfo.InvariantCulture);
 
     public static string Furniture(int funcId) => FurnitureMark + funcId.ToString(CultureInfo.InvariantCulture);
+
+    public static string Group(int shelf) => GroupMark + shelf.ToString(CultureInfo.InvariantCulture);
+
+    public static bool IsGroup(string key) => key.Length > 1 && key[0] == GroupMark;
+
+    /// <summary>Whether an item is of the kind a group key names: on its shelf, or, for the dishes' key, made by a cooking recipe.</summary>
+    public static bool Holds(string groupKey, ActOption option)
+    {
+        if (option.Kind != ActKind.Item || !IsGroup(groupKey)) return false;
+
+        var shelf = Number(groupKey);
+
+        return shelf == PickerGroups.Dishes ? option.IsDish : option.Shelf == shelf;
+    }
 
     /// <summary>The keys in a setting, in order, each once. A bare number is read as an item, so a list of item ids works too.</summary>
     public static IReadOnlyList<string> Parse(string? text)
@@ -107,10 +127,10 @@ public static class ActKeys
         if (text.Length == 0) return null;
 
         var mark = char.ToLowerInvariant(text[0]);
-        var digits = mark is ItemMark or FurnitureMark ? text.Substring(1) : text;
+        var digits = mark is ItemMark or FurnitureMark or GroupMark ? text.Substring(1) : text;
 
         if (!int.TryParse(digits, NumberStyles.None, CultureInfo.InvariantCulture, out var id) || id <= 0) return null;
 
-        return (mark == FurnitureMark ? FurnitureMark : ItemMark) + id.ToString(CultureInfo.InvariantCulture);
+        return (mark is FurnitureMark or GroupMark ? mark : ItemMark) + id.ToString(CultureInfo.InvariantCulture);
     }
 }

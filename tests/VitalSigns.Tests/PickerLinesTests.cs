@@ -16,7 +16,7 @@ public class PickerLinesTests
             new PickerEntry("40", "Hungry", "饥饿"),
         });
 
-        Assert.Equal("i12|Beans / tinned|罐头 豆|Res/beans.png|Items|物品|Satiety +20|饱腹 +20\n40|Hungry|饥饿|||||", text);
+        Assert.Equal("i12|Beans / tinned|罐头 豆|Res/beans.png|Items|物品|Satiety +20|饱腹 +20||\n40|Hungry|饥饿|||||||", text);
     }
 
     [Fact]

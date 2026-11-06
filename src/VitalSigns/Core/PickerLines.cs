@@ -6,12 +6,13 @@ using VitalSigns.Core.Acts;
 
 namespace VitalSigns.Core;
 
-/// <summary>One entry a picker on the Mods screen offers: its id as the setting writes it, both names, and how it shows.</summary>
-public sealed record PickerEntry(string Id, string NameEn, string NameZh, string? Icon = null, string GroupEn = "", string GroupZh = "", string NoteEn = "", string NoteZh = "");
+/// <summary>One entry a picker on the Mods screen offers: its id as the setting writes it, both names, how it shows, and what the player has of it.</summary>
+public sealed record PickerEntry(string Id, string NameEn, string NameZh, string? Icon = null, string GroupEn = "", string GroupZh = "", string NoteEn = "", string NoteZh = "",
+    string HaveEn = "", string HaveZh = "");
 
 /// <summary>
 /// The entries the Mod Manager's pickers read from ModManagerAnswers.Entries: one per line,
-/// "id|English|Chinese|icon|group|group in Chinese|note|note in Chinese". A "|" or line break inside a text is
+/// "id|English|Chinese|icon|group|group in Chinese|note|note in Chinese|have|have in Chinese". A "|" or line break inside a text is
 /// swapped for a plain character, so one name can never split a line.
 /// </summary>
 public static class PickerLines
@@ -19,7 +20,7 @@ public static class PickerLines
     public static string Of(IEnumerable<PickerEntry> entries) => string.Join("\n", entries.Select(Line));
 
     private static string Line(PickerEntry e) =>
-        string.Join("|", new[] { e.Id, e.NameEn, e.NameZh, e.Icon ?? "", e.GroupEn, e.GroupZh, e.NoteEn, e.NoteZh }.Select(Clean));
+        string.Join("|", new[] { e.Id, e.NameEn, e.NameZh, e.Icon ?? "", e.GroupEn, e.GroupZh, e.NoteEn, e.NoteZh, e.HaveEn, e.HaveZh }.Select(Clean));
 
     private static string Clean(string text) => text.Replace('|', '/').Replace('\r', ' ').Replace('\n', ' ').Trim();
 
@@ -44,6 +45,16 @@ public static class PickerLines
 
         return (string.Join(", ", en), string.Join("，", zh));
     }
+
+    /// <summary>How many of an item the player has: "You have 3".</summary>
+    public static (string En, string Zh) Have(int count) => ("You have " + count.ToString(CultureInfo.InvariantCulture), "你有 " + count.ToString(CultureInfo.InvariantCulture) + " 个");
+
+    /// <summary>How many kinds of item of a group the player has: "You have 4 kinds".</summary>
+    public static (string En, string Zh) HaveKinds(int kinds) =>
+        (kinds == 1 ? "You have 1 kind" : "You have " + kinds.ToString(CultureInfo.InvariantCulture) + " kinds", "你有 " + kinds.ToString(CultureInfo.InvariantCulture) + " 种");
+
+    /// <summary>Furniture the player has at home.</summary>
+    public static readonly (string En, string Zh) AtHome = ("In your house", "家里有");
 
     /// <summary>A buff's base time in game time, at most two parts: "1 d 4 h", "30 m".</summary>
     public static (string En, string Zh) Duration(double seconds)

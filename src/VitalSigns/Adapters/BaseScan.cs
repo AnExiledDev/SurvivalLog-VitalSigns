@@ -181,7 +181,10 @@ internal static class BaseScan
 
             var (name, icon) = BuffBook.Item(config, configId, isChinese);
 
-            itemOptions.Add(new ActOption(ActKeys.Item(configId), ActKind.Item, configId, name, icon, deltas[configId], ActState.Ready, "", count, inBag));
+            var kind = GameCatalog.Item(configId);
+
+            itemOptions.Add(new ActOption(ActKeys.Item(configId), ActKind.Item, configId, name, icon, deltas[configId], ActState.Ready, "", count, inBag, 0, "",
+                kind?.Shelf ?? 0, kind?.IsDish ?? false));
         }
 
         itemOptions.Sort((a, b) => a.Id.CompareTo(b.Id));
@@ -313,7 +316,7 @@ internal static class BaseScan
     }
 
     /// <summary>The home filter the plant HUD uses: placed, on the home map, on an unlocked floor and in an unlocked area.</summary>
-    private static bool IsShownAtHome(TagManager? tags, AgentManager agents, Furniture furniture)
+    public static bool IsShownAtHome(TagManager? tags, AgentManager agents, Furniture furniture)
     {
         var map = furniture._MapConfigId_k__BackingField;
 

@@ -32,18 +32,38 @@ public static class MoralePlan
         return best;
     }
 
-    /// <summary>The ready actions of the routine, in the routine's order; an action listed but not ready now is left out.</summary>
+    /// <summary>
+    /// The ready actions of the routine, in the routine's order; an action listed but not ready now is left out. A group
+    /// in the routine takes the one item of that kind the player has that raises Morale most, if there is one; nothing
+    /// is taken twice.
+    /// </summary>
     public static IReadOnlyList<ActOption> Routine(IReadOnlyList<ActOption> options, IReadOnlyList<string> routine)
     {
         var steps = new List<ActOption>();
 
         foreach (var key in routine)
         {
+            if (ActKeys.IsGroup(key))
+            {
+                ActOption? best = null;
+
+                foreach (var option in options)
+                {
+                    if (!ActKeys.Holds(key, option) || !IsReadyNow(option) || !(option.Delta.Morale > 0) || steps.Contains(option)) continue;
+
+                    if (best == null || option.Delta.Morale > best.Delta.Morale + 1e-9 || (Math.Abs(option.Delta.Morale - best.Delta.Morale) <= 1e-9 && string.CompareOrdinal(option.Key, best.Key) < 0)) best = option;
+                }
+
+                if (best != null) steps.Add(best);
+
+                continue;
+            }
+
             foreach (var option in options)
             {
                 if (option.Key != key) continue;
 
-                if (option.IsReady && (option.Kind == ActKind.Furniture || option.Count > 0)) steps.Add(option);
+                if (IsReadyNow(option) && !steps.Contains(option)) steps.Add(option);
 
                 break;
             }
@@ -51,6 +71,8 @@ public static class MoralePlan
 
         return steps;
     }
+
+    private static bool IsReadyNow(ActOption option) => option.IsReady && (option.Kind == ActKind.Furniture || option.Count > 0);
 
     /// <summary>Every action that raises Morale, in the order Best clicks go down them: the ones that can be picked now first, each part in Best's order.</summary>
     public static List<ActOption> Ranked(IReadOnlyList<ActOption> options, bool avoidLifeLoss)

@@ -75,7 +75,7 @@ public static class ActPlanner
         return CurePlan.Of(cures);
     }
 
-    /// <summary>The food a Satiety click may eat, in the scan's order: skipped kinds and, if asked, food that costs Morale or Life left out.</summary>
+    /// <summary>The food a Satiety click may eat, in the scan's order: skipped items and kinds and, if asked, food that costs Morale or Life left out.</summary>
     public static List<ActOption> Foods(BaseView view, ActOptions options)
     {
         var skip = options.FoodSkip ?? Array.Empty<string>();
@@ -83,7 +83,7 @@ public static class ActPlanner
 
         foreach (var item in view.Items)
         {
-            if (!(item.Delta.Satiety > 0) || Contains(skip, item.Key)) continue;
+            if (!(item.Delta.Satiety > 0) || IsSkipped(skip, item)) continue;
 
             if (options.FoodAvoidMoraleLoss && item.Delta.Morale < 0) continue;
 
@@ -97,7 +97,8 @@ public static class ActPlanner
 
     /// <summary>
     /// The Life items a click uses, in order: the player's list (which may hold nothing), or, with the setting blank
-    /// (null here), every Life item smallest first so a big one is kept for a big need.
+    /// (null here), every Life item smallest first so a big one is kept for a big need. A group in the list stands for
+    /// every item of that kind the player has, the most Life first; an item already taken is not taken again.
     /// </summary>
     public static List<ActOption> LifeItems(BaseView view, ActOptions options)
     {
@@ -105,9 +106,31 @@ public static class ActPlanner
 
         if (options.LifeItems is { } chosen)
         {
+            var taken = new HashSet<string>();
+
             foreach (var key in chosen)
             {
-                if (view.Find(key) is { Kind: ActKind.Item } item && item.Delta.Life > 0) items.Add(Reach(item, options.UseHome));
+                if (ActKeys.IsGroup(key))
+                {
+                    var kind = new List<ActOption>();
+
+                    foreach (var item in view.Items)
+                    {
+                        if (item.Delta.Life > 0 && ActKeys.Holds(key, item) && !taken.Contains(item.Key)) kind.Add(item);
+                    }
+
+                    kind.Sort((a, b) => a.Delta.Life != b.Delta.Life ? b.Delta.Life.CompareTo(a.Delta.Life) : string.CompareOrdinal(a.Key, b.Key));
+
+                    foreach (var item in kind)
+                    {
+                        taken.Add(item.Key);
+                        items.Add(Reach(item, options.UseHome));
+                    }
+                }
+                else if (view.Find(key) is { Kind: ActKind.Item } item && item.Delta.Life > 0 && taken.Add(item.Key))
+                {
+                    items.Add(Reach(item, options.UseHome));
+                }
             }
 
             return items;
@@ -212,11 +235,12 @@ public static class ActPlanner
     /// <summary>With UseHome off, only the bag's own count of an item counts.</summary>
     private static ActOption Reach(ActOption item, bool useHome) => useHome || item.Count == item.InBag ? item : item with { Count = item.InBag };
 
-    private static bool Contains(IReadOnlyList<string> keys, string key)
+    /// <summary>Whether a food is on the skip list itself or of a kind that is.</summary>
+    private static bool IsSkipped(IReadOnlyList<string> keys, ActOption item)
     {
         foreach (var k in keys)
         {
-            if (k == key) return true;
+            if (k == item.Key || ActKeys.Holds(k, item)) return true;
         }
 
         return false;

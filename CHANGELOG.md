@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.12.0
+
+- The lists on the Mods screen mark what you have. Food, Morale and Life items show how many you have anywhere: in your bag, in any container at home or in the vehicle. Morale actions and beds your house has say "In your house". What you have comes first under each heading, and the list's window gets a "You have" group of only those. This needs Mod Manager 0.17.0 or newer; older ones show the lists without the marks.
+- The food, Morale and Life lists offer an "Any ..." entry for each kind of item: Any Cooked Dish, Any Meat, Any Meds, Any Books and the rest. In LifeItems it uses every item of that kind you have, the one that restores the most Life first. In MoraleRoutine it uses the one of that kind that gives the most Morale. In FoodSkip a click never eats anything of that kind.
+- A click on Satiety no longer eats fertilizer, and fertilizer is gone from the food list. The game gives fertilizer Satiety for the plants it feeds, not for you.
+- Made for Survival Log 1.1.20719.
+
 ## 0.11.0
 
 - The Wooden Bed and the Iron Single Bed now work with a click on Stamina. Before, Vital Signs only knew the plain bed's Sleep and Nap, so it never used these two, the best beds in the game.

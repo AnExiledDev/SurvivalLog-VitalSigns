@@ -19,7 +19,9 @@ namespace VitalSigns.Adapters;
 /// </summary>
 public static class ModManagerAnswers
 {
-    private static readonly Dictionary<string, (int Version, string Text)> Kept = new(StringComparer.Ordinal);
+    private static readonly Dictionary<string, (int Version, List<(PickerEntry Entry, int Id, int Shelf, bool IsDish)> Items)> Kept = new(StringComparer.Ordinal);
+    private static (int Version, List<(PickerEntry Entry, int FuncId)> Funcs)? KeptFuncs;
+    private static readonly Dictionary<int, (string En, string Zh)> Shelves = new();
     private static object? _config;
 
     internal static Action<string> Log { get; set; } = _ => { };
@@ -37,15 +39,16 @@ public static class ModManagerAnswers
         {
             _config = config;
             Kept.Clear();
+            KeptFuncs = null;
+            Shelves.Clear();
         }
 
         // Read the whole catalog now if the clicks have not needed it yet; the Mods screen asks only when it opens.
         if (!GameCatalog.IsReady && !GameCatalog.Advance(config, () => false)) return "";
 
-        var id = section + "." + key;
-
-        // Beds follow what the base holds, and the buff lists are kept by GameBuffs, so only the item lists are kept here.
-        switch (id)
+        // Beds follow what the base holds, and the buff lists are kept by GameBuffs; the item and action lists are kept
+        // here, and what the player has is marked on them each time.
+        switch (section + "." + key)
         {
             case "Actions.BedModes":
                 return PickerLines.Of(Beds(config));
@@ -53,21 +56,15 @@ public static class ModManagerAnswers
                 return Buffs(config, timedOnly: false);
             case "Timers.Buffs":
                 return Buffs(config, timedOnly: true);
+            case "Actions.FoodSkip":
+                return PickerLines.Of(PickerKinds.Of(Picks(config, "food", delta => delta.Satiety > 0), ShelfNames(config), Kinds.Skip));
+            case "Actions.LifeItems":
+                return PickerLines.Of(PickerKinds.Of(Picks(config, "life", delta => delta.Life > 0), ShelfNames(config), Kinds.Life));
+            case "Actions.MoraleRoutine":
+                return PickerLines.Of(MoraleActions(config).Concat(PickerKinds.Of(Picks(config, "morale", delta => delta.Morale > 0), ShelfNames(config), Kinds.Morale)));
+            default:
+                return "";
         }
-
-        if (Kept.TryGetValue(id, out var kept) && kept.Version == GameCatalog.Version) return kept.Text;
-
-        var text = id switch
-        {
-            "Actions.FoodSkip" => PickerLines.Of(Items(config, delta => delta.Satiety > 0)),
-            "Actions.LifeItems" => PickerLines.Of(Items(config, delta => delta.Life > 0)),
-            "Actions.MoraleRoutine" => PickerLines.Of(MoraleActions(config).Concat(Items(config, delta => delta.Morale > 0))),
-            _ => "",
-        };
-
-        if (text.Length > 0) Kept[id] = (GameCatalog.Version, text);
-
-        return text;
     }
 
     /// <summary>What a blank list does, shown in place of an empty list.</summary>
@@ -82,6 +79,14 @@ public static class ModManagerAnswers
         _ => "",
     };
 
+    /// <summary>What an "Any ..." entry does in each list.</summary>
+    private static class Kinds
+    {
+        public static readonly (string En, string Zh) Life = ("Every one of this kind you have, the most Life first.", "你拥有的这一类物品，恢复生命多的先用。");
+        public static readonly (string En, string Zh) Morale = ("The one of this kind you have that gives the most Morale.", "你拥有的这一类物品中提升心情最多的一个。");
+        public static readonly (string En, string Zh) Skip = ("A click never eats anything of this kind.", "点击时不吃这一类的任何食物。");
+    }
+
     private static class Group
     {
         public static readonly (string En, string Zh) Furniture = ("Furniture actions", "家具行动");
@@ -90,39 +95,81 @@ public static class ModManagerAnswers
         public static readonly (string En, string Zh) Other = ("Elsewhere", "其他地方");
     }
 
-    /// <summary>Every item kind one use of which changes the stat <paramref name="wanted"/> picks, as "i" and its id, on its category's shelf.</summary>
-    private static IEnumerable<PickerEntry> Items(ConfigManager config, Func<StatDelta, bool> wanted)
+    /// <summary>
+    /// Every item kind one use of which changes the stat <paramref name="wanted"/> picks, as "i" and its id, on its
+    /// category's shelf, with how many the player has anywhere.
+    /// </summary>
+    private static List<ItemPick> Picks(ConfigManager config, string list, Func<StatDelta, bool> wanted)
     {
-        var entries = new List<(int Rank, PickerEntry Entry)>();
+        if (!Kept.TryGetValue(list, out var kept) || kept.Version != GameCatalog.Version)
+        {
+            kept = (GameCatalog.Version, Items(config, wanted));
+            Kept[list] = kept;
+        }
+
+        var held = Holdings.Now().Items;
+
+        return kept.Items.Select(item => new ItemPick(item.Entry, item.Shelf, item.IsDish, held.TryGetValue(item.Id, out var count) ? count : 0)).ToList();
+    }
+
+    private static List<(PickerEntry Entry, int Id, int Shelf, bool IsDish)> Items(ConfigManager config, Func<StatDelta, bool> wanted)
+    {
+        var entries = new List<(PickerEntry Entry, int Id, int Shelf, bool IsDish)>();
         var table = config._Config_Item_Dict;
-        var groups = new Dictionary<int, (string En, string Zh)>();
 
         foreach (var (id, item) in GameCatalog.AllItems)
         {
             if (!wanted(item.Delta) || !table.TryGetValue(id, out var row) || row == null) continue;
 
-            var rank = PickerGroups.Rank(row.Category, row.SubCategory);
-
-            if (!groups.TryGetValue(rank, out var group))
-            {
-                var keyName = PickerGroups.NameKey(row.Category, row.SubCategory);
-
-                group = Names(config, keyName, null, "#" + row.Category.ToString(CultureInfo.InvariantCulture));
-                groups[rank] = group;
-            }
-
+            var group = ShelfName(config, item.Shelf, row.Category, row.SubCategory);
             var (en, zh) = Names(config, row.ItemName, row.ItemName_Local, "#" + id);
             var note = PickerLines.Delta(item.Delta);
 
-            entries.Add((rank, new PickerEntry(ActKeys.Item(id), en, zh, Icon(row.WebIcon, row.Icon), group.En, group.Zh, note.En, note.Zh)));
+            entries.Add((new PickerEntry(ActKeys.Item(id), en, zh, Icon(row.WebIcon, row.Icon), group.En, group.Zh, note.En, note.Zh), id, item.Shelf, item.IsDish));
         }
 
-        return entries.OrderBy(pair => pair.Rank).ThenBy(pair => pair.Entry.NameEn, StringComparer.OrdinalIgnoreCase).ThenBy(pair => pair.Entry.Id, StringComparer.Ordinal)
-            .Select(pair => pair.Entry);
+        return entries.OrderBy(e => e.Shelf).ThenBy(e => e.Entry.NameEn, StringComparer.OrdinalIgnoreCase).ThenBy(e => e.Entry.Id, StringComparer.Ordinal).ToList();
     }
 
-    /// <summary>Every furniture action that raises Morale, as "f" and its id, noting the first furniture that offers it.</summary>
-    private static List<PickerEntry> MoraleActions(ConfigManager config)
+    /// <summary>A shelf's name in the game's words, kept by its rank.</summary>
+    private static (string En, string Zh) ShelfName(ConfigManager config, int shelf, int category, int subCategory)
+    {
+        if (Shelves.TryGetValue(shelf, out var name)) return name;
+
+        name = Names(config, PickerGroups.NameKey(category, subCategory), null, "#" + category.ToString(CultureInfo.InvariantCulture));
+        Shelves[shelf] = name;
+
+        return name;
+    }
+
+    private static IReadOnlyDictionary<int, (string En, string Zh)> ShelfNames(ConfigManager config) => Shelves;
+
+    /// <summary>
+    /// Every furniture action that raises Morale, as "f" and its id, noting the first furniture that offers it; those
+    /// a piece of furniture at home offers are marked, and come first.
+    /// </summary>
+    private static IEnumerable<PickerEntry> MoraleActions(ConfigManager config)
+    {
+        if (KeptFuncs is not { } kept || kept.Version != GameCatalog.Version)
+        {
+            kept = (GameCatalog.Version, ReadMoraleActions(config));
+            KeptFuncs = kept;
+        }
+
+        var home = Holdings.Now().Furniture;
+        var offeredAtHome = new HashSet<int>();
+
+        foreach (var furniture in home)
+        {
+            foreach (var func in GameCatalog.FuncsOf(furniture)) offeredAtHome.Add(func);
+        }
+
+        return kept.Funcs.Select((func, at) => (func, at))
+            .OrderBy(pair => offeredAtHome.Contains(pair.func.FuncId) ? 0 : 1).ThenBy(pair => pair.at)
+            .Select(pair => offeredAtHome.Contains(pair.func.FuncId) ? pair.func.Entry with { HaveEn = PickerLines.AtHome.En, HaveZh = PickerLines.AtHome.Zh } : pair.func.Entry);
+    }
+
+    private static List<(PickerEntry Entry, int FuncId)> ReadMoraleActions(ConfigManager config)
     {
         var offeredBy = new Dictionary<int, Config_Furniture>();
 
@@ -133,7 +180,7 @@ public static class ModManagerAnswers
             foreach (var func in GameCatalog.FuncsOf(row.ID)) offeredBy.TryAdd(func, row);
         }
 
-        var entries = new List<PickerEntry>();
+        var entries = new List<(PickerEntry Entry, int FuncId)>();
 
         foreach (var (id, func) in GameCatalog.AllFuncs)
         {
@@ -151,10 +198,10 @@ public static class ModManagerAnswers
                 icon = Icon(furniture.ICON, null) ?? icon;
             }
 
-            entries.Add(new PickerEntry(ActKeys.Furniture(id), en, zh, icon, Group.Furniture.En, Group.Furniture.Zh, note.En, note.Zh));
+            entries.Add((new PickerEntry(ActKeys.Furniture(id), en, zh, icon, Group.Furniture.En, Group.Furniture.Zh, note.En, note.Zh), id));
         }
 
-        return entries.OrderBy(entry => entry.NameEn, StringComparer.OrdinalIgnoreCase).ThenBy(entry => entry.Id, StringComparer.Ordinal).ToList();
+        return entries.OrderBy(e => e.Entry.NameEn, StringComparer.OrdinalIgnoreCase).ThenBy(e => e.Entry.Id, StringComparer.Ordinal).ToList();
     }
 
     /// <summary>The beds a mode matters for, by furniture id: what packages build, what the base holds and what already has a mode.</summary>
@@ -211,7 +258,9 @@ public static class ModManagerAnswers
                 zh += "（#" + bed.ConfigId.ToString(CultureInfo.InvariantCulture) + "）";
             }
 
-            entries.Add(new PickerEntry(bed.ConfigId.ToString(CultureInfo.InvariantCulture), en, zh, Icon(row.ICON, null), group.En, group.Zh, note.En, note.Zh));
+            var have = inBase.Contains(bed.ConfigId) ? PickerLines.AtHome : ("", "");
+
+            entries.Add(new PickerEntry(bed.ConfigId.ToString(CultureInfo.InvariantCulture), en, zh, Icon(row.ICON, null), group.En, group.Zh, note.En, note.Zh, have.Item1, have.Item2));
         }
 
         return entries;

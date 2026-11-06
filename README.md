@@ -26,7 +26,7 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 - **Settings apply at once**: every setting changed on the Mod Manager's Mods screen takes effect right away, with no restart. Turning the mod off takes away everything it draws and puts every buff back on the game's own time.
 - **Log file**: the mod writes what it did at startup and what the HUD answered to `BepInEx\vital-signs.log`.
 - **Click a bar to act**: click Satiety to eat, Stamina to sleep in the best bed at home, Morale to do something that raises it, or Life to use the items you chose. The actions go into the game's own queue. Satiety eats to the maximum, to Well Fed or a set percent past it, and never past the maximum. Morale does the action that also raises another stat first, then the biggest gain; a second click while it is queued takes the next one. Or set a routine, and a click queues all of it in order. A toast says what was queued, or why nothing was.
-- **Pick from lists**: on the Mod Manager's Mods screen, the food to skip, the Morale routine, the Life items, how each bed type is used (Auto, Sleep, Nap or Skip), the pinned buffs and single buff timers are picked from the game's own items, furniture actions, beds and buffs. Each shows its picture and name, with what it gives or how long it lasts.
+- **Pick from lists**: on the Mod Manager's Mods screen, the food to skip, the Morale routine, the Life items, how each bed type is used (Auto, Sleep, Nap or Skip), the pinned buffs and single buff timers are picked from the game's own items, furniture actions, beds and buffs. Each shows its picture and name, with what it gives or how long it lasts. What you have (in your bag, any container at home or the vehicle) is marked and comes first, and the food, Morale and Life lists also take a whole kind of item, such as Any Cooked Dish, which uses the best one of that kind you have.
 - **Click a debuff to cure it**: a debuff with a cure in your bag or home storage is marked. Click it to queue the cure, from the bag first.
 - **Compact HUD**: a bar can hide while it is full, or above a level you set, and come back as soon as the stat drops. Bars with buffs next to them can stay.
 - **Warning pulse**: a bar pulses once it drops to the warning line, before the game turns it red.
@@ -91,7 +91,7 @@ For buff times, set the good, bad and category multipliers under Timers and Time
 
 Tested on Survival Log 1.1.20719 with BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.11.0 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
+Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.12.0 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
 
 Once a game has loaded, look for `page script sent to CoreUI1 (install 1): the stat bars show the readings`. A line ending `no stat bars on the HUD right now` means the mod could not find the stat bars.
 
@@ -111,6 +111,7 @@ To reach me directly, message `exiled.dev` on Discord; you can find me in the [o
 
 ## Changelog
 
+- **0.12.0**: The lists on the Mods screen mark what you have, and the food, Morale and Life lists take whole kinds of item, such as Any Cooked Dish. A click on Satiety no longer eats fertilizer.
 - **0.11.0**: The Wooden Bed and Iron Single Bed work with a click on Stamina, the bed list shows the beds you can have with their pictures, and the lists are filed under the game's categories.
 - **0.10.0**: The food to skip, the Morale routine, the Life items, the bed modes, the pinned buffs and single buff timers are picked from lists on the Mods screen. The Actions and Timers tabs are gone, single buff timers are a setting now, and the layout editor opens from the pause menu.
 - **0.9.3**: Now uses Exiled's Toolkit for its shared parts, so it needs Exiled's Toolkit 0.19.0 or newer.

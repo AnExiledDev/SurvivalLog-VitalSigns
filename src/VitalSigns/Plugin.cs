@@ -25,7 +25,7 @@ namespace VitalSigns;
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.vitalsigns";
-    private const string Version = "0.11.0";
+    private const string Version = "0.12.0";
 
     /// <summary>Exiled's Toolkit: its shared helpers, toasts, live settings and typing check all come from it.</summary>
     private const string ToolkitGuid = "com.dev.survivallog.exiledtoolkit";
@@ -65,6 +65,7 @@ public sealed class Plugin : BasePlugin
         var difficulty = DifficultyEntries();
 
         ModManagerAnswers.Log = log.Write;
+        Holdings.Log = log.Write;
         ModManagerAnswers.SavedBedModes = () => acts.BedModes.Value;
         page.Favourite = id => hud.Favourites.Value = HudChoices.Toggle(hud.Favourites.Value, id);
         page.SaveLayout = saved =>
@@ -438,8 +439,8 @@ public sealed class Plugin : BasePlugin
             "The most food one click on Satiety eats, from 1 to 10.",
             "每次点击「饱腹」最多吃几件食物，范围 1 到 10。");
         var foodSkip = Keys("FoodSkip",
-            "Food a click never eats, as i and an item id, split by commas (i1203).",
-            "点击时不吃的食物，填写 i 加物品编号，用逗号分隔（如 i1203）。");
+            "Food a click never eats, as i and an item id, or g and a kind of food for all of that kind, split by commas (i1203,g1002).",
+            "点击时不吃的食物，填写 i 加物品编号，或 g 加食物种类表示这一类全部，用逗号分隔（如 i1203,g1002）。");
         var foodAvoid = Flag("FoodAvoidMoraleLoss", false,
             "Leave out food that lowers Morale.",
             "不吃会降低心情的食物。");
@@ -455,8 +456,8 @@ public sealed class Plugin : BasePlugin
             "What a click on Morale queues. Best: one action, those that raise another stat too first, then the biggest gain; clicking again while it is queued takes the next one. Routine: every action of MoraleRoutine that can be done now, in that order.",
             "点击「心情」加入什么。Best：一个行动，同时提升其他属性的优先，然后是提升最多的；已在队列中时再次点击选下一个。Routine：按顺序加入 MoraleRoutine 中现在能做的全部行动。");
         var routine = Keys("MoraleRoutine",
-            "Your Morale routine, in order: f and a furniture action id, or i and an item id, split by commas (f12,i1203).",
-            "你的心情日常安排，按顺序：f 加家具行动编号，或 i 加物品编号，用逗号分隔（如 f12,i1203）。");
+            "Your Morale routine, in order: f and a furniture action id, i and an item id, or g and a kind of item for the one of that kind you have that gives the most Morale, split by commas (f12,i1203,g3).",
+            "你的心情日常安排，按顺序：f 加家具行动编号，i 加物品编号，或 g 加物品种类表示你拥有的这一类中提升心情最多的一个，用逗号分隔（如 f12,i1203,g3）。");
         var moraleItems = Flag("MoraleItems", false,
             "Let Best use items that raise Morale too, not only furniture.",
             "Best 也可以使用提升心情的物品，而不只是家具。");
@@ -464,8 +465,8 @@ public sealed class Plugin : BasePlugin
             "Leave out Morale actions that cost Life.",
             "不做会减少生命的心情行动。");
         var lifeItems = Keys("LifeItems",
-            "The items a click on Life uses, in order, as i and an item id, split by commas (i1203). Empty: any item that restores Life, smallest first.",
-            "点击「生命」时使用的物品，按顺序填写 i 加物品编号，用逗号分隔（如 i1203）。留空为使用任何恢复生命的物品，先用小的。");
+            "The items a click on Life uses, in order, as i and an item id, or g and a kind of item for every one of that kind you have, the most Life first, split by commas (i1203,g900). Empty: any item that restores Life, smallest first.",
+            "点击「生命」时使用的物品，按顺序填写 i 加物品编号，或 g 加物品种类表示你拥有的这一类全部、恢复生命多的先用，用逗号分隔（如 i1203,g900）。留空为使用任何恢复生命的物品，先用小的。");
         var lifeMost = Whole("LifeMostItems", LifePlan.DefaultMostItems, LifePlan.MinMostItems, LifePlan.MaxMostItems,
             "The most items one click on Life uses, from 1 to 10. It stops once Life is full.",
             "每次点击「生命」最多使用几件物品，范围 1 到 10。生命满了就停止。");

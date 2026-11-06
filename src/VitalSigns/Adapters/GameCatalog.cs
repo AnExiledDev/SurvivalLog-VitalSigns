@@ -8,8 +8,12 @@ using VitalSigns.Core.Acts;
 
 namespace VitalSigns.Adapters;
 
-/// <summary>An item kind a click can use: what one use does before the player's modifiers, and what the game needs to queue it.</summary>
-internal sealed record CatalogItem(int Id, int SubCategory, int UseAction, Config_Effect Effect, StatDelta Delta);
+/// <summary>An item kind a click can use: what one use does before the player's modifiers, what the game needs to queue it, and its kind.</summary>
+internal sealed record CatalogItem(int Id, int Category, int SubCategory, int UseAction, Config_Effect Effect, StatDelta Delta, bool IsDish)
+{
+    /// <summary>The picker shelf it is on, which the group keys go by.</summary>
+    public int Shelf => PickerGroups.Rank(Category, SubCategory);
+}
 
 /// <summary>A furniture action a click can queue: what it does before the player's modifiers, its button text key and icon, the actions it runs, and what kind of rest it is.</summary>
 internal sealed record CatalogFunc(int Id, string NameKey, string Icon, StatDelta Delta, int[] ActionIds, RestKind Rest)
@@ -119,11 +123,11 @@ internal static class GameCatalog
 
         var e = item.Effect;
 
-        return new StatDelta(
+        return PickerGroups.ItemDelta(item.Category, new StatDelta(
             e.ItemSatietyStart + ItemValueDisplayHelper.GetEffectiveEffectEnd(instance, e, AttrName.Satiety),
             e.ItemMoraleStart + ItemValueDisplayHelper.GetEffectiveEffectEnd(instance, e, AttrName.Morale),
             e.ItemStaminaStart + ItemValueDisplayHelper.GetEffectiveEffectEnd(instance, e, AttrName.Stamina),
-            e.ItemVitalityStart + ItemValueDisplayHelper.GetEffectiveEffectEnd(instance, e, AttrName.Vitality));
+            e.ItemVitalityStart + ItemValueDisplayHelper.GetEffectiveEffectEnd(instance, e, AttrName.Vitality)));
     }
 
     private static IEnumerable<bool> Read(ConfigManager config)
@@ -134,6 +138,21 @@ internal static class GameCatalog
         if (actions == null || effects == null) yield break;
 
         var read = 0;
+        var dishes = new HashSet<int>();
+        var recipes = config._Config_CookingRecipe_Dict;
+
+        if (recipes != null)
+        {
+            foreach (var recipe in recipes.Values)
+            {
+                if (recipe == null) continue;
+
+                dishes.Add(recipe.PerfectItemID);
+                dishes.Add(recipe.GoodItemID);
+                dishes.Add(recipe.NormalItemID);
+                dishes.Add(recipe.FailItemID);
+            }
+        }
 
         foreach (var row in config._Config_Item_Dict.Values)
         {
@@ -147,12 +166,12 @@ internal static class GameCatalog
 
             if (effect.ConfigName == null || !effect.ConfigName.StartsWith(ItemEffectPrefix, StringComparison.Ordinal)) continue;
 
-            var delta = new StatDelta(effect.ItemSatietyStart + effect.ItemSatietyEnd, effect.ItemMoraleStart + effect.ItemMoraleEnd,
-                effect.ItemStaminaStart + effect.ItemStaminaEnd, effect.ItemVitalityStart + effect.ItemVitalityEnd);
+            var delta = PickerGroups.ItemDelta(row.Category, new StatDelta(effect.ItemSatietyStart + effect.ItemSatietyEnd, effect.ItemMoraleStart + effect.ItemMoraleEnd,
+                effect.ItemStaminaStart + effect.ItemStaminaEnd, effect.ItemVitalityStart + effect.ItemVitalityEnd));
 
             if (delta.IsNone) continue;
 
-            Items[row.ID] = new CatalogItem(row.ID, row.SubCategory, row.UseAction, effect, delta);
+            Items[row.ID] = new CatalogItem(row.ID, row.Category, row.SubCategory, row.UseAction, effect, delta, dishes.Contains(row.ID));
         }
 
         yield return true;
