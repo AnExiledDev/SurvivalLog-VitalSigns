@@ -22,8 +22,6 @@
   <!-- The page scripts, as the plugin ships them, run in Jint against a fake page; the tabs with the Toolkit's page API. -->
   <ItemGroup>
     <EmbeddedResource Include="..\..\src\VitalSigns\vitalsigns.js" LogicalName="VitalSigns.vitalsigns.js" Link="vitalsigns.js" />
-    <EmbeddedResource Include="..\..\src\VitalSigns\timers.js" LogicalName="VitalSigns.timers.js" Link="timers.js" />
-    <EmbeddedResource Include="..\..\src\VitalSigns\actions.js" LogicalName="VitalSigns.actions.js" Link="actions.js" />
     <EmbeddedResource Include="$(ToolkitSrc)\api.js" LogicalName="ExiledToolkit.api.js" Link="Toolkit\api.js" />
     <EmbeddedResource Include="FakePage.js" LogicalName="VitalSigns.Tests.FakePage.js" />
   </ItemGroup>

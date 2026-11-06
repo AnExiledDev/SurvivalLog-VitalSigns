@@ -2,6 +2,8 @@
 
 Settings live in `BepInEx\config\com.dev.survivallog.vitalsigns.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Changes made on the Mods screen take effect at once. Delete the file to get the defaults back.
 
+With Mod Manager 0.15.0 or newer, the list settings (`FavouriteBuffs`, `FoodSkip`, `BedModes`, `MoraleRoutine`, `LifeItems` and `Buffs` under Timers) are picked on the Mods screen: each shows its entries as cards with their picture and name, and a picker lists what the game has, with what each one gives or how long a buff lasts. In the file they are IDs split by commas.
+
 ## VitalSigns
 
 | Setting | Default | What it does |
@@ -61,17 +63,17 @@ A warning pops up once when a stat drops past its line, and again only after the
 | `ExploreBars` | `TopRight` | Shows small Satiety, Morale, Stamina and Life bars in a corner of the screen while you explore, where the game hides its own: `TopLeft`, `TopRight`, `BottomLeft` or `BottomRight`. `Off` hides them. |
 | `ExploreBarsSize` | `100` | How big the exploring bars are drawn, in percent, from 50 to 150. |
 | `QueueProjection` | `true` | Marks on each bar where the stat will be once the actions in the queue are done. |
-| `ClickBars` | `true` | A click on a stat bar queues what raises it. What each click does is set under Actions, or in the Actions tab. |
+| `ClickBars` | `true` | A click on a stat bar queues what raises it. What each click does is set under Actions. |
 | `ClickCures` | `true` | A click on a debuff queues its cure: one in the bag first, then one in the home storage. A debuff with a cure at hand is marked. |
-| `EditLayoutKey` | `None` | The key that opens and closes the layout editor. `None`: open it with the 「Edit HUD layout」 button in the Actions tab. Ignored while you type in a text box. |
+| `EditLayoutKey` | `None` | The key that opens and closes the layout editor. `None`: open it with the 「Edit HUD layout」 button in the pause menu. Ignored while you type in a text box. |
 
 ### The layout editor
 
-Open it with the 「Edit HUD layout」 button in the Actions tab, or with `EditLayoutKey`. Every bar and the buffs show, hidden ones too. Drag a part to move it and use the mouse wheel over it to resize it. Pick which side the buffs sit on and whether they fold into one badge, then press Save, or Cancel to leave everything as it was. While the editor is open, a click on a bar does nothing.
+Open it with the 「Edit HUD layout」 button in the pause menu, or with `EditLayoutKey`. The button closes the menu and opens the editor. Every bar and the buffs show, hidden ones too. Drag a part to move it and use the mouse wheel over it to resize it. Pick which side the buffs sit on and whether they fold into one badge, then press Save, or Cancel to leave everything as it was. While the editor is open, a click on a bar does nothing.
 
 ## Actions
 
-What a click on each stat bar queues. These are all in the Actions tab on Vital Signs' page in the Mod Manager, which also lists every furniture action and item a click can use, greys out the ones your base or bag lacks, and shows what each click would queue right now. Every change in the tab is saved at once.
+What a click on each stat bar queues.
 
 A click adds the same actions you could queue by hand. Furniture and beds come from your home, and items in the home storage are used only while you are at home.
 
@@ -87,7 +89,7 @@ A click adds the same actions you could queue by hand. Furniture and beds come f
 | `FoodGoal` | `Max` | How far a click on Satiety eats. `Max`: to the maximum. `WellFed`: to Well Fed. `AboveWellFed`: `FoodAbovePercent` past Well Fed. Food that would go past the maximum is never eaten. |
 | `FoodAbovePercent` | `10` | How far past Well Fed `AboveWellFed` eats, in percent of the maximum, from 0 to 100. |
 | `FoodMostItems` | `4` | The most food one click on Satiety eats, from 1 to 10. |
-| `FoodSkip` | empty | Food a click never eats, as item IDs split by commas. |
+| `FoodSkip` | empty | Food a click never eats, as `i` and an item ID, split by commas, such as `i1203`. |
 | `FoodAvoidMoraleLoss` | `false` | Leaves out food that lowers Morale. |
 | `BedModes` | empty | How a click on Stamina uses each bed type, as type:mode split by commas, such as `9076:Sleep`. `Auto` naps when only `NapBelow` percent or less is missing and sleeps otherwise. `Sleep` always sleeps and `Nap` always naps. `Skip` never uses that bed. A bed type not listed is `Auto`. |
 | `NapBelow` | `25` | With a bed on `Auto`, naps when this much Stamina or less is missing, in percent of the maximum, from 0 to 100, and sleeps when more is. |
@@ -95,7 +97,7 @@ A click adds the same actions you could queue by hand. Furniture and beds come f
 | `MoraleRoutine` | empty | Your Morale routine, in order: `f` and a furniture action ID, or `i` and an item ID, split by commas, such as `f12,i3001`. |
 | `MoraleItems` | `false` | Lets `Best` use items that raise Morale too, not only furniture. |
 | `AvoidLifeLoss` | `true` | Leaves out Morale actions that cost Life. |
-| `LifeItems` | empty | The items a click on Life uses, in order, as item IDs split by commas. Empty: every item that restores Life, smallest first. |
+| `LifeItems` | empty | The items a click on Life uses, in order, as `i` and an item ID, split by commas. Empty: every item that restores Life, smallest first. `none`: no items. |
 | `LifeMostItems` | `1` | The most items one click on Life uses, from 1 to 10. It stops once Life is full. |
 
 ## Difficulty
@@ -115,7 +117,7 @@ Each multiplier goes from `0` to `5`. `1` is the game's own. It counts every cha
 
 ## Timers
 
-A multiplier changes how long a buff lasts: `1` is the game's own time, `2` makes it last twice as long, `0.5` half as long. Every multiplier goes from `0.1` to `100`. Change them in the Timers tab on the Mod Manager's page for Vital Signs, on the Mods screen, or in the file while the game is closed. Changes made in the Timers tab or on the Mods screen take effect at once.
+A multiplier changes how long a buff lasts: `1` is the game's own time, `2` makes it last twice as long, `0.5` half as long. Every multiplier goes from `0.1` to `100`. Change them on the Mods screen, or in the file while the game is closed. Changes made on the Mods screen take effect at once, on buffs already running too.
 
 Each buff uses the most specific multiplier it has: its own multiplier first, then its category's, then the good or bad one. Only buffs you can see on your character and that have a timer are changed. Hidden buffs and buffs that last until something removes them keep the game's own behavior.
 
@@ -123,6 +125,7 @@ Each buff uses the most specific multiplier it has: its own multiplier first, th
 | --- | --- | --- |
 | `GlobalGood` | `1` | Multiplies how long good buffs last. |
 | `GlobalBad` | `1` | Multiplies how long bad buffs (debuffs) last. |
+| `Buffs` | empty | Buffs with a multiplier of their own, as buff ID:multiplier split by commas, such as `200810:2,1043:0.5`. See Single buffs below. |
 
 ## TimerCategories
 
@@ -140,15 +143,6 @@ Each setting replaces `GlobalGood` and `GlobalBad` for the buffs in that categor
 
 ## Single buffs
 
-A buff's own multiplier replaces every other one for that buff. Set them in the Timers tab, which saves them to `BepInEx\config\VitalSigns.Timers.json`. You can also edit that file while the game is closed. It maps a buff's ID to its multiplier:
+A buff's own multiplier, set in `Buffs` under Timers, replaces every other one for that buff. On the Mods screen, add a buff from the picker, which lists every buff with a timer and how long it lasts, then step its multiplier. A value outside `0.1` to `100` is moved to the nearest end, and an entry that is not a buff ID and a number is skipped.
 
-```json
-{
-  "buffs": {
-    "1043": 2,
-    "200810": 0.5
-  }
-}
-```
-
-The Timers tab shows each buff's ID beside its name. A value outside `0.1` to `100` is moved to the nearest end, and an entry that is not a buff ID or not a number is skipped; `BepInEx\LogOutput.log` and the top of the Timers tab say which. The previous file is kept as `VitalSigns.Timers.json.bak` each time the tab saves.
+Earlier versions kept these in `BepInEx\config\VitalSigns.Timers.json`. The first start of 0.10.0 moves them into `Buffs` and renames the file to `VitalSigns.Timers.json.old`.

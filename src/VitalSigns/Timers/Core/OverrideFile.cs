@@ -12,8 +12,9 @@ namespace VitalSigns.Timers.Core;
 public sealed record OverrideRead(IReadOnlyDictionary<int, double> Buffs, IReadOnlyList<string> Problems);
 
 /// <summary>
-/// The per-buff multipliers file: <c>{"buffs": {"200810": 2, "1043": 0.5}}</c>, buff ID to multiplier. A missing or
-/// broken file reads as no multipliers, and each bad entry is skipped on its own, so one typo never drops the rest.
+/// The per-buff multipliers file earlier versions kept: <c>{"buffs": {"200810": 2, "1043": 0.5}}</c>, buff ID to
+/// multiplier. Read once, to move it into the Timers Buffs setting. A missing or broken file reads as no multipliers,
+/// and each bad entry is skipped on its own, so one typo never drops the rest.
 /// </summary>
 public static class OverrideFile
 {
@@ -48,7 +49,7 @@ public static class OverrideFile
         }
     }
 
-    /// <summary>Reads a <c>{"id": multiplier}</c> object; also used for the buffs a save from the tab sends.</summary>
+    /// <summary>Reads a <c>{"id": multiplier}</c> object.</summary>
     public static Dictionary<int, double> Entries(JsonElement buffs, List<string> problems)
     {
         var entries = new Dictionary<int, double>();
@@ -84,25 +85,6 @@ public static class OverrideFile
         }
 
         return entries;
-    }
-
-    /// <summary>The file's text, buffs in ID order so a hand edit and a diff stay easy to read.</summary>
-    public static string Write(IReadOnlyDictionary<int, double> buffs)
-    {
-        using var stream = new MemoryStream();
-
-        using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true }))
-        {
-            writer.WriteStartObject();
-            writer.WriteStartObject(BuffsKey);
-
-            foreach (var (id, value) in buffs.OrderBy(pair => pair.Key)) writer.WriteNumber(id.ToString(CultureInfo.InvariantCulture), Math.Round(value, 4));
-
-            writer.WriteEndObject();
-            writer.WriteEndObject();
-        }
-
-        return Encoding.UTF8.GetString(stream.ToArray()) + "\n";
     }
 
     private static string Show(double value) => value.ToString("0.###", CultureInfo.InvariantCulture);

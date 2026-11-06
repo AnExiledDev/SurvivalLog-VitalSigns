@@ -4,15 +4,13 @@ using System.Globalization;
 namespace VitalSigns.Core;
 
 /// <summary>
-/// A message from the HUD (<c>slmod|vitalsigns|hud|...</c>) or from the Actions tab (<c>slmod|vitalsigns|actions|...</c>).
-/// From the HUD: a click on a bar (act|part), on a debuff's cure (cure|buff), a shift-click pinning a buff (fav|buff),
-/// the layout editor closing (edit|0) or saving (layout|parts|tray|collapse). From the tab: load, noscript, a setting
-/// changed (set|key|value), the layout editor wanted (edit|1), the tab shown or hidden (show|1, show|0).
+/// A message from the HUD (<c>slmod|vitalsigns|hud|...</c>): a click on a bar (act|part), on a debuff's cure
+/// (cure|buff), a shift-click pinning a buff (fav|buff), the layout editor wanted (edit|1), closing (edit|0) or
+/// saving (layout|parts|tray|collapse).
 /// </summary>
 public abstract record HudCommand
 {
     public const string HudPrefix = "slmod|vitalsigns|hud|";
-    public const string TabPrefix = "slmod|vitalsigns|actions|";
 
     private HudCommand()
     {
@@ -28,20 +26,10 @@ public abstract record HudCommand
 
     public sealed record Layout(string Parts, int Tray, bool Collapse) : HudCommand;
 
-    public sealed record TabLoad : HudCommand;
-
-    public sealed record TabNoScript : HudCommand;
-
-    public sealed record Shown(bool On) : HudCommand;
-
-    public sealed record Set(string Key, string Value) : HudCommand;
-
     public sealed record Unknown(string Message) : HudCommand;
 
     public static HudCommand Parse(string message)
     {
-        if (message.StartsWith(TabPrefix, StringComparison.Ordinal)) return ParseTab(message, message.Substring(TabPrefix.Length));
-
         if (!message.StartsWith(HudPrefix, StringComparison.Ordinal)) return new Unknown(message);
 
         var parts = message.Substring(HudPrefix.Length).Split('|');
@@ -61,24 +49,6 @@ public abstract record HudCommand
             default:
                 return new Unknown(message);
         }
-    }
-
-    private static HudCommand ParseTab(string message, string verb)
-    {
-        if (verb == "load") return new TabLoad();
-
-        if (verb == "noscript") return new TabNoScript();
-
-        if (verb == "edit|1") return new Edit(true);
-
-        if (verb is "show|1" or "show|0") return new Shown(verb == "show|1");
-
-        if (!verb.StartsWith("set|", StringComparison.Ordinal)) return new Unknown(message);
-
-        var rest = verb.Substring(4);
-        var bar = rest.IndexOf('|');
-
-        return bar > 0 ? new Set(rest.Substring(0, bar), rest.Substring(bar + 1)) : new Unknown(message);
     }
 
     private static int? Number(string text) => int.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out var value) ? value : null;

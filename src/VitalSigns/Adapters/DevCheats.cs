@@ -18,7 +18,7 @@ public static class DevCheats
     {
         if (Clicks() is not { } acts) return "Vital Signs is not running";
 
-        if (acts.IsScanning) return "still looking around the base; open the Actions tab or turn a bar click on, then try again";
+        if (acts.IsScanning) return "still looking around the base; turn a bar click on, then try again";
 
         var view = acts.View;
         var text = new StringBuilder();
@@ -75,7 +75,7 @@ public static class DevCheats
     }
 
     [DisplayName("Open the layout editor\n打开布局编辑器")]
-    [Description("Opens the HUD layout editor, like the 「Edit HUD layout」 button in the Actions tab.\n打开界面布局编辑器，与「行动」页的「编辑界面布局」按钮相同。")]
+    [Description("Opens the HUD layout editor, like the 「Edit HUD layout」 button in the pause menu.\n打开界面布局编辑器，与暂停菜单中的「编辑界面布局」按钮相同。")]
     public static string OpenLayoutEditor()
     {
         if (VsTicker.Page is not { } page) return "Vital Signs is not running";

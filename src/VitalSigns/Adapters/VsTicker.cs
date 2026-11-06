@@ -17,7 +17,7 @@ public sealed class VsTicker : MonoBehaviour
     internal static Action<string> Log = _ => { };
     internal static Plugin.HudSettings? Hud;
 
-    /// <summary>The HUD's and the Actions tab's messages.</summary>
+    /// <summary>The HUD's messages.</summary>
     internal static PageMailbox? Messages;
 
     private static readonly HashSet<string> ReportedFailures = new();

@@ -35,8 +35,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="vitalsigns.js" LogicalName="VitalSigns.vitalsigns.js" />
-    <EmbeddedResource Include="timers.js" LogicalName="VitalSigns.timers.js" />
-    <EmbeddedResource Include="actions.js" LogicalName="VitalSigns.actions.js" />
   </ItemGroup>
 
   <!-- What the Mod Manager's Mods screen shows about this mod. -->

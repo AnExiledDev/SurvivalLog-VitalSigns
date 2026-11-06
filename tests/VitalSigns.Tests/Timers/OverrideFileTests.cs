@@ -63,16 +63,20 @@ public class OverrideFileTests
     }
 
     [Fact]
-    public void Written_files_are_sorted_rounded_and_read_back_the_same()
+    public void The_old_file_moves_into_the_Buffs_setting_sorted_rounded_and_read_back_the_same()
     {
-        var text = OverrideFile.Write(new Dictionary<int, double> { [300] = 1.234567, [20] = 2 });
+        var read = OverrideFile.Read("{\"buffs\": {\"300\": 1.234567, \"20\": 2}}");
+        var text = BuffList.Format(read.Buffs);
 
-        Assert.True(text.IndexOf("\"20\"", System.StringComparison.Ordinal) < text.IndexOf("\"300\"", System.StringComparison.Ordinal));
-        Assert.EndsWith("\n", text);
+        Assert.Equal("20:2,300:1.2346", text);
+        Assert.Equal(new Dictionary<int, double> { [20] = 2, [300] = 1.2346 }, BuffList.Parse(text));
+    }
 
-        var read = OverrideFile.Read(text);
+    [Fact]
+    public void A_bad_entry_in_the_Buffs_setting_is_skipped_alone_and_a_multiplier_is_held_to_the_range()
+    {
+        var buffs = BuffList.Parse(" 12:1.5, junk, 7:x, 9:500, 10:0, 11:0.01,-3:2");
 
-        Assert.Equal(new Dictionary<int, double> { [20] = 2, [300] = 1.2346 }, read.Buffs);
-        Assert.Empty(read.Problems);
+        Assert.Equal(new Dictionary<int, double> { [12] = 1.5, [9] = Limits.Max, [11] = Limits.Min }, buffs);
     }
 }

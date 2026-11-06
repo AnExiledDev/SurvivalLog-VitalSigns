@@ -6,6 +6,7 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Unity.IL2CPP;
 using ExiledToolkit;
+using ExiledToolkit.Game;
 using ExiledToolkit.Kit;
 using ExiledToolkit.Web;
 using HarmonyLib;
@@ -24,7 +25,7 @@ namespace VitalSigns;
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.vitalsigns";
-    private const string Version = "0.9.3";
+    private const string Version = "0.10.0";
 
     /// <summary>Exiled's Toolkit: its shared helpers, toasts, live settings and typing check all come from it.</summary>
     private const string ToolkitGuid = "com.dev.survivallog.exiledtoolkit";
@@ -32,6 +33,7 @@ public sealed class Plugin : BasePlugin
     private const string FitnessBarGuid = "com.dev.survivallog.fitnessbar";
     private const string ModManagerGuid = "com.dev.survivallog.modmanager";
     private const string TimersFileName = "VitalSigns.Timers.json";
+    private const string ListTag = "ModManager.Control=List";
 
     // BuffDisplayType 0 to 6. The game has no names for these; they are ours, from the buffs in each.
     private static readonly (string Key, string English, string Chinese)[] Categories =
@@ -62,7 +64,7 @@ public sealed class Plugin : BasePlugin
         var acts = ActEntries();
         var difficulty = DifficultyEntries();
 
-        page.Tab = new ActionsTab(log.Write, acts.Tab);
+        ModManagerAnswers.Log = log.Write;
         page.Favourite = id => hud.Favourites.Value = HudChoices.Toggle(hud.Favourites.Value, id);
         page.SaveLayout = saved =>
         {
@@ -80,7 +82,7 @@ public sealed class Plugin : BasePlugin
         VsTicker.Log = log.Write;
         VsTicker.Page = page;
         VsTicker.Hud = hud;
-        VsTicker.Messages = PageInbox.Listen(HudCommand.HudPrefix, HudCommand.TabPrefix);
+        VsTicker.Messages = PageInbox.Listen(HudCommand.HudPrefix);
         AddComponent<VsTicker>();
 
         var settings = StartTimers(enabled.Value, log.Write);
@@ -89,7 +91,6 @@ public sealed class Plugin : BasePlugin
         LiveSettings.Watch(enabled, isOn =>
         {
             page.IsOn = isOn;
-            TabTicker.IsOn = isOn;
 
             if (settings != null)
             {
@@ -108,6 +109,8 @@ public sealed class Plugin : BasePlugin
         var difficultyHooks = new Harmony(Guid + ".difficulty");
         var difficultyGate = new DifficultyHookGate(() => DifficultyHook.Apply(difficultyHooks, log.Write));
 
+        AddLayoutButton(page, enabled);
+
         LiveSettings.Watch(() =>
         {
             var wanted = enabled.Value ? ReadDifficulty(difficulty) : Difficulty.Off;
@@ -119,29 +122,74 @@ public sealed class Plugin : BasePlugin
     }
 
     /// <summary>
-    /// The buff time multipliers and their Timers tab. If the buff hooks cannot all go in, the HUD part still runs and
-    /// this returns null. The hooks go in even with the mod off: they then leave every time as the game's, and turning
-    /// the mod on needs no restart.
+    /// The pause menu's Edit HUD layout button, while the mod is on and a run is loaded: it closes the menu and opens
+    /// the editor. EditLayoutKey stays unbound by default, since this button opens it.
+    /// </summary>
+    private static void AddLayoutButton(VsPage page, ConfigEntry<bool> enabled)
+    {
+        GameMenu.Add(new GameMenuButton("vitalsigns.editlayout", "Edit HUD layout", GameMenuPlace.PauseBottom, () =>
+        {
+            GameCore.HotUpdate.ReduxUI.Ac_OutSetting_Close.SendAction();
+            page.Edit(true);
+        })
+        {
+            ChineseLabel = "编辑界面布局",
+            Order = 300,
+            IsShown = () => enabled.Value && GameSingleton.Existing<GameCore.HotUpdate.Battle.Logic.BattleLogicWorld>() != null,
+        });
+    }
+
+    /// <summary>
+    /// The buff time multipliers. If the buff hooks cannot all go in, the HUD part still runs and this returns null.
+    /// The hooks go in even with the mod off: they then leave every time as the game's, and turning the mod on needs no
+    /// restart.
     /// </summary>
     private Multipliers? StartTimers(bool isOn, System.Action<string> log)
     {
         var good = Global("GlobalGood", "good buffs", "增益状态");
         var bad = Global("GlobalBad", "bad buffs (debuffs)", "负面状态");
         var categories = Categories.Select(c => Category(c.Key, c.English, c.Chinese)).ToList();
-        var settings = new Multipliers(good, bad, categories, Path.Combine(Paths.ConfigPath, TimersFileName), log);
+        var buffs = Config.Bind("Timers", "Buffs", "", new ConfigDescription(
+            FormattableString.Invariant($"Buffs with a multiplier of their own, in place of the category and global ones, as buff id:multiplier split by commas (200810:2). Each multiplier goes from {Limits.Min} to {Limits.Max}. Buffs already running change too.\n") +
+            FormattableString.Invariant($"有自己倍数的状态，取代类别倍数和全局倍数，格式为 状态编号:倍数，用逗号分隔（如 200810:2）。每个倍数范围 {Limits.Min} 到 {Limits.Max}。正在生效的状态也会随之改变。"),
+            null, ListTag, FormattableString.Invariant($"ModManager.EntryRange={Limits.Min}|{Limits.Max}")));
+
+        MoveBuffFile(buffs, Path.Combine(Paths.ConfigPath, TimersFileName), log);
+
+        var settings = new Multipliers(good, bad, categories, buffs, log);
 
         // Its own Harmony id: if the buff hooks cannot all go in, they take out only themselves.
         if (!BuffHooks.Apply(new Harmony(Guid + ".buffs"), log)) return null;
 
         settings.IsOn = isOn;
         LiveSettings.Watch(settings.Apply, settings.Entries.ToArray());
-        TabTicker.Page = new WebPage(typeof(Plugin).Assembly, "VitalSigns.timers.js", TabPage.Receiver, PageCommand.Prefix + "noscript", log) { Name = "Timers tab" };
-        TabTicker.Messages = PageInbox.Listen(PageCommand.Prefix);
-        TabTicker.Settings = settings;
-        TabTicker.Log = log;
-        AddComponent<TabTicker>();
 
         return settings;
+    }
+
+    /// <summary>
+    /// Earlier versions kept the per-buff multipliers in their own file. Once, while the Buffs setting is blank, they
+    /// move into it, and the file is renamed so it is kept but not read again.
+    /// </summary>
+    private static void MoveBuffFile(ConfigEntry<string> buffs, string path, System.Action<string> log)
+    {
+        if (!File.Exists(path)) return;
+
+        try
+        {
+            var read = OverrideFile.Read(File.ReadAllText(path));
+
+            foreach (var problem in read.Problems) log("per-buff file: " + problem);
+
+            if (buffs.Value.Trim().Length == 0 && read.Buffs.Count > 0) buffs.Value = BuffList.Format(read.Buffs);
+
+            File.Move(path, path + ".old", overwrite: true);
+            log($"moved {read.Buffs.Count} per-buff multipliers from {TimersFileName} into Timers Buffs; the file is kept as {TimersFileName}.old");
+        }
+        catch (Exception ex)
+        {
+            log($"could not move {TimersFileName} into Timers Buffs, it is left as it was: " + ex.Message);
+        }
     }
 
     private ConfigEntry<float> Global(string key, string english, string chinese) =>
@@ -190,8 +238,7 @@ public sealed class Plugin : BasePlugin
     private sealed record ActSettings(ConfigEntry<bool> Satiety, ConfigEntry<bool> Morale, ConfigEntry<bool> Stamina, ConfigEntry<bool> Life, ConfigEntry<bool> UseHome,
         ConfigEntry<bool> AddToQueue, ConfigEntry<bool> Toasts, ConfigEntry<string> FoodGoal, ConfigEntry<int> FoodAbove, ConfigEntry<int> FoodMostItems,
         ConfigEntry<string> FoodSkip, ConfigEntry<bool> FoodAvoidMoraleLoss, ConfigEntry<string> BedModes, ConfigEntry<int> NapBelow, ConfigEntry<string> MoraleMode,
-        ConfigEntry<string> Routine, ConfigEntry<bool> MoraleItems, ConfigEntry<bool> AvoidLifeLoss, ConfigEntry<string> LifeItems, ConfigEntry<int> LifeMostItems,
-        IReadOnlyList<(TabSetting Setting, ConfigEntryBase Entry)> Tab)
+        ConfigEntry<string> Routine, ConfigEntry<bool> MoraleItems, ConfigEntry<bool> AvoidLifeLoss, ConfigEntry<string> LifeItems, ConfigEntry<int> LifeMostItems)
     {
         public ConfigEntryBase[] All => new ConfigEntryBase[]
         {
@@ -215,7 +262,13 @@ public sealed class Plugin : BasePlugin
         a.Toasts.Value, a.FoodGoal.Value, Math.Clamp(a.FoodAbove.Value, FoodPlan.MinAbove, FoodPlan.MaxAbove),
         Math.Clamp(a.FoodMostItems.Value, FoodPlan.MinMostItems, FoodPlan.MaxMostItems), ActKeys.Parse(a.FoodSkip.Value), a.FoodAvoidMoraleLoss.Value, a.BedModes.Value,
         Math.Clamp(a.NapBelow.Value, SleepPlan.MinNapBelow, SleepPlan.MaxNapBelow), a.MoraleMode.Value, ActKeys.Parse(a.Routine.Value), a.MoraleItems.Value,
-        a.AvoidLifeLoss.Value, ActKeys.Parse(a.LifeItems.Value), Math.Clamp(a.LifeMostItems.Value, LifePlan.MinMostItems, LifePlan.MaxMostItems));
+        a.AvoidLifeLoss.Value, LifeKeys(a.LifeItems.Value), Math.Clamp(a.LifeMostItems.Value, LifePlan.MinMostItems, LifePlan.MaxMostItems));
+
+    /// <summary>The word a list the Mods screen fills in when blank is saved as when it is set to hold nothing.</summary>
+    private const string NoneValue = "none";
+
+    /// <summary>Blank leaves the choice to the mod (null: every Life item); anything else, "none" included, is the list itself.</summary>
+    private static IReadOnlyList<string>? LifeKeys(string text) => text.Trim().Length == 0 ? null : ActKeys.Parse(text);
 
     private static Difficulty ReadDifficulty(DifficultySettings d) => new(d.Drain.Select(e => (double)e.Value).ToArray(), d.Gain.Select(e => (double)e.Value).ToArray());
 
@@ -322,7 +375,7 @@ public sealed class Plugin : BasePlugin
             new AcceptableValueList<string>(HudChoices.Groups)));
         var favourites = Config.Bind("Hud", "FavouriteBuffs", "", new ConfigDescription(
             "Buffs pinned to the front of their row and drawn larger, as buff ids split by commas. Shift-click a buff on the HUD to pin it or unpin it.\n" +
-            "固定在所在行最前面并放大显示的状态，填写状态编号，用逗号分隔。在界面上按住 Shift 点击状态即可固定或取消固定。"));
+            "固定在所在行最前面并放大显示的状态，填写状态编号，用逗号分隔。在界面上按住 Shift 点击状态即可固定或取消固定。", null, ListTag));
         var favouriteSize = Config.Bind("Hud", "FavouriteSize", HudChoices.DefaultFavouriteSize, new ConfigDescription(
             "How big a pinned buff is drawn, in percent of the other buffs, from 100 to 200.\n" +
             "固定状态的显示大小，为其他状态的百分比，范围 100 到 200。",
@@ -331,8 +384,8 @@ public sealed class Plugin : BasePlugin
             "Fold each row's buffs into one badge with their count; hover over it to see them all. Pinned buffs stay out.\n" +
             "把每行的状态收成一个带数量的徽标，悬停即可看到全部。固定的状态仍单独显示。"));
         var layout = Config.Bind("Hud", "Layout", "", new ConfigDescription(
-            "Where each bar sits and how big, as the layout editor saves it. Open the editor with EditLayoutKey or the 「Edit HUD layout」 button in the Actions tab. Empty: the game's own places.\n" +
-            "各属性条的位置和大小，由布局编辑器保存。用 EditLayoutKey 或「行动」页的「编辑界面布局」按钮打开编辑器。留空为游戏原本的位置。"));
+            "Where each bar sits and how big, as the layout editor saves it. Open the editor with the 「Edit HUD layout」 button in the pause menu, or EditLayoutKey. Empty: the game's own places.\n" +
+            "各属性条的位置和大小，由布局编辑器保存。用暂停菜单中的「编辑界面布局」按钮或 EditLayoutKey 打开编辑器。留空为游戏原本的位置。"));
         var tray = Config.Bind("Hud", "BuffTray", HudChoices.TrayLeft, new ConfigDescription(
             "Which side of the bars the buffs sit on. Left is the game's place. Right, Above and Below move them.\n" +
             "状态显示在属性条的哪一侧。Left 为游戏原本的位置。Right、Above、Below 分别移到右侧、上方、下方。",
@@ -349,14 +402,14 @@ public sealed class Plugin : BasePlugin
             "Mark on each bar where the stat will be once the actions in the queue are done.\n" +
             "在属性条上标出行动队列全部完成后属性会到达的位置。"));
         var clickBars = Config.Bind("Hud", "ClickBars", true, new ConfigDescription(
-            "Click a stat bar to queue what raises it: eat, do something for Morale, sleep in the best bed, or use a Life item. What each click does is set in the Actions tab of the Mod Manager or the Actions section here.\n" +
-            "点击属性条，把提升它的行动加入队列：吃东西、做提升心情的事、在最好的床上睡觉，或使用恢复生命的物品。每次点击做什么，在 Mod Manager 的「行动」页或此处的 Actions 部分设置。"));
+            "Click a stat bar to queue what raises it: eat, do something for Morale, sleep in the best bed, or use a Life item. What each click does is set in the Actions section.\n" +
+            "点击属性条，把提升它的行动加入队列：吃东西、做提升心情的事、在最好的床上睡觉，或使用恢复生命的物品。每次点击做什么，在 Actions 部分设置。"));
         var cures = Config.Bind("Hud", "ClickCures", true, new ConfigDescription(
             "Click a debuff to queue its cure: one in the bag first, then one in the home storage. A debuff with a cure at hand is marked.\n" +
             "点击负面状态，把它的解药加入队列：先用背包里的，再用家中储物里的。身边有解药的负面状态会有标记。"));
         var editKey = Config.Bind("Hud", "EditLayoutKey", KeyCode.None, new ConfigDescription(
-            "The key that opens and closes the HUD layout editor. None: open it with the 「Edit HUD layout」 button in the Actions tab. Ignored while you type in a text box.\n" +
-            "打开和关闭界面布局编辑器的按键。None 为不设按键，用「行动」页的「编辑界面布局」按钮打开。在文本框中输入时无效。"));
+            "The key that opens and closes the HUD layout editor. None: open it with the 「Edit HUD layout」 button in the pause menu. Ignored while you type in a text box.\n" +
+            "打开和关闭界面布局编辑器的按键。None 为不设按键，用暂停菜单中的「编辑界面布局」按钮打开。在文本框中输入时无效。"));
 
         return new HudSettings(hideFull, hideAbove, keepWithBuffs, warnPulse, sort, group, favourites, favouriteSize, collapse, layout, tray, explore, exploreSize,
             projection, clickBars, cures, editKey);
@@ -364,7 +417,6 @@ public sealed class Plugin : BasePlugin
 
     private ActSettings ActEntries()
     {
-        var tab = new List<(TabSetting, ConfigEntryBase)>();
         var satiety = Click("ClickSatiety", "Satiety", "饱腹", "eats food that raises it, as FoodGoal says", "吃能提升它的食物，按 FoodGoal 的设置");
         var morale = Click("ClickMorale", "Morale", "心情", "does something that raises it, as MoraleMode says", "做能提升它的事，按 MoraleMode 的设置");
         var stamina = Click("ClickStamina", "Stamina", "体力", "rests in the best bed at home, as BedModes says", "在家中最好的床上休息，按 BedModes 的设置");
@@ -388,15 +440,16 @@ public sealed class Plugin : BasePlugin
             "The most food one click on Satiety eats, from 1 to 10.",
             "每次点击「饱腹」最多吃几件食物，范围 1 到 10。");
         var foodSkip = Keys("FoodSkip",
-            "Food a click never eats, as item ids split by commas. Easiest to set in the Actions tab.",
-            "点击时不吃的食物，填写物品编号，用逗号分隔。在「行动」页设置最方便。");
+            "Food a click never eats, as i and an item id, split by commas (i1203).",
+            "点击时不吃的食物，填写 i 加物品编号，用逗号分隔（如 i1203）。");
         var foodAvoid = Flag("FoodAvoidMoraleLoss", false,
             "Leave out food that lowers Morale.",
             "不吃会降低心情的食物。");
         var bedModes = Config.Bind("Actions", "BedModes", "", new ConfigDescription(
-            "How a click on Stamina uses each bed type, as type:mode split by commas (9076:Sleep). Auto naps when only NapBelow percent or less is missing and sleeps otherwise; Sleep and Nap always do that; Skip never uses that bed. A bed type not listed is Auto. Easiest to set in the Actions tab.\n" +
-            "点击「体力」时如何使用每种床，格式为 类型:方式，用逗号分隔（如 9076:Sleep）。Auto：只缺 NapBelow 百分比或更少时小睡，否则睡觉；Sleep 和 Nap 总是睡觉或小睡；Skip 不用这种床。未列出的床为 Auto。在「行动」页设置最方便。"));
-        tab.Add((new TabSetting("Actions/BedModes", TabValueKind.BedModes), bedModes));
+            "How a click on Stamina uses each bed type, as type:mode split by commas (9076:Sleep). Auto naps when only NapBelow percent or less is missing and sleeps otherwise; Sleep and Nap always do that; Skip never uses that bed. A bed type not listed is Auto.\n" +
+            "点击「体力」时如何使用每种床，格式为 类型:方式，用逗号分隔（如 9076:Sleep）。Auto：只缺 NapBelow 百分比或更少时小睡，否则睡觉；Sleep 和 Nap 总是睡觉或小睡；Skip 不用这种床。未列出的床为 Auto。",
+            null, ListTag, "ModManager.EntryChoices=" + string.Join("|", SleepPlan.Modes), "ModManager.ChoiceZh=Auto=自动", "ModManager.ChoiceZh=Sleep=睡觉",
+            "ModManager.ChoiceZh=Nap=小睡", "ModManager.ChoiceZh=Skip=不用"));
         var napBelow = Whole("NapBelow", SleepPlan.DefaultNapBelow, SleepPlan.MinNapBelow, SleepPlan.MaxNapBelow,
             "With a bed on Auto, nap when this much Stamina or less is missing, in percent of the maximum, from 0 to 100; sleep when more is.",
             "床为 Auto 时，缺少的体力不超过上限的这个百分比就小睡，否则睡觉，范围 0 到 100。");
@@ -404,8 +457,8 @@ public sealed class Plugin : BasePlugin
             "What a click on Morale queues. Best: one action, those that raise another stat too first, then the biggest gain; clicking again while it is queued takes the next one. Routine: every action of MoraleRoutine that can be done now, in that order.",
             "点击「心情」加入什么。Best：一个行动，同时提升其他属性的优先，然后是提升最多的；已在队列中时再次点击选下一个。Routine：按顺序加入 MoraleRoutine 中现在能做的全部行动。");
         var routine = Keys("MoraleRoutine",
-            "Your Morale routine, in order: f and a furniture action id, or i and an item id, split by commas. Easiest to set in the Actions tab.",
-            "你的心情日常安排，按顺序：f 加家具行动编号，或 i 加物品编号，用逗号分隔。在「行动」页设置最方便。");
+            "Your Morale routine, in order: f and a furniture action id, or i and an item id, split by commas (f12,i1203).",
+            "你的心情日常安排，按顺序：f 加家具行动编号，或 i 加物品编号，用逗号分隔（如 f12,i1203）。");
         var moraleItems = Flag("MoraleItems", false,
             "Let Best use items that raise Morale too, not only furniture.",
             "Best 也可以使用提升心情的物品，而不只是家具。");
@@ -413,53 +466,41 @@ public sealed class Plugin : BasePlugin
             "Leave out Morale actions that cost Life.",
             "不做会减少生命的心情行动。");
         var lifeItems = Keys("LifeItems",
-            "The items a click on Life uses, in order, as item ids split by commas. Empty: every item that restores Life, smallest first. Easiest to set in the Actions tab.",
-            "点击「生命」时使用的物品，按顺序填写物品编号，用逗号分隔。留空为使用所有恢复生命的物品，先用小的。在「行动」页设置最方便。");
+            "The items a click on Life uses, in order, as i and an item id, split by commas (i1203). Empty: every item that restores Life, smallest first. none: no items.",
+            "点击「生命」时使用的物品，按顺序填写 i 加物品编号，用逗号分隔（如 i1203）。留空为使用所有恢复生命的物品，先用小的。none 为不用任何物品。",
+            "ModManager.AutoWhenBlank");
         var lifeMost = Whole("LifeMostItems", LifePlan.DefaultMostItems, LifePlan.MinMostItems, LifePlan.MaxMostItems,
             "The most items one click on Life uses, from 1 to 10. It stops once Life is full.",
             "每次点击「生命」最多使用几件物品，范围 1 到 10。生命满了就停止。");
 
-        tab.Add((new TabSetting("Hud/ClickBars", TabValueKind.Flag), Config.Bind("Hud", "ClickBars", true)));
-        tab.Add((new TabSetting("Hud/ClickCures", TabValueKind.Flag), Config.Bind("Hud", "ClickCures", true)));
-
         return new ActSettings(satiety, morale, stamina, life, useHome, addToQueue, toasts, foodGoal, foodAbove, foodMost, foodSkip, foodAvoid, bedModes, napBelow,
-            moraleMode, routine, moraleItems, avoidLife, lifeItems, lifeMost, tab);
+            moraleMode, routine, moraleItems, avoidLife, lifeItems, lifeMost);
 
         ConfigEntry<bool> Click(string key, string stat, string chinese, string english, string chineseDoes) =>
             Flag(key, true, $"A click on the {stat} bar {english}.", $"点击「{chinese}」条时{chineseDoes}。");
 
         ConfigEntry<bool> Flag(string key, bool value, string english, string chinese)
         {
-            var entry = Config.Bind("Actions", key, value, new ConfigDescription(english + "\n" + chinese));
-
-            tab.Add((new TabSetting("Actions/" + key, TabValueKind.Flag), entry));
-
-            return entry;
+            return Config.Bind("Actions", key, value, new ConfigDescription(english + "\n" + chinese));
         }
 
         ConfigEntry<int> Whole(string key, int value, int min, int max, string english, string chinese)
         {
-            var entry = Config.Bind("Actions", key, value, new ConfigDescription(english + "\n" + chinese, new AcceptableValueRange<int>(min, max)));
-
-            tab.Add((new TabSetting("Actions/" + key, TabValueKind.Whole, min, max), entry));
-
-            return entry;
+            return Config.Bind("Actions", key, value, new ConfigDescription(english + "\n" + chinese, new AcceptableValueRange<int>(min, max)));
         }
 
         ConfigEntry<string> Choice(string key, string value, string[] choices, string english, string chinese)
         {
-            var entry = Config.Bind("Actions", key, value, new ConfigDescription(english + "\n" + chinese, new AcceptableValueList<string>(choices)));
-
-            tab.Add((new TabSetting("Actions/" + key, TabValueKind.Choice, Choices: choices), entry));
-
-            return entry;
+            return Config.Bind("Actions", key, value, new ConfigDescription(english + "\n" + chinese, new AcceptableValueList<string>(choices)));
         }
 
-        ConfigEntry<string> Keys(string key, string english, string chinese)
+        // A list of i and f keys. Bare item ids, which earlier versions took, are written with their i once at start.
+        ConfigEntry<string> Keys(string key, string english, string chinese, params string[] tags)
         {
-            var entry = Config.Bind("Actions", key, "", new ConfigDescription(english + "\n" + chinese));
+            var entry = Config.Bind("Actions", key, "", new ConfigDescription(english + "\n" + chinese, null, tags.Prepend(ListTag).ToArray<object>()));
+            var text = entry.Value.Trim();
 
-            tab.Add((new TabSetting("Actions/" + key, TabValueKind.Keys), entry));
+            if (text.Length > 0 && !text.Equals(NoneValue, StringComparison.OrdinalIgnoreCase) && ActKeys.Join(ActKeys.Parse(text)) is var keys && keys != text) entry.Value = keys;
 
             return entry;
         }

@@ -54,9 +54,6 @@ internal sealed class VsPage
     /// <summary>The bar clicks, for the test buttons.</summary>
     public HudActs Clicks => _acts;
 
-    /// <summary>The Actions tab in the Mod Manager.</summary>
-    public ActionsTab? Tab { get; set; }
-
     /// <summary>Saves a shift-click on a buff: pins it or unpins it.</summary>
     public Action<int> Favourite { get; set; } = _ => { };
 
@@ -76,8 +73,6 @@ internal sealed class VsPage
             if (value && !_isOn) _alerts.Reset();
 
             _isOn = value;
-
-            if (Tab != null) Tab.IsOn = value;
 
             if (!value) DifficultyHook.HeroId = 0;
         }
@@ -123,7 +118,7 @@ internal sealed class VsPage
         if (Run(javaScript, now) is { } line) _log(line);
     }
 
-    /// <summary>A message from the HUD or the Actions tab.</summary>
+    /// <summary>A message from the HUD.</summary>
     public void Handle(HudCommand command, double now)
     {
         switch (command)
@@ -158,7 +153,7 @@ internal sealed class VsPage
 
                 return;
             default:
-                if (Tab != null && !Tab.Handle(command, _acts, Acts)) _log("a message the mod does not know: " + command);
+                _log("a message the mod does not know: " + command);
 
                 return;
         }
@@ -196,14 +191,14 @@ internal sealed class VsPage
     }
 
     /// <summary>
-    /// The clicks' plans and the Actions tab every frame, and which character the stat difficulty scales, once a
-    /// second while a multiplier is set. These run even when the page has nothing new to send.
+    /// The clicks' plans every frame, and which character the stat difficulty scales, once a second while a multiplier
+    /// is set. These run even when the page has nothing new to send.
     /// </summary>
     private void StepActs(double now)
     {
         if (_isOn)
         {
-            _acts.Tick(now, _vitals, Hud, Acts, Tab?.IsShown == true);
+            _acts.Tick(now, _vitals, Hud, Acts);
 
             if (now >= _nextHeroAt && !DifficultyHook.Settings.IsOff)
             {
@@ -211,8 +206,6 @@ internal sealed class VsPage
                 DifficultyHook.HeroId = GameSingleton.Existing<BattleLogicWorld>()?._AgentManager?.GetLeadingRole()?.InstanceId ?? 0;
             }
         }
-
-        Tab?.Tick(now, _acts, Acts);
     }
 
     /// <summary>The stats as they are this moment, for a click: the last reading can be a second old.</summary>

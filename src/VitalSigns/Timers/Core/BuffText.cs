@@ -15,3 +15,9 @@ public static class BuffText
         return (en, zh);
     }
 }
+
+/// <summary>A buff the game shows, in both languages. <see cref="Seconds"/> is its base time; a buff that does not run out has none.</summary>
+public sealed record BuffEntry(int Id, bool IsGood, int Category, double Seconds, string NameEn, string NameZh, string DescEn, string DescZh)
+{
+    public bool IsTimed => Scope.IsTimedVisible(false, (float)Seconds);
+}

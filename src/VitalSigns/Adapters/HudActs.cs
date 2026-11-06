@@ -46,12 +46,12 @@ internal sealed class HudActs
     public bool IsScanning => !GameCatalog.IsReady || BaseScan.View.Version == 0;
 
     /// <summary>
-    /// One frame's step. The scan and the queue are read while the clicks, the cures or the queue's projection are on,
-    /// or while the Actions tab is open (<paramref name="isWanted"/>); with none of them, the last scan is dropped.
+    /// One frame's step. The scan and the queue are read while the clicks, the cures or the queue's projection are on;
+    /// with none of them, the last scan is dropped.
     /// </summary>
-    public void Tick(double now, Vitals? vitals, HudOptions hud, ActOptions acts, bool isWanted)
+    public void Tick(double now, Vitals? vitals, HudOptions hud, ActOptions acts)
     {
-        var needsScan = hud.ClickBars && acts.AnyOn || hud.Cure || isWanted;
+        var needsScan = hud.ClickBars && acts.AnyOn || hud.Cure;
         var needsQueue = needsScan || hud.Projection;
 
         if (!needsQueue)

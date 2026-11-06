@@ -54,7 +54,7 @@ public static class ActTexts
 
         return why switch
         {
-            ActWhy.Off => isChinese ? "已在「行动」页关闭" : "turned off in the Actions tab",
+            ActWhy.Off => isChinese ? "已在 Vital Signs 的 Actions 设置中关闭" : "turned off in the Vital Signs Actions settings",
             ActWhy.Scanning => isChinese ? "正在查看家中物品..." : "looking around the base...",
             ActWhy.NoPlayer => isChinese ? "现在无法行动" : "nothing can be done right now",
             ActWhy.Full => isChinese ? "「" + name + "」已满" : name + " is full",
@@ -62,7 +62,7 @@ public static class ActTexts
             ActWhy.NoFood => isChinese ? "身边没有可吃的食物" : "no food at hand",
             ActWhy.TooBig => isChinese ? "现有食物都会超出上限" : "every food at hand would go past the maximum",
             ActWhy.NoMorale => isChinese ? "现在没有能提升心情的行动" : "nothing at hand raises Morale now",
-            ActWhy.RoutineEmpty => isChinese ? "请先在「行动」页设置日常安排" : "set up a routine in the Actions tab first",
+            ActWhy.RoutineEmpty => isChinese ? "请先在 Vital Signs 的 MoraleRoutine 设置中安排日常" : "set up a routine in the Vital Signs MoraleRoutine setting first",
             ActWhy.RoutineNotReady => isChinese ? "日常安排中的行动现在都不可用" : "no action of your routine can be done now",
             ActWhy.NoBed => isChinese ? "家中没有可用的床" : "no bed at home to use",
             ActWhy.BedNotReady => isChinese ? "现在没有床可以使用" : "no bed can be used right now",
@@ -109,9 +109,6 @@ public static class ActTexts
 
     /// <summary>Why a furniture action or item the player chose is greyed out: the base has none.</summary>
     public static string Missing(bool isChinese) => isChinese ? "家中没有" : "none at home";
-
-    /// <summary>Why an item the Actions tab lists is greyed out: none in the bag or, at home, in the storage either.</summary>
-    public static string NotHeld(bool atHome, bool isChinese) => atHome ? isChinese ? "背包和家中都没有" : "none in the bag or at home" : isChinese ? "背包里没有" : "none in the bag";
 
     public static string StatName(int stat, bool isChinese) => stat switch
     {

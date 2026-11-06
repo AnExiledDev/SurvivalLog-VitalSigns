@@ -95,13 +95,15 @@ public static class ActPlanner
         return foods;
     }
 
-    /// <summary>The Life items a click uses, in order: the player's list, or, with none chosen, every Life item smallest first so a big one is kept for a big need.</summary>
+    /// <summary>
+    /// The Life items a click uses, in order: the player's list (which may hold nothing), or, with the setting blank
+    /// (null here), every Life item smallest first so a big one is kept for a big need.
+    /// </summary>
     public static List<ActOption> LifeItems(BaseView view, ActOptions options)
     {
         var items = new List<ActOption>();
-        var chosen = options.LifeItems ?? Array.Empty<string>();
 
-        if (chosen.Count > 0)
+        if (options.LifeItems is { } chosen)
         {
             foreach (var key in chosen)
             {

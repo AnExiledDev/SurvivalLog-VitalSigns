@@ -8,8 +8,9 @@ using VitalSigns.Timers.Core;
 namespace VitalSigns.Timers.Adapters;
 
 /// <summary>
-/// The buffs the tab lists, read from the game's own buff table and language files, so a game update needs no mod
-/// update. Kept once the game has its configs and both language tables: neither changes while the game runs.
+/// Every buff the game shows (not its hidden ones), for the buff pickers on the Mods screen, read from the game's own
+/// buff table and language files, so a game update needs no mod update. Kept once the game has its configs and both
+/// language tables: neither changes while the game runs.
 /// </summary>
 internal static class GameBuffs
 {
@@ -29,7 +30,7 @@ internal static class GameBuffs
 
         foreach (var buff in table.Values)
         {
-            if (buff == null || !Scope.IsTimedVisible(buff.IsHide, buff.BuffDuring)) continue;
+            if (buff == null || buff.IsHide) continue;
 
             var name = BuffText.Pick(isChinese, GameNames.Translate(config, buff.Name), GameNames.Translate(config, buff.Name, LanguageType.English),
                 GameNames.Translate(config, buff.Name, LanguageType.Chinese), GameNames.NonEmpty(buff.Name_Local));
@@ -45,7 +46,7 @@ internal static class GameBuffs
         if (!BothLanguagesLoaded(config)) return list;
 
         _entries = list;
-        log($"{_entries.Count} visible timed buffs listed");
+        log($"{_entries.Count} shown buffs listed, {_entries.Count(entry => entry.IsTimed)} of them timed");
 
         return _entries;
     }

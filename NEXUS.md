@@ -25,17 +25,16 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 [*][b]English or Chinese[/b]: follows the game's language.[/*]
 [*][b]Light on the game[/b]: reads your stats every couple of seconds and only redraws when something changed.[/*]
 [*][b]Click a bar to act[/b]: click Satiety to eat, Stamina to sleep in the best bed at home, Morale to do something that raises it, or Life to use the items you chose. The actions go into the game's own queue. Satiety eats to the maximum, to Well Fed or a set percent past it, never past the maximum. Morale does the action that also raises another stat first, then the biggest gain; click again for the next one, or set a routine and a click queues all of it.[/*]
-[*][b]Actions tab[/b]: Vital Signs' page in the Mod Manager has an Actions tab that sets up the clicks. It lists every furniture action and item each click can use, greys out the ones your base or bag lacks, and shows what each click would queue right now. Choose food to skip, build the Morale routine, pick the Life items and set each bed type to Auto, Sleep, Nap or Skip.[/*]
+[*][b]Pick from lists[/b]: on the Mod Manager's Mods screen, choose food to skip, build the Morale routine, pick the Life items, set each bed type to Auto, Sleep, Nap or Skip, pin buffs and give single buffs their own timer, all from the game's own items, furniture actions, beds and buffs. Each shows its picture and name, with what it gives or how long it lasts.[/*]
 [*][b]Click a debuff to cure it[/b]: a debuff with a cure in your bag or home storage is marked. Click it to queue the cure, from the bag first.[/*]
 [*][b]Compact HUD[/b]: a bar can hide while it is full, or above a level you set, and come back as soon as the stat drops.[/*]
 [*][b]Warning pulse[/b]: a bar pulses once it drops to the warning line, before the game turns it red.[/*]
 [*][b]Queue projection[/b]: each bar marks where the stat will be once the actions in the queue are done.[/*]
 [*][b]Bars while exploring[/b]: small Satiety, Morale, Stamina and Life bars in a corner of the screen while you explore, where the game hides its own.[/*]
 [*][b]Buff tray[/b]: sort the buffs by time left, keep good buffs and debuffs apart, move them to another side of the bars, or fold each row into one badge. Shift-click a buff to pin it to the front and draw it larger.[/*]
-[*][b]Layout editor[/b]: drag each bar and the buffs where you want them and set their size with the mouse wheel.[/*]
+[*][b]Layout editor[/b]: drag each bar and the buffs where you want them and set their size with the mouse wheel. Open it from the pause menu.[/*]
 [*][b]Stat difficulty[/b]: make each stat fall faster or slower, and rise more or less, from 0x to 5x, for your character only.[/*]
 [*][b]Buff times[/b]: make buffs and debuffs last longer or shorter, from 0.1x to 100x. Set one multiplier for good buffs and one for bad, one per category, or one for any single buff.[/*]
-[*][b]Timers tab[/b]: Vital Signs' page in the Mod Manager has a Timers tab that lists every buff with a timer, how long it lasts in the game, and how long it lasts with your multipliers, in game time and in real minutes.[/*]
 [*][b]Running buffs too[/b]: a buff that is already running gets its remaining time changed when you change its multiplier.[/*]
 [*][b]Talents still count[/b]: talents that make buffs last longer are multiplied along with the buff.[/*]
 [/list]
@@ -55,7 +54,7 @@ Values are read every couple of seconds, so a change can take that long to show.
 [list]
 [*]Survival Log 1.1.20719. A game update can break it until the mod is updated.[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/12]BepInEx for Survival Log[/url]. Install it first.[/*]
-[*]Optional: [url=https://www.nexusmods.com/survivallog/mods/73]Mod Manager[/url]. The Timers tab, where you see every buff and set single buffs, and the Actions tab, where you set up the bar clicks, are on this mod's page in the Mod Manager. Without it, use the config file.[/*]
+[*]Optional: [url=https://www.nexusmods.com/survivallog/mods/73]Mod Manager[/url] 0.15.0 or newer. Its Mods screen lets you pick the food, items, furniture actions, beds and buffs for the list settings from the game's own. Without it, type their IDs in the config file.[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/61]Exiled's Toolkit[/url] 0.19.0 or newer. Vital Signs does not load without it. The warnings are its pop-ups, settings take effect at once through it, and the colours that match its HUD style come from it.[/*]
 [/list]
 
@@ -63,7 +62,7 @@ Values are read every couple of seconds, so a change can take that long to show.
 [list=1]
 [*]Install [url=https://www.nexusmods.com/survivallog/mods/12]BepInEx[/url] [i](if no other mods were installed before, start the game once so BepInEx finishes setup, then quit)[/i].[/*]
 [*]Install Exiled's Toolkit the same way.[/*]
-[*]Optional, for the Timers and Actions tabs: install Mod Manager the same way.[/*]
+[*]Optional, to pick from lists: install Mod Manager 0.15.0 or newer the same way.[/*]
 [*]Download the zip from the Files tab.[/*]
 [*]Extract it into the game folder (the folder with [font=Courier New]SurvivalLog.exe[/font]). The zip holds a BepInEx folder, so the DLL lands in the right place. When asked, merge the folders. The result should be:
 [code]C:\Program Files (x86)\Steam\steamapps\common\Survival Log\BepInEx\plugins\VitalSigns.dll[/code][/*]
@@ -75,9 +74,9 @@ Delete [font=Courier New]VitalSigns.dll[/font] from the [font=Courier New]BepInE
 [size=5]Configuration[/size]
 Settings are in [font=Courier New]BepInEx\config\com.dev.survivallog.vitalsigns.cfg[/font] or on the Mod Manager's Mods screen, and take effect at once. [font=Courier New]Enabled[/font] turns the mod on or off. Under Display you can turn off the Fitness bar, the weight, the timer stripes, the hover box details, the game's own stat text and the cure lists. BarSize, BuffSize and BarTooltipSize set how big the bars, the buffs and the bars' hover boxes are drawn (80% of the game's size by default). HeaviestItems, TrendArrows, MatchHudStyle, BarLook and ColourBlind set the heaviest items list, the arrows and the look. Under Alerts you can turn off each warning, and LowAt sets how low a stat gets before it warns (20% by default). BuffEndingPulse, BuffEndingMinutes and BuffEndingDebuffs set which buffs pulse before they end, and how soon. Under Hud are the compact HUD, the warning pulse, the buff order and pins, the layout, the exploring bars, the queue projection and the clicks on bars and debuffs. Under Actions is what each click does, and under Difficulty how fast each stat falls and rises.
 
-To set up the clicks, open the Mod Manager, go to Vital Signs and pick the Actions tab. To move the bars, press the [b]Edit HUD layout[/b] button there, or set EditLayoutKey.
+To set up the clicks, open the Mods screen, go to Vital Signs and find the Actions section. Add food to skip, the Morale routine and the Life items from their pickers, and click a bed's mode to change it. To move the bars, press [b]Edit HUD layout[/b] in the pause menu, or set EditLayoutKey.
 
-For buff times, open the Mod Manager, go to Vital Signs and pick the Timers tab. Set the good and bad multipliers and the category ones at the top, and a single buff's multiplier in its row, then press Save. The changes take effect at once, on buffs already running too. They are also in the cfg file under Timers and TimerCategories, and single buffs are in [font=Courier New]BepInEx\config\VitalSigns.Timers.json[/font]. See [url=https://github.com/AnExiledDev/SurvivalLog-VitalSigns/blob/main/CONFIG.md]CONFIG.md[/url] for every setting.
+For buff times, set the good, bad and category multipliers under Timers and TimerCategories, and add single buffs to Buffs under Timers. The changes take effect at once, on buffs already running too. See [url=https://github.com/AnExiledDev/SurvivalLog-VitalSigns/blob/main/CONFIG.md]CONFIG.md[/url] for every setting.
 
 [size=5]Feedback[/size]
 Found a bug or have an idea? Come say hi on the [url=https://discord.gg/trTsyxUFqg]Core Directive Discord[/url], or post in this page's Posts tab. For bugs, please include [font=Courier New]BepInEx\LogOutput.log[/font] and [font=Courier New]BepInEx\vital-signs.log[/font].
@@ -110,17 +109,16 @@ Open source under MIT: [url=https://github.com/AnExiledDev/SurvivalLog-VitalSign
 [*][b]中英文[/b]：跟随游戏语言。[/*]
 [*][b]不拖慢游戏[/b]：每隔几秒读取一次属性，只有变化时才重新绘制。[/*]
 [*][b]点击属性条执行行动[/b]：点击「饱腹」吃东西，点击「体力」在家中最好的床上休息，点击「心情」做能提升它的事，点击「生命」使用你选好的物品。这些行动会加入游戏自己的行动队列。「饱腹」可以吃到上限、吃到「饱腹富余」或超过它一个设定的百分比，绝不会超过上限。「心情」优先选择同时提升其他属性的行动，然后是提升最多的；再点一次换下一个，也可以设置一套流程，点一次全部加入。[/*]
-[*][b]「行动」标签页[/b]：Mod Manager 里 Vital Signs 的页面上有「行动」标签页，用来设置点击属性条的行为。它列出每次点击可用的所有家具行动和物品，家里或背包里没有的会变灰，并显示现在点击每个属性条会加入什么。可以选择不吃的食物、编排「心情」流程、挑选「生命」物品，并把每种床设为「自动」「睡觉」「小睡」或「不用」。[/*]
+[*][b]从列表中挑选[/b]：在 Mod Manager 的「模组」界面，可以从游戏自己的物品、家具行动、床和状态中选择不吃的食物、编排「心情」流程、挑选「生命」物品、把每种床设为「自动」「睡觉」「小睡」或「不用」、固定状态，以及给单个状态设置计时。每一项都显示图片和名称，以及它的效果或持续时间。[/*]
 [*][b]点击减益来治疗[/b]：背包或家中储物里有治疗物品的减益会有标记。点击它即可把治疗加入队列，优先使用背包里的。[/*]
 [*][b]精简界面[/b]：属性条满了或高于你设定的数值时可以隐藏，属性一下降就会重新出现。[/*]
 [*][b]提醒闪烁[/b]：属性降到提醒线时属性条会闪烁，比游戏把它变红更早。[/*]
 [*][b]队列预估[/b]：每个属性条上标出队列里的行动完成后属性会到哪里。[/*]
 [*][b]探索时的属性条[/b]：探索时游戏会隐藏自己的属性条，这时屏幕一角会显示小的「饱腹」「心情」「体力」和「生命」条。[/*]
 [*][b]状态栏[/b]：按剩余时间排列状态，把增益和减益分开，移到属性条的另一侧，或把每一行折叠成一个徽标。按住 Shift 点击状态可以把它固定在最前面并放大显示。[/*]
-[*][b]布局编辑器[/b]：把每个属性条和状态拖到你想要的位置，用鼠标滚轮调整大小。[/*]
+[*][b]布局编辑器[/b]：把每个属性条和状态拖到你想要的位置，用鼠标滚轮调整大小。从暂停菜单打开。[/*]
 [*][b]属性难度[/b]：让每项属性下降得更快或更慢、上升得更多或更少，范围 0 到 5 倍，只影响你自己的角色。[/*]
 [*][b]状态持续时间[/b]：让增益和负面状态持续更久或更短，范围 0.1 到 100 倍。增益状态一个倍数，负面状态一个倍数，也可以每个类别一个，或给任意单个状态设置。[/*]
-[*][b]「计时」标签页[/b]：Mod Manager 里 Vital Signs 的页面上有「计时」标签页，列出所有有计时的状态，显示游戏原本的持续时间和按你的倍数算出的持续时间，分别以游戏时间和现实分钟显示。[/*]
 [*][b]正在生效的状态也会变[/b]：改变倍数时，正在生效的状态的剩余时间也会随之改变。[/*]
 [*][b]天赋照样有效[/b]：延长状态时间的天赋会和状态一起乘以倍数。[/*]
 [/list]
@@ -139,7 +137,7 @@ Vital Signs 最初的灵感来自 ivmakk0 的 [url=https://www.nexusmods.com/sur
 [list]
 [*]Survival Log 1.1.20719。游戏更新后模组可能暂时失效，直到模组更新为止。[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/12]BepInEx for Survival Log[/url]，请先安装。[/*]
-[*]可选：[url=https://www.nexusmods.com/survivallog/mods/73]Mod Manager[/url]。查看所有状态、设置单个状态的「计时」标签页，以及设置点击属性条的「行动」标签页，都在 Mod Manager 里本模组的页面上。没装的话，请使用配置文件。[/*]
+[*]可选：[url=https://www.nexusmods.com/survivallog/mods/73]Mod Manager[/url] 0.15.0 或更高版本。在它的「模组」界面，可以从游戏自己的物品、家具行动、床和状态中挑选列表设置的内容。没装的话，请在配置文件中填写编号。[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/61]Exiled's Toolkit[/url] 0.19.0 或更新版本。没有它本模组不会加载。提醒弹窗由它显示，设置也通过它立即生效，跟随其界面风格的配色也来自它。[/*]
 [/list]
 
@@ -147,7 +145,7 @@ Vital Signs 最初的灵感来自 ivmakk0 的 [url=https://www.nexusmods.com/sur
 [list=1]
 [*]安装 [url=https://www.nexusmods.com/survivallog/mods/12]BepInEx[/url] [i]（如果之前没有装过其他模组，先启动一次游戏，让 BepInEx 完成初始化，然后退出）[/i]。[/*]
 [*]用同样的方式安装 Exiled's Toolkit。[/*]
-[*]可选（用于「计时」和「行动」标签页）：用同样的方式安装 Mod Manager。[/*]
+[*]可选（用于从列表中挑选）：用同样的方式安装 Mod Manager 0.15.0 或更高版本。[/*]
 [*]在「文件」页下载压缩包。[/*]
 [*]把压缩包解压到游戏目录（[font=Courier New]SurvivalLog.exe[/font] 所在的文件夹）。压缩包里带有 BepInEx 文件夹，DLL 会自动放到正确位置。如果提示合并文件夹，选择合并。解压后应为：
 [code]C:\Program Files (x86)\Steam\steamapps\common\Survival Log\BepInEx\plugins\VitalSigns.dll[/code][/*]
@@ -159,9 +157,9 @@ Vital Signs 最初的灵感来自 ivmakk0 的 [url=https://www.nexusmods.com/sur
 [size=5]配置[/size]
 设置位于 [font=Courier New]BepInEx\config\com.dev.survivallog.vitalsigns.cfg[/font]，也可以在 Mod Manager 的「模组」界面修改，修改后立即生效。[font=Courier New]Enabled[/font] 用于开关模组。在 Display 分组里可以分别关闭健康条、负重显示、计时条、悬停提示详情、游戏自带的属性说明和治疗物品列表。BarSize、BuffSize 和 BarTooltipSize 分别设置属性条、状态和属性条悬停提示的显示大小（默认均为游戏原尺寸的 80%）。HeaviestItems、TrendArrows、MatchHudStyle、BarLook 和 ColourBlind 分别设置最重物品列表、趋势箭头和外观。在 Alerts 分组里可以分别关闭每项提醒，LowAt 设置属性降到多少时提醒（默认 20%）。BuffEndingPulse、BuffEndingMinutes 和 BuffEndingDebuffs 设置哪些状态在结束前闪烁，以及提前多久。Hud 分组里有精简界面、提醒闪烁、状态排序和固定、布局、探索时的属性条、队列预估，以及点击属性条和减益。Actions 分组设置每次点击做什么，Difficulty 分组设置每项属性下降和上升的速度。
 
-设置点击行为：打开 Mod Manager，进入 Vital Signs，选择「行动」标签页。要移动属性条，点那里的「编辑界面布局」按钮，或设置 EditLayoutKey。
+设置点击行为：打开「模组」界面，进入 Vital Signs，找到 Actions 分组。从选择器中添加不吃的食物、「心情」流程和「生命」物品，点击床的方式即可切换。要移动属性条，在暂停菜单中点「编辑界面布局」，或设置 EditLayoutKey。
 
-状态持续时间：打开 Mod Manager，进入 Vital Signs，选择「计时」标签页。在顶部设置增益、负面和各类别的倍数，在状态所在的行设置单个状态的倍数，然后点「保存」。改动立即生效，正在生效的状态也会改变。这些倍数也在配置文件的 Timers 和 TimerCategories 分组中，单个状态的倍数在 [font=Courier New]BepInEx\config\VitalSigns.Timers.json[/font] 中。完整说明见 [url=https://github.com/AnExiledDev/SurvivalLog-VitalSigns/blob/main/CONFIG.md]CONFIG.md[/url]（英文）。
+状态持续时间：在 Timers 和 TimerCategories 分组中设置增益、负面和各类别的倍数，在 Timers 分组的 Buffs 中添加单个状态。改动立即生效，正在生效的状态也会改变。完整说明见 [url=https://github.com/AnExiledDev/SurvivalLog-VitalSigns/blob/main/CONFIG.md]CONFIG.md[/url]（英文）。
 
 [size=5]反馈[/size]
 发现 bug 或有好点子？欢迎来 [url=https://discord.gg/trTsyxUFqg]Core Directive Discord[/url] 打个招呼，或在本页的「Posts」标签里发帖。报告 bug 时，请附上 [font=Courier New]BepInEx\LogOutput.log[/font] 和 [font=Courier New]BepInEx\vital-signs.log[/font]。

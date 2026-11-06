@@ -26,21 +26,20 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 - **Settings apply at once**: every setting changed on the Mod Manager's Mods screen takes effect right away, with no restart. Turning the mod off takes away everything it draws and puts every buff back on the game's own time.
 - **Log file**: the mod writes what it did at startup and what the HUD answered to `BepInEx\vital-signs.log`.
 - **Click a bar to act**: click Satiety to eat, Stamina to sleep in the best bed at home, Morale to do something that raises it, or Life to use the items you chose. The actions go into the game's own queue. Satiety eats to the maximum, to Well Fed or a set percent past it, and never past the maximum. Morale does the action that also raises another stat first, then the biggest gain; a second click while it is queued takes the next one. Or set a routine, and a click queues all of it in order. A toast says what was queued, or why nothing was.
-- **Actions tab**: Vital Signs' page in the Mod Manager has an Actions tab that sets up the clicks. It lists every furniture action and item each click can use, with what it gives. The ones your base or bag lacks are greyed out. It shows what each click would queue right now, lets you choose food to skip, build the Morale routine, pick the Life items and set how each bed type is used (Auto, Sleep, Nap or Skip).
+- **Pick from lists**: on the Mod Manager's Mods screen, the food to skip, the Morale routine, the Life items, how each bed type is used (Auto, Sleep, Nap or Skip), the pinned buffs and single buff timers are picked from the game's own items, furniture actions, beds and buffs. Each shows its picture and name, with what it gives or how long it lasts.
 - **Click a debuff to cure it**: a debuff with a cure in your bag or home storage is marked. Click it to queue the cure, from the bag first.
 - **Compact HUD**: a bar can hide while it is full, or above a level you set, and come back as soon as the stat drops. Bars with buffs next to them can stay.
 - **Warning pulse**: a bar pulses once it drops to the warning line, before the game turns it red.
 - **Queue projection**: each bar marks where the stat will be once the actions in the queue are done.
 - **Bars while exploring**: small Satiety, Morale, Stamina and Life bars in a corner of the screen while you explore, where the game hides its own. Pick the corner and the size.
 - **Buff tray**: sort the buffs by time left, keep good buffs and debuffs apart, move them to another side of the bars, or fold each row into one badge. Shift-click a buff to pin it to the front and draw it larger.
-- **Layout editor**: drag each bar and the buffs where you want them and set their size. Open it with the 「Edit HUD layout」 button in the Actions tab, or a key you set.
+- **Layout editor**: drag each bar and the buffs where you want them and set their size. Open it with the 「Edit HUD layout」 button in the pause menu, or a key you set.
 - **Stat difficulty**: make each stat fall faster or slower, and rise more or less, from 0x to 5x. It applies to your character only.
 - **Buff times**: make buffs and debuffs last longer or shorter, from 0.1x to 100x. Set one multiplier for good buffs and one for bad, one per category, or one for any single buff.
-- **Timers tab**: the Mod Manager's page for Vital Signs has a Timers tab that lists every buff with a timer, how long it lasts in the game, and how long it lasts with your multipliers, in game time and in real minutes. Changes there take effect at once.
 - **Running buffs too**: a buff that is already running gets its remaining time changed when you change its multiplier.
 - **Talents still count**: talents that make buffs last longer are multiplied along with the buff.
 
-Only buffs you can see on your character and that have a timer get a new time. Hidden buffs and buffs that last until something removes them keep the game's own behavior. No buff can be given more than 500 game days. The real minutes in the Timers tab follow your day length, so they stay right with Day Length or any other mod that changes how long a day takes.
+Only buffs you can see on your character and that have a timer get a new time. Hidden buffs and buffs that last until something removes them keep the game's own behavior. No buff can be given more than 500 game days.
 
 The HUD part only reads your stats and draws them. With every multiplier at 1, the default, no buff time changes either. Vital Signs adds nothing to your save and does not edit game files. A save keeps the end time of each running buff, so after you remove the mod, buffs already running finish at the time they had, and new buffs use the game's own times.
 
@@ -53,7 +52,6 @@ Vital Signs was originally inspired by [Stats UI](https://www.nexusmods.com/surv
 - Stats UI and Vital Signs only conflict in what they draw on screen. If you don't need the extra features, Stats UI works just as well.
 - Fitness Bar draws the same Fitness bar. With both installed you get two, and the Fitness hover box says to remove `FitnessBar.dll`.
 - A warning comes when a stat drops past its line while you play. Loading a save with a stat already low does not warn.
-- With the mod turned off, an open Timers tab stays until the Mod Manager page reloads.
 - A buff made to last a very long time shows a large hour count in its hover box, such as `12000:00` for 500 days. The game shows buff times in hours and minutes only.
 - Multipliers changed while the game is closed apply to new buffs only. Buffs already running in a save keep the time they had when the game was saved.
 - A click on a bar uses only what the game would let you queue by hand. Furniture must be at home, and items in the home storage are used only while you are at home.
@@ -65,35 +63,35 @@ Vital Signs was originally inspired by [Stats UI](https://www.nexusmods.com/surv
 
 - Survival Log 1.1.20719. Built and tested on this version; a game update can break it until the mod is updated.
 - The [BepInEx Pack for Survival Log](https://www.nexusmods.com/survivallog/mods/12), the BepInEx 6 (IL2CPP) build for the game.
-- Optional: [Mod Manager](https://www.nexusmods.com/survivallog/mods/73). The Timers tab, where you see every buff and set single buffs, is on this mod's page in the Mod Manager. Without it, set the buff multipliers in the config files.
+- Optional: [Mod Manager](https://www.nexusmods.com/survivallog/mods/73) 0.15.0 or newer. Its Mods screen lets you pick the food, items, furniture actions, beds and buffs for the list settings from the game's own. Without it, type their IDs in the config file.
 - [Exiled's Toolkit](https://www.nexusmods.com/survivallog/mods/61) 0.19.0 or newer. Vital Signs does not load without it. The low stat warnings are its pop-ups, settings changed on the Mod Manager's Mods screen take effect at once through it, and the colours that match the HUD style come from it.
 
 ## Install
 
 1. Install the [BepInEx Pack for Survival Log](https://www.nexusmods.com/survivallog/mods/12) (if no other mods were installed before, start the game once so BepInEx finishes setup, then quit).
 2. Install [Exiled's Toolkit](https://www.nexusmods.com/survivallog/mods/61) 0.19.0 or newer.
-3. Optional, for the Timers tab: install [Mod Manager](https://www.nexusmods.com/survivallog/mods/73) the same way.
+3. Optional, to pick from lists: install [Mod Manager](https://www.nexusmods.com/survivallog/mods/73) 0.15.0 or newer the same way.
 4. Download `VitalSigns-x.y.z.zip` from the [latest release](https://github.com/AnExiledDev/SurvivalLog-VitalSigns/releases/latest) or from [Nexus Mods](https://www.nexusmods.com/survivallog/mods/133).
 5. Extract the zip into the game folder (the folder with `SurvivalLog.exe`). It holds a `BepInEx` folder, so the DLL lands in the right place. When asked, merge the folders. The result should be:
    `C:\Program Files (x86)\Steam\steamapps\common\Survival Log\BepInEx\plugins\VitalSigns.dll`
 
 ## Uninstall
 
-Delete `VitalSigns.dll` from the `BepInEx\plugins` folder. For a clean slate, also delete `BepInEx\config\com.dev.survivallog.vitalsigns.cfg`, `BepInEx\config\VitalSigns.Timers.json` and `BepInEx\vital-signs.log`.
+Delete `VitalSigns.dll` from the `BepInEx\plugins` folder. For a clean slate, also delete `BepInEx\config\com.dev.survivallog.vitalsigns.cfg` and `BepInEx\vital-signs.log`, and `BepInEx\config\VitalSigns.Timers.json.old` if an earlier version left one.
 
 ## Configuration
 
 Settings live in `BepInEx\config\com.dev.survivallog.vitalsigns.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Changes made on the Mods screen take effect at once. Each setting in the cfg file is explained in English and Simplified Chinese. Each part (the Fitness bar, the weight, the timer stripes, the hover box details, the game's own stat text and the cure lists) can be turned off, and `BarSize`, `BuffSize` and `BarTooltipSize` set how big the bars, the buffs and the bars' hover boxes are drawn. `HeaviestItems`, `TrendArrows`, `MatchHudStyle`, `BarLook` and `ColourBlind` set the heaviest items list, the arrows and the look. Under Alerts, each low stat warning can be turned off, `LowAt` sets how low a stat gets before it warns, and `BuffEndingPulse`, `BuffEndingMinutes` and `BuffEndingDebuffs` set which buffs pulse before they end, and how soon. Under Hud are the compact HUD, the warning pulse, the buff order and pins, the layout, the exploring bars, the queue projection and the clicks on bars and debuffs. Under Actions is what each click does, and under Difficulty how fast each stat falls and rises. See [CONFIG.md](CONFIG.md) for every setting.
 
-To set up the clicks, open the Mod Manager, go to Vital Signs and pick the Actions tab. Every change there is saved at once.
+To set up the clicks, open the Mods screen, go to Vital Signs and find the Actions section. Add food to skip, the Morale routine and the Life items from their pickers, and click a bed's mode to change it.
 
-For buff times, open the Mod Manager, go to Vital Signs and pick the Timers tab. Set the good and bad multipliers and the category ones at the top, and a single buff's multiplier in its row, then press Save. The changes take effect at once, on buffs already running too. The good, bad and category multipliers are also in the cfg file, and single buffs are in `BepInEx\config\VitalSigns.Timers.json`.
+For buff times, set the good, bad and category multipliers under Timers and TimerCategories, and add single buffs to `Buffs` under Timers. The changes take effect at once, on buffs already running too.
 
 ## Troubleshooting
 
 Tested on Survival Log 1.1.20719 with BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.9.3 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
+Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.10.0 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
 
 Once a game has loaded, look for `page script sent to CoreUI1 (install 1): the stat bars show the readings`. A line ending `no stat bars on the HUD right now` means the mod could not find the stat bars.
 
@@ -113,6 +111,7 @@ To reach me directly, message `exiled.dev` on Discord; you can find me in the [o
 
 ## Changelog
 
+- **0.10.0**: The food to skip, the Morale routine, the Life items, the bed modes, the pinned buffs and single buff timers are picked from lists on the Mods screen. The Actions and Timers tabs are gone, single buff timers are a setting now, and the layout editor opens from the pause menu.
 - **0.9.3**: Now uses Exiled's Toolkit for its shared parts, so it needs Exiled's Toolkit 0.19.0 or newer.
 - **0.9.2**: More tests for stat difficulty; nothing changes in play.
 - **0.9.1**: The food note in the Actions tab now says what a Satiety click eats.

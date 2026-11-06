@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.10.0
+
+- The list settings are picked from lists on the Mods screen, with Mod Manager 0.15.0 or newer: FoodSkip, MoraleRoutine and LifeItems from the game's items and furniture actions, BedModes from its beds with Auto, Sleep, Nap or Skip on each, and FavouriteBuffs from its buffs. Each entry shows its picture and name, and the picker says what it gives.
+- Single buff timers are a setting now, Buffs under Timers, picked from every buff with a timer and stepped on the Mods screen. The ones set in VitalSigns.Timers.json move into it on the first start, and the file is kept as VitalSigns.Timers.json.old.
+- The Actions and Timers tabs are gone; their settings are all on the Mods screen.
+- The Edit HUD layout button is in the pause menu now. It closes the menu and opens the layout editor.
+- LifeItems set to none uses no items. Left blank, it still uses every item that restores Life, smallest first.
+- Made for Survival Log 1.1.20719.
+
 ## 0.9.3
 
 - Now uses Exiled's Toolkit for its shared parts, so it needs Exiled's Toolkit 0.19.0 or newer.

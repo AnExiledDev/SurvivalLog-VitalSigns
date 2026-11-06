@@ -3,7 +3,7 @@ using Xunit;
 
 namespace VitalSigns.Tests.Timers;
 
-/// <summary>The Timers tab showed Chinese names in an English game: the game had not yet filled its English table when
+/// <summary>The buff list once showed Chinese names in an English game: the game had not yet filled its English table when
 /// the list was read, so the English slot was empty and the page fell back to Chinese.</summary>
 public class BuffTextTests
 {
