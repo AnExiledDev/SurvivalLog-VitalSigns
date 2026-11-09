@@ -55,7 +55,7 @@ internal static class BuffHooks
         catch (Exception ex)
         {
             harmony.UnpatchSelf();
-            log(HookFailure.Prefix + " buff times, every buff keeps the game's own time: " + ex.Message);
+            log(HookFailure.Prefix + " buff times, every buff keeps the game's time: " + ex.Message);
 
             return false;
         }

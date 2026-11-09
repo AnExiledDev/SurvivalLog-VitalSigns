@@ -9,7 +9,7 @@ using VitalSigns.Core.Acts;
 namespace VitalSigns.Adapters;
 
 /// <summary>
-/// Puts a plan's steps in the character's queue the way the game's own suggestion chips do: a furniture action is a
+/// Puts a plan's steps in the character's queue the way the game's suggestion chips do: a furniture action is a
 /// walk to the furniture's action spot and then the action's own steps; an item in the bag is its use; an item in home
 /// storage is a walk to the storage and then its use. All of it goes in as one batch through the role's action cache
 /// (ActionCacheComponent.DoActionCache), which clears the queue first in the Default mode and adds to its end in the

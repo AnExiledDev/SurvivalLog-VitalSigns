@@ -2,7 +2,7 @@ namespace VitalSigns.Core;
 
 /// <summary>
 /// How big the stat bars (BarSize), their buff badges (BuffSize) and the bars' hover boxes (BarTooltipSize) are drawn, in
-/// percent of the game's own size. All three share this range and default. The page zooms each
+/// percent of the game's size. All three share this range and default. The page zooms each
 /// bar by the first, each row's badges, with their stripes and hover boxes, by the second, and the bars' hover boxes by
 /// the third, apart from their bar.
 /// </summary>

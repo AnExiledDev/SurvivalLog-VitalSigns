@@ -8,7 +8,7 @@ With Mod Manager 0.15.0 or newer, the list settings (`FavouriteBuffs`, `FoodSkip
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| `Enabled` | `true` | Shows the multipliers, loss shading, Well Fed lines, buff timers, hover box details, Fitness bar and carried weight on the HUD. `false` turns the mod off: everything it draws goes away, no warnings show and every buff goes back to the game's own time. |
+| `Enabled` | `true` | Shows the multipliers, loss shading, Well Fed lines, buff timers, hover box details, Fitness bar and carried weight on the HUD. `false` turns the mod off: everything it draws goes away, no warnings show and every buff goes back to the game's time. |
 
 ## Display
 
@@ -18,14 +18,14 @@ With Mod Manager 0.15.0 or newer, the list settings (`FavouriteBuffs`, `FoodSkip
 | `WeightReadout` | `true` | Shows the weight you carry on the Inventory button, with a bar that marks where Overweight starts. |
 | `TimeStripes` | `true` | Shows a stripe under each buff that ends, shrinking as its time runs out. It turns amber in the last 15%. |
 | `ExtendedTooltips` | `true` | Adds details to the stat and buff hover boxes: effect values, time left, layers, scaled gains and losses, food modifiers and the losses still to come. The multipliers and loss shading on the bars stay either way. |
-| `StatTooltipGameText` | `true` | Keeps the game's own description at the bottom of the stat hover boxes. Only applies when `ExtendedTooltips` is on. |
+| `StatTooltipGameText` | `true` | Keeps the game's description at the bottom of the stat hover boxes. Only applies when `ExtendedTooltips` is on. |
 | `BarSize` | `80` | How big the Satiety, Morale, Stamina, Life and Fitness bars are drawn, in percent of the game's size, from 50 to 150. `100` is the game's size. Their hover boxes have their own size, `BarTooltipSize`. |
 | `BarTooltipSize` | `80` | How big the hover boxes of the Satiety, Morale, Stamina, Life and Fitness bars are drawn, in percent of the game's size, from 50 to 150, whatever `BarSize` is. `100` is the game's size. |
 | `BuffSize` | `80` | How big the buffs next to the bars are drawn, in percent of the game's size, from 50 to 150. Their hover boxes grow and shrink with them. At the same number as `BarSize` they sit in proportion to the bars. `100` is the game's size. |
 | `HeaviestItems` | `5` | How many of the heaviest items in your bag the Inventory button's hover box lists, from 0 to 10, with their weight. Stacks of the same item count as one. `0` lists none. Only applies when `WeightReadout` is on. |
 | `TrendArrows` | `true` | Shows an arrow by each stat's value when the stat rose or fell over the last game hour. An arrow shows once ten game minutes have been seen. |
 | `MatchHudStyle` | `true` | Draws the hover boxes, the multiplier chips and the bar frames in the colours of the HUD style chosen in Exiled's Toolkit (`HudStyle`). With the classic style they keep this mod's own colours. |
-| `BarLook` | `Game` | How the stat bars are drawn. `Game`: the game's own look. `Flat`: no frame or shadow. `Segmented`: split into tenths. |
+| `BarLook` | `Game` | How the stat bars are drawn. `Game`: the game's look. `Flat`: no frame or shadow. `Segmented`: split into tenths. |
 | `ColourBlind` | `false` | Uses colours that stay apart for red-green colour blindness: blue in place of green and orange in place of red, on the bars, the buffs, the multiplier chips and the hover boxes. |
 | `CuresInTooltips` | `true` | Lists the items that cure or suppress a debuff in its hover box, with how many of each you have. Only applies when `ExtendedTooltips` is on. |
 
@@ -58,7 +58,7 @@ A warning pops up once when a stat drops past its line, and again only after the
 | `FavouriteBuffs` | empty | Buffs pinned to the front of their row and drawn larger, as buff IDs split by commas. Shift-click a buff on the HUD to pin it or unpin it. |
 | `FavouriteSize` | `130` | How big a pinned buff is drawn, in percent of the other buffs, from 100 to 200. |
 | `CollapseBuffs` | `false` | Folds each row's buffs into one badge with their count. Hover over it to see them all. Pinned buffs stay out. |
-| `Layout` | empty | Where each bar sits and how big, as the layout editor saves it. Empty: the game's own places. |
+| `Layout` | empty | Where each bar sits and how big, as the layout editor saves it. Empty: the game's places. |
 | `BuffTray` | `Left` | Which side of the bars the buffs sit on. `Left` is the game's place. `Right`, `Above` and `Below` move them. |
 | `ExploreBars` | `TopRight` | Shows small Satiety, Morale, Stamina and Life bars in a corner of the screen while you explore, where the game hides its own: `TopLeft`, `TopRight`, `BottomLeft` or `BottomRight`. `Off` hides them. |
 | `ExploreBarsSize` | `100` | How big the exploring bars are drawn, in percent, from 50 to 150. |
@@ -102,7 +102,7 @@ A click adds the same actions you could queue by hand. Furniture and beds come f
 
 ## Difficulty
 
-Each multiplier goes from `0` to `5`. `1` is the game's own. It counts every change alike: the slow change over time, food, rest, buffs and furniture. Only your character is changed, not other characters. The clicks on the bars and the queue marks count these multipliers. Game effects that react to a stat changing see the changed amount, so with a multiplier at `0` they no longer react to that stat rising or falling.
+Each multiplier goes from `0` to `5`. `1` is the game's. It counts every change alike: the slow change over time, food, rest, buffs and furniture. Only your character is changed, not other characters. The clicks on the bars and the queue marks count these multipliers. Game effects that react to a stat changing see the changed amount, so with a multiplier at `0` they no longer react to that stat rising or falling.
 
 | Setting | Default | What it does |
 | --- | --- | --- |
@@ -117,9 +117,9 @@ Each multiplier goes from `0` to `5`. `1` is the game's own. It counts every cha
 
 ## Timers
 
-A multiplier changes how long a buff lasts: `1` is the game's own time, `2` makes it last twice as long, `0.5` half as long. Every multiplier goes from `0.1` to `100`. Change them on the Mods screen, or in the file while the game is closed. Changes made on the Mods screen take effect at once, on buffs already running too.
+A multiplier changes how long a buff lasts: `1` is the game's time, `2` makes it last twice as long, `0.5` half as long. Every multiplier goes from `0.1` to `100`. Change them on the Mods screen, or in the file while the game is closed. Changes made on the Mods screen take effect at once, on buffs already running too.
 
-Each buff uses the most specific multiplier it has: its own multiplier first, then its category's, then the good or bad one. Only buffs you can see on your character and that have a timer are changed. Hidden buffs and buffs that last until something removes them keep the game's own behavior.
+Each buff uses the most specific multiplier it has: its own multiplier first, then its category's, then the good or bad one. Only buffs you can see on your character and that have a timer are changed. Hidden buffs and buffs that last until something removes them keep the game's behavior.
 
 | Setting | Default | What it does |
 | --- | --- | --- |

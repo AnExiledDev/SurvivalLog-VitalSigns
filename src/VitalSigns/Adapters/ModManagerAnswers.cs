@@ -13,8 +13,8 @@ namespace VitalSigns.Adapters;
 
 /// <summary>
 /// What the Mod Manager's pickers offer for this mod's lists, found by name so the mod needs no reference to it:
-/// the food, Life items, Morale actions, beds and buffs the game's own tables hold, each with both names, its picture
-/// and what it does, filed under the game's own categories. Asked on the main thread when the Mods screen reads the
+/// the food, Life items, Morale actions, beds and buffs the game's tables hold, each with both names, its picture
+/// and what it does, filed under the game's categories. Asked on the main thread when the Mods screen reads the
 /// settings; the item lists are kept until the game's tables change.
 /// </summary>
 public static class ModManagerAnswers

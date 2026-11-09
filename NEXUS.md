@@ -12,7 +12,7 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 [*][b]Coming losses shaded on each bar[/b]: the part of a bar that running debuffs will still take is shaded, so you can see where the stat will land.[/*]
 [*][b]More in the bar's hover box[/b]: the exact value, every scaled change as a percentage, your food modifiers and each loss still coming with how long it takes.[/*]
 [*][b]Buff hover boxes[/b]: a compact box with the name and time left on one line, then what a buff or debuff does to each stat and how many layers you have. Debuffs list the items that cure or suppress them, with how many you have.[/*]
-[*][b]Well Fed lines on the Satiety bar[/b]: one line where Well Fed starts and a fainter one where it ends, read from the game's own rule.[/*]
+[*][b]Well Fed lines on the Satiety bar[/b]: one line where Well Fed starts and a fainter one where it ends, read from the game's rule.[/*]
 [*][b]Timer stripe on buffs[/b]: every buff or debuff that runs out gets a thin stripe that shrinks as its time runs down and turns amber near the end.[/*]
 [*][b]Fitness bar[/b]: a bar under Life shows your Fitness, a stat the game keeps but never shows. Green when fine, amber close to Weakened and red below 30. Its hover box says what Fitness does and how close you are to Weakened. This replaces the Fitness Bar mod, which turns itself off when Vital Signs is installed.[/*]
 [*][b]Low stat warnings[/b]: a pop-up when Satiety, Morale, Stamina or Life drops to 20% of its maximum, and when Fitness drops below 40 and below 30, where you become Weakened. Each warns once per drop. Set the line or turn each one off.[/*]
@@ -20,12 +20,12 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 [*][b]Trend arrows[/b]: a small arrow up or down by a stat's value when it rose or fell over the last game hour.[/*]
 [*][b]Buffs about to end pulse[/b]: a good buff pulses when it has an hour or less left, so you can renew it in time. Set how soon, or make debuffs pulse too.[/*]
 [*][b]Styles[/b]: the hover boxes, chips and bar frames take the colours of the HUD style chosen in Exiled's Toolkit. Bars can be drawn flat or split into tenths, and a colour-blind setting uses blue and orange in place of green and red.[/*]
-[*][b]Sizes[/b]: the bars and the buffs next to them are drawn at 80% of the game's size by default, and the bars' hover boxes at the game's own size. Set each one from 50% to 150%.[/*]
+[*][b]Sizes[/b]: the bars and the buffs next to them are drawn at 80% of the game's size by default, and the bars' hover boxes at the game's size. Set each one from 50% to 150%.[/*]
 [*][b]Settings apply at once[/b]: every setting changed on the Mod Manager's Mods screen takes effect right away, with no restart.[/*]
 [*][b]English or Chinese[/b]: follows the game's language.[/*]
 [*][b]Light on the game[/b]: reads your stats every couple of seconds and only redraws when something changed.[/*]
-[*][b]Click a bar to act[/b]: click Satiety to eat, Stamina to sleep in the best bed at home, Morale to do something that raises it, or Life to use the items you chose. The actions go into the game's own queue. Satiety eats to the maximum, to Well Fed or a set percent past it, never past the maximum. Morale does the action that also raises another stat first, then the biggest gain; click again for the next one, or set a routine and a click queues all of it.[/*]
-[*][b]Pick from lists[/b]: on the Mod Manager's Mods screen, choose food to skip, build the Morale routine, pick the Life items, set each bed type to Auto, Sleep, Nap or Skip, pin buffs and give single buffs their own timer, all from the game's own items, furniture actions, beds and buffs. Each shows its picture and name, with what it gives or how long it lasts. What you have is marked and comes first, and the food, Morale and Life lists also take a whole kind of item, such as Any Cooked Dish.[/*]
+[*][b]Click a bar to act[/b]: click Satiety to eat, Stamina to sleep in the best bed at home, Morale to do something that raises it, or Life to use the items you chose. The actions go into the game's queue. Satiety eats to the maximum, to Well Fed or a set percent past it, never past the maximum. Morale does the action that also raises another stat first, then the biggest gain; click again for the next one, or set a routine and a click queues all of it.[/*]
+[*][b]Pick from lists[/b]: on the Mod Manager's Mods screen, choose food to skip, build the Morale routine, pick the Life items, set each bed type to Auto, Sleep, Nap or Skip, pin buffs and give single buffs their own timer, all from the game's items, furniture actions, beds and buffs. Each shows its picture and name, with what it gives or how long it lasts. What you have is marked and comes first, and the food, Morale and Life lists also take a whole kind of item, such as Any Cooked Dish.[/*]
 [*][b]Click a debuff to cure it[/b]: a debuff with a cure in your bag or home storage is marked. Click it to queue the cure, from the bag first.[/*]
 [*][b]Compact HUD[/b]: a bar can hide while it is full, or above a level you set, and come back as soon as the stat drops.[/*]
 [*][b]Warning pulse[/b]: a bar pulses once it drops to the warning line, before the game turns it red.[/*]
@@ -38,9 +38,9 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 [*][b]Running buffs too[/b]: a buff that is already running gets its remaining time changed when you change its multiplier.[/*]
 [*][b]Talents still count[/b]: talents that make buffs last longer are multiplied along with the buff.[/*]
 [/list]
-Only buffs you can see on your character and that have a timer get a new time. Hidden buffs and buffs that last until something removes them keep the game's own behavior. No buff can be given more than 500 game days.
+Only buffs you can see on your character and that have a timer get a new time. Hidden buffs and buffs that last until something removes them keep the game's behavior. No buff can be given more than 500 game days.
 
-The HUD part only reads your stats and draws them. With every multiplier at 1, the default, no buff time changes either. Vital Signs adds nothing to your save and does not edit game files. A save keeps the end time of each running buff, so after you remove the mod, buffs already running finish at the time they had, and new buffs use the game's own times.
+The HUD part only reads your stats and draws them. With every multiplier at 1, the default, no buff time changes either. Vital Signs adds nothing to your save and does not edit game files. A save keeps the end time of each running buff, so after you remove the mod, buffs already running finish at the time they had, and new buffs use the game's times.
 
 Vital Signs was originally inspired by [url=https://www.nexusmods.com/survivallog/mods/27]Stats UI[/url] by ivmakk0, and has since grown well past it, with UI size settings, a Fitness bar, low stat warnings, settings that apply live, and buff duration multipliers.
 
@@ -54,7 +54,7 @@ Values are read every couple of seconds, so a change can take that long to show.
 [list]
 [*]Survival Log 1.1.20719. A game update can break it until the mod is updated.[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/12]BepInEx for Survival Log[/url]. Install it first.[/*]
-[*]Optional: [url=https://www.nexusmods.com/survivallog/mods/73]Mod Manager[/url] 0.15.0 or newer. Its Mods screen lets you pick the food, items, furniture actions, beds and buffs for the list settings from the game's own. Without it, type their IDs in the config file.[/*]
+[*]Optional: [url=https://www.nexusmods.com/survivallog/mods/73]Mod Manager[/url] 0.15.0 or newer. Its Mods screen lets you pick the food, items, furniture actions, beds and buffs for the list settings from the game's. Without it, type their IDs in the config file.[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/61]Exiled's Toolkit[/url] 0.19.0 or newer. Vital Signs does not load without it. The warnings are its pop-ups, settings take effect at once through it, and the colours that match its HUD style come from it.[/*]
 [/list]
 
@@ -72,7 +72,7 @@ Values are read every couple of seconds, so a change can take that long to show.
 Delete [font=Courier New]VitalSigns.dll[/font] from the [font=Courier New]BepInEx\plugins[/font] folder.
 
 [size=5]Configuration[/size]
-Settings are in [font=Courier New]BepInEx\config\com.dev.survivallog.vitalsigns.cfg[/font] or on the Mod Manager's Mods screen, and take effect at once. [font=Courier New]Enabled[/font] turns the mod on or off. Under Display you can turn off the Fitness bar, the weight, the timer stripes, the hover box details, the game's own stat text and the cure lists. BarSize, BuffSize and BarTooltipSize set how big the bars, the buffs and the bars' hover boxes are drawn (80% of the game's size by default). HeaviestItems, TrendArrows, MatchHudStyle, BarLook and ColourBlind set the heaviest items list, the arrows and the look. Under Alerts you can turn off each warning, and LowAt sets how low a stat gets before it warns (20% by default). BuffEndingPulse, BuffEndingMinutes and BuffEndingDebuffs set which buffs pulse before they end, and how soon. Under Hud are the compact HUD, the warning pulse, the buff order and pins, the layout, the exploring bars, the queue projection and the clicks on bars and debuffs. Under Actions is what each click does, and under Difficulty how fast each stat falls and rises.
+Settings are in [font=Courier New]BepInEx\config\com.dev.survivallog.vitalsigns.cfg[/font] or on the Mod Manager's Mods screen, and take effect at once. [font=Courier New]Enabled[/font] turns the mod on or off. Under Display you can turn off the Fitness bar, the weight, the timer stripes, the hover box details, the game's stat text and the cure lists. BarSize, BuffSize and BarTooltipSize set how big the bars, the buffs and the bars' hover boxes are drawn (80% of the game's size by default). HeaviestItems, TrendArrows, MatchHudStyle, BarLook and ColourBlind set the heaviest items list, the arrows and the look. Under Alerts you can turn off each warning, and LowAt sets how low a stat gets before it warns (20% by default). BuffEndingPulse, BuffEndingMinutes and BuffEndingDebuffs set which buffs pulse before they end, and how soon. Under Hud are the compact HUD, the warning pulse, the buff order and pins, the layout, the exploring bars, the queue projection and the clicks on bars and debuffs. Under Actions is what each click does, and under Difficulty how fast each stat falls and rises.
 
 To set up the clicks, open the Mods screen, go to Vital Signs and find the Actions section. Add food to skip, the Morale routine and the Life items with ADD, and pick each bed's mode on its row. To move the bars, press [b]Edit HUD layout[/b] in the pause menu, or set EditLayoutKey.
 

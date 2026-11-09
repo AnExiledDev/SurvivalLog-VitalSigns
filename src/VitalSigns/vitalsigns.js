@@ -24,7 +24,7 @@
     var MOST_ITEMS = 10;
     // How far up from the hovered node a buff badge is looked for.
     var BADGE_DEPTH = 8;
-    // The game's own line: below 30 Fitness the player is Weakened. A warning comes before it.
+    // The game's line: below 30 Fitness the player is Weakened. A warning comes before it.
     var WEAKENED_BELOW = 30;
     var LOW_FITNESS_BELOW = 40;
     var FIT_ROW = 'vs-fit-row';
@@ -37,8 +37,8 @@
     var BUFF_BOXES = '.status-panel > .status-row > .buff-container';
     var BAR_TIPS = '.status-panel .progress-bar-wrapper > .status-tooltip,.status-panel .vs-chip > .vs-ct';
     var DRAWN = ['vs-trend', 'vs-chip', 'vs-mark', 'vs-loss', 'vs-st', 'vs-timer', 'vs-bt', 'vs-btime', 'vs-bd', 'vs-weight', 'vs-wbar', 'vs-weight-tip', FIT_ROW, 'vs-proj', 'vs-ftime'];
-    // Attributes put on the game's own tooltips, taken off again by clear. Attributes, not classes: Vue writes the whole
-    // class of a tooltip each time it shows or hides it, which wiped a class of ours and showed the game's own look until
+    // Attributes put on the game's tooltips, taken off again by clear. Attributes, not classes: Vue writes the whole
+    // class of a tooltip each time it shows or hides it, which wiped a class of ours and showed the game's look until
     // the next call drew it again. Vue leaves attributes it does not own alone.
     var MARKS = ['data-vs-no-game-text', 'data-vs-tip', 'data-vs-timed'];
     // The HUD style colours are taken only from a Toolkit look that is not the classic one.
@@ -169,7 +169,7 @@
         }
     };
 
-    // Under the game's own look: the chip, lines and shading sit inside its bar, the tooltip blocks use its text styles.
+    // Under the game's look: the chip, lines and shading sit inside its bar, the tooltip blocks use its text styles.
     var CSS = [
         // Our colours, in one place. MatchHudStyle takes them from the HUD style picked in Exiled's Toolkit (its
         // data-etk-look and --etk-* variables, each with our colour as the fallback); the classic style keeps ours.
@@ -198,13 +198,13 @@
         '.status-panel .progress-text > :not(.attr-name):not(.vs-trend){order:2}',
         '.vs-trend-up{color:var(--vs-good)}',
         '.vs-trend-down{color:var(--vs-bad)}',
-        // A buff about to end pulses. Before, not after: the game's own after is its new-buff flash.
+        // A buff about to end pulses. Before, not after: the game's after is its new-buff flash.
         '.buff[data-vs-ending]::before{content:"";position:absolute;inset:-1px;border-radius:inherit;border:1px solid var(--vs-warn);' +
             'box-shadow:0 0 6px 1px var(--vs-warn);opacity:0;animation:vs-ending 1.6s ease-in-out infinite;pointer-events:none}',
         '@keyframes vs-ending{0%,100%{opacity:0}50%{opacity:1}}',
         // HideFullBars: a bar full enough is taken out of the panel.
         '.status-panel > [data-vs-hide]{display:none!important}',
-        // WarnPulse: an amber glow at the warning line, before the game's own red one at 20%.
+        // WarnPulse: an amber glow at the warning line, before the game's red one at 20%.
         '.status-panel .progress-bar-wrapper[data-vs-warn]::before{content:"";position:absolute;inset:-2px;z-index:6;border-radius:var(--vs-radius);' +
             'border:1px solid var(--vs-warn);box-shadow:0 0 7px 1px var(--vs-warn);opacity:0;animation:vs-ending 1.8s ease-in-out infinite;pointer-events:none}',
         '.status-panel .progress-bar-wrapper[data-vs-act="1"]{cursor:pointer}',
@@ -285,7 +285,7 @@
         // The stat hover boxes as dark as the buff ones, so the HUD behind them does not show through.
         '.status-panel .status-tooltip{background-color:var(--vs-panel);border-color:var(--vs-edge)}',
         '.status-panel .status-tooltip::after{border-left-color:var(--vs-panel)}',
-        // The Fitness row is built like the game's own bars, so the game's styles draw it. It is the panel's last child,
+        // The Fitness row is built like the game's bars, so the game's styles draw it. It is the panel's last child,
         // so the game's last-row rules (hover boxes that open upward, to stay on screen) are given to it and to the row
         // above it, which they no longer reach.
         '.' + FIT_ROW + '{display:flex;align-items:center;justify-content:flex-end}',
@@ -457,7 +457,7 @@
         return index < ICONS.length ? index : -1;
     }
 
-    // The game's own name for each stat, in the plugin's order, from its rows; ours where a row cannot be read.
+    // The game's name for each stat, in the plugin's order, from its rows; ours where a row cannot be read.
     function statNames(list, count) {
         var names = say().stats.slice();
 
@@ -996,7 +996,7 @@
     }
 
     // One capturing listener: a click on a bar queues its action, on a curable debuff its cure, and a shift-click on a
-    // buff pins or unpins it. The game's own click still runs.
+    // buff pins or unpins it. The game's click still runs.
     function onClick(event) {
         if (editing || !hudOf()) return;
 
@@ -1586,7 +1586,7 @@
             : level === 'low' ? [text.nearWeakened(value - WEAKENED_BELOW + 1), 'vs-warn']
             : [text.aboveWeakened(value - WEAKENED_BELOW)];
 
-        // The game's own colors, and the pulsing red it gives a bar that is nearly empty for Weakened.
+        // The game's colors, and the pulsing red it gives a bar that is nearly empty for Weakened.
         setClass(bar, 'is-low', level === 'weak');
         setClass(fill, 'bar-green', level === 'ok');
         setClass(fill, 'bar-yellow', level === 'low');
@@ -2096,7 +2096,7 @@
         if (tip) setOwnText(tip, 'vs-weight-tip', 'div', 'entry-tip-body vs-weight-tip', lines.join('\n'));
     }
 
-    // The Inventory button: the HUD tool whose hover title is the game's own word for the bag.
+    // The Inventory button: the HUD tool whose hover title is the game's word for the bag.
     function bagButton() {
         var state = vueState();
         var name = state ? String(state.i18n_bag || '') : '';

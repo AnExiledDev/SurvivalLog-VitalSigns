@@ -239,7 +239,7 @@ internal static class PlayerVitals
         return parts;
     }
 
-    /// <summary>Every cure and suppressor the shown buffs name, with how many the player has in the bag, at home and in the drawer (the game's own crafting count).</summary>
+    /// <summary>Every cure and suppressor the shown buffs name, with how many the player has in the bag, at home and in the drawer (the game's crafting count).</summary>
     private static List<ItemCount> Items(BattleLogicWorld world, ConfigManager config, List<BuffRule> rules, bool isChinese)
     {
         var items = new List<ItemCount>();

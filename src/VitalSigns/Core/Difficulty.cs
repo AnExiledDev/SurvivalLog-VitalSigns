@@ -5,7 +5,7 @@ namespace VitalSigns.Core;
 
 /// <summary>
 /// The stat difficulty: per stat (Satiety, Morale, Stamina, Life), how much every loss and every gain the player gets
-/// is multiplied by. 1 leaves the game's own number. Applies to all of it: the slow drain over time, food, rest,
+/// is multiplied by. 1 leaves the game's number. Applies to all of it: the slow drain over time, food, rest,
 /// buffs and furniture alike.
 /// </summary>
 public sealed class Difficulty

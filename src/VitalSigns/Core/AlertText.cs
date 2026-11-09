@@ -3,7 +3,7 @@ namespace VitalSigns.Core;
 /// <summary>A warning as the toast shows it.</summary>
 public readonly record struct AlertNotice(string Title, string Body, bool IsSevere, string Key);
 
-/// <summary>The words of each warning, in English or Simplified Chinese, with the game's own names for the stats.</summary>
+/// <summary>The words of each warning, in English or Simplified Chinese, with the game's names for the stats.</summary>
 public static class AlertText
 {
     public const string Source = "Vital Signs";

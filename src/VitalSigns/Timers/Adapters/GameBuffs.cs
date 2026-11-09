@@ -8,7 +8,7 @@ using VitalSigns.Timers.Core;
 namespace VitalSigns.Timers.Adapters;
 
 /// <summary>
-/// Every buff the game shows (not its hidden ones), for the buff pickers on the Mods screen, read from the game's own
+/// Every buff the game shows (not its hidden ones), for the buff pickers on the Mods screen, read from the game's
 /// buff table and language files, so a game update needs no mod update. Kept once the game has its configs and both
 /// language tables: neither changes while the game runs.
 /// </summary>

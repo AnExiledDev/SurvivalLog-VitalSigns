@@ -597,7 +597,7 @@ public class PageScriptTests
         page.Run($"hover(buffTip({Life}, 0))");
 
         Assert.Equal("Raises the chance of illness by 1.5 times.\nSpreads to others!\nLasts a while?", page.Text($"blockText(buffTip({Life}, 0), 'vs-bd')"));
-        // The game's own block stays, hidden while ours shows, so Vue can keep writing to it.
+        // The game's block stays, hidden while ours shows, so Vue can keep writing to it.
         Assert.True(page.Is($"childWith(buffTip({Life}, 0), 'bt-body')"));
 
         page.Run($"childWith(buffTip({Life}, 0), 'bt-body').textContent = '\u4f20\u67d3\u3002\u6301\u7eed\u4e24\u5929\u3002'");
@@ -821,7 +821,7 @@ public class PageScriptTests
     private const string TipRule = ".status-panel .progress-bar-wrapper > .status-tooltip,.status-panel .vs-chip > .vs-ct{zoom:";
 
     /// <summary>The hover boxes sit inside the zoomed bars and zoom multiplies, so at the 80% bars they get 1/0.8 to show at
-    /// the game's own size.</summary>
+    /// the game's size.</summary>
     [Fact]
     public void Bars_buffs_and_the_bars_hover_boxes_start_at_the_same_size()
     {

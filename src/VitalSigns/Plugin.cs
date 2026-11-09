@@ -50,7 +50,7 @@ public sealed class Plugin : BasePlugin
     public override void Load()
     {
         var enabled = Config.Bind("VitalSigns", "Enabled", true, new ConfigDescription(
-            "Show more on the HUD: how each stat's gains and losses are scaled, shading for the losses still to come, the Well Fed lines on the Satiety bar, a timer stripe on each buff that ends, buff effects and cures in the tooltips, the weight you carry on the Inventory button and a Fitness bar under the Life bar. Also applies the buff time multipliers and shows the low stat warnings. Off: everything the mod draws goes away, no warnings show and every buff goes back to the game's own time.\n" +
+            "Show more on the HUD: how each stat's gains and losses are scaled, shading for the losses still to come, the Well Fed lines on the Satiety bar, a timer stripe on each buff that ends, buff effects and cures in the tooltips, the weight you carry on the Inventory button and a Fitness bar under the Life bar. Also applies the buff time multipliers and shows the low stat warnings. Off: everything the mod draws goes away, no warnings show and every buff goes back to the game's time.\n" +
             "在屏幕上显示更多信息：各项属性的增减倍率、即将扣除数值的阴影、「饱腹」条上的「饱腹富余」界线、每个有时限的状态上的计时条、提示中的状态效果与解药，「背包」按钮上的当前负重，以及「生命」条下方的健康条。同时应用状态持续时间倍数并显示属性偏低提醒。关闭后本模组显示的内容全部消失，不再提醒，所有状态恢复游戏原本的时间。"));
         var log = new ModLog(Log, "vital-signs.log");
 
@@ -102,12 +102,12 @@ public sealed class Plugin : BasePlugin
                 if (wasOn != null && wasOn != isOn) settings.Apply();
             }
 
-            if (wasOn != null && wasOn != isOn) log.Write(isOn ? "turned on" : "turned off: the HUD goes back to the game's own, and every buff to its own time");
+            if (wasOn != null && wasOn != isOn) log.Write(isOn ? "turned on" : "turned off: the HUD goes back to the game's, and every buff to its own time");
 
             wasOn = isOn;
         });
 
-        // Off, every stat changes by the game's own numbers again. The hook goes in only once a multiplier is set.
+        // Off, every stat changes by the game's numbers again. The hook goes in only once a multiplier is set.
         var difficultyHooks = new Harmony(Guid + ".difficulty");
         var difficultyGate = new DifficultyHookGate(() => DifficultyHook.Apply(difficultyHooks, log.Write));
 
@@ -291,7 +291,7 @@ public sealed class Plugin : BasePlugin
             "Add details to the stat and buff tooltips: effect values, time left, layers, modifiers, food modifiers and the losses still to come.",
             "在属性和状态的提示中加入详细信息：效果数值、剩余时间、层数、倍率、食物倍率以及即将扣除的数值。");
         var gameText = Bind("StatTooltipGameText",
-            "Keep the game's own description at the bottom of the stat tooltips. Only applies when ExtendedTooltips is on.",
+            "Keep the game's description at the bottom of the stat tooltips. Only applies when ExtendedTooltips is on.",
             "在属性提示底部保留游戏原有的说明。仅在开启 ExtendedTooltips 时生效。");
         var cures = Bind("CuresInTooltips",
             "List the items that cure or suppress a debuff in its tooltip, with how many of each you have. Only applies when ExtendedTooltips is on.",
@@ -324,7 +324,7 @@ public sealed class Plugin : BasePlugin
             "Draw the hover boxes, the multiplier chips and the bar frames in the colours of the HUD style chosen in Exiled's Toolkit (HudStyle). With the classic style they keep this mod's own colours.",
             "按照 Exiled's Toolkit 中选择的界面风格（HudStyle）的配色绘制悬停提示、倍率标签和属性条边框。使用经典风格时，保持本模组自己的配色。");
         var barLook = Config.Bind("Display", "BarLook", BarLook.Game, new ConfigDescription(
-            "How the stat bars are drawn. Game: the game's own look. Flat: no frame or shadow. Segmented: split into tenths, so you can read the level at a glance.\n" +
+            "How the stat bars are drawn. Game: the game's look. Flat: no frame or shadow. Segmented: split into tenths, so you can read the level at a glance.\n" +
             "属性条的样式。Game：游戏原本的样式。Flat：无边框、无阴影。Segmented：分成十格，一眼就能看出数值。",
             new AcceptableValueList<string>(BarLook.Choices)));
         var colourBlind = Config.Bind("Display", "ColourBlind", false, new ConfigDescription(
@@ -383,7 +383,7 @@ public sealed class Plugin : BasePlugin
             "Fold each row's buffs into one badge with their count; hover over it to see them all. Pinned buffs stay out.\n" +
             "把每行的状态收成一个带数量的徽标，悬停即可看到全部。固定的状态仍单独显示。"));
         var layout = Config.Bind("Hud", "Layout", "", new ConfigDescription(
-            "Where each bar sits and how big, as the layout editor saves it. Open the editor with the 「Edit HUD layout」 button in the pause menu, or EditLayoutKey. Empty: the game's own places.\n" +
+            "Where each bar sits and how big, as the layout editor saves it. Open the editor with the 「Edit HUD layout」 button in the pause menu, or EditLayoutKey. Empty: the game's places.\n" +
             "各属性条的位置和大小，由布局编辑器保存。用暂停菜单中的「编辑界面布局」按钮或 EditLayoutKey 打开编辑器。留空为游戏原本的位置。"));
         var tray = Config.Bind("Hud", "BuffTray", HudChoices.TrayLeft, new ConfigDescription(
             "Which side of the bars the buffs sit on. Left is the game's place. Right, Above and Below move them.\n" +
@@ -517,7 +517,7 @@ public sealed class Plugin : BasePlugin
 
         ConfigEntry<float> Bind(string key, string english, string chinese, string englishExample, string chineseExample) =>
             Config.Bind("Difficulty", key, (float)Difficulty.Default, new ConfigDescription(
-                $"Multiplies {english} you get, from 0 to 5: the slow change over time, food, rest, buffs and furniture alike. 1 is the game's own; {englishExample}. Only you, not other characters.\n" +
+                $"Multiplies {english} you get, from 0 to 5: the slow change over time, food, rest, buffs and furniture alike. 1 is the game's; {englishExample}. Only you, not other characters.\n" +
                 $"玩家{chinese}乘以这个倍数，范围 0 到 5，包括随时间的变化、食物、休息、状态和家具。1 为游戏原本的数值；{chineseExample}。只影响你自己，不影响其他角色。",
                 new AcceptableValueRange<float>((float)Difficulty.Min, (float)Difficulty.Max)));
     }

@@ -12,7 +12,7 @@ public static class Scaling
 {
     /// <summary>
     /// The talent ratio that makes base * (1 + ratio) come out multiplied. A ratio that already zeroes or flips the time
-    /// is the game's own business and is left alone.
+    /// is the game's business and is left alone.
     /// </summary>
     public static float Ratio(float ratio, double multiplier, float baseSeconds)
     {

@@ -24,7 +24,7 @@ public readonly record struct WellFedLine(int From, int Until, int Max);
 /// <summary>
 /// Everything the HUD needs from the player in one reading. Stats are in the HUD's row order: Satiety, Morale,
 /// Stamina, Life. Now is the game clock in game seconds, which the buff ends are measured on. Levels are the stats'
-/// current values in the same order, for the warnings only: the page reads those from the game's own bars.
+/// current values in the same order, for the warnings only: the page reads those from the game's bars.
 /// Heavy is the heaviest kinds of item in the bag, for the Inventory button's hover box; null when that list is off.
 /// </summary>
 public sealed record Vitals(IReadOnlyList<StatRatios> Stats, IReadOnlyList<BuffTime> Buffs, int Now, CarryWeight? Weight, WellFedLine? WellFed,

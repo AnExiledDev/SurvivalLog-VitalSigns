@@ -6,7 +6,7 @@ namespace VitalSigns.Core.Acts;
 /// What a click on each bar does, from the Actions settings. Satiety, Morale, Stamina and Life turn each bar's click on
 /// or off. UseHome lets a click take items from the home storage as well as the bag. AddToQueue puts what a click picks
 /// after the actions already queued, planned from where the bars will be once those are done; off, a click replaces
-/// the queue the way the game's own clicks do.
+/// the queue the way the game's clicks do.
 /// </summary>
 public sealed record ActOptions(
     bool Satiety = true,

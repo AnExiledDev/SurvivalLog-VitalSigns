@@ -15,7 +15,7 @@ internal readonly record struct ItemStack(long InstanceId, long Owner, int Count
 
 /// <summary>
 /// Looks around the base for what the clicks can use: the items with a stat effect in the bag and the home storage the
-/// game lets the player take from, and every furniture action with a stat effect at home, with the game's own answer
+/// game lets the player take from, and every furniture action with a stat effect at home, with the game's answer
 /// to whether it can be done now (the same button list the furniture's menu shows). The look is spread over frames, a
 /// slice of about two milliseconds each, and taken again every few seconds; a click asks for a fresh one at once. Read
 /// only. Away from home only the bag counts, and furniture actions show as not at home.

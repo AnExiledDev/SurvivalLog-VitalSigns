@@ -11,7 +11,7 @@
 
 - The Wooden Bed and the Iron Single Bed now work with a click on Stamina. Before, Vital Signs only knew the plain bed's Sleep and Nap, so it never used these two, the best beds in the game.
 - The bed list on the Mods screen shows the beds you can have: the ones in your base, the Wooden Bed and the Iron Single Bed, each with its own picture and what its sleep and nap restore. The beds from places you only visit, and the sofas, are gone from it.
-- The lists on the Mods screen are filed under the game's own categories: Meds, Books, Household and the rest, and food under Staple Food, Meat, Fruit and its other kinds. Morale actions show the furniture's picture.
+- The lists on the Mods screen are filed under the game's categories: Meds, Books, Household and the rest, and food under Staple Food, Meat, Fruit and its other kinds. Morale actions show the furniture's picture.
 - The buff lists are filed by kind (Food and sickness, Mood, Health and injury and the rest). Buffs a talent gives show the talent's picture, on their own Talents shelf, a buff named after an item (Bandage, Painkillers) shows the item's picture, and buffs that share a name show their id.
 - LifeItems is a plain list like the others. Left empty it uses any item that restores Life, smallest first, and the Mods screen says so instead of listing all of them.
 - Made for Survival Log 1.1.20719.
@@ -96,7 +96,7 @@
 
 - New: warnings when a stat runs low. Satiety, Morale, Stamina and Life warn at 20% of their maximum, where the game turns the bar red, and Fitness warns below 40 and again below 30, where you become Weakened.
 - Each warning comes once per drop, and again only after the stat climbs a little back. The new Alerts settings turn each one off and set the line.
-- Every setting now takes effect at once, with no restart. Turning the mod off takes away everything it draws and puts every buff back on the game's own time.
+- Every setting now takes effect at once, with no restart. Turning the mod off takes away everything it draws and puts every buff back on the game's time.
 - With the Fitness Bar mod also installed, the Fitness hover box says to remove it.
 - Exiled's Toolkit 0.11.0 or newer is now required.
 
@@ -115,7 +115,7 @@
 - New: any single buff can have its own multiplier, set in the Timers tab on the Mod Manager's page for Vital Signs.
 - The Timers tab lists every buff with a timer, how long it lasts in the game, and how long it lasts with your multipliers, in game time and in real minutes.
 - Changing a multiplier also changes buffs that are already running, and talents that make buffs last longer are multiplied along with the buff.
-- With every multiplier at 1, the default, every buff keeps the game's own time.
+- With every multiplier at 1, the default, every buff keeps the game's time.
 
 ## 0.4.0
 
@@ -145,7 +145,7 @@
 - A buff's timer stripe turns amber when little time is left.
 - The Inventory button has a weight bar with a mark where Overweight starts.
 - The Life bar shows a heart, and the bar text has an outline so it stays readable.
-- New settings let you turn off the weight, the timer stripes, the extra hover box details, the game's own stat text and the cure lists.
+- New settings let you turn off the weight, the timer stripes, the extra hover box details, the game's stat text and the cure lists.
 
 ## 0.1.0
 

@@ -8,7 +8,7 @@ namespace VitalSigns.Core;
 /// <summary>
 /// How the pickers file what they list: items under the backpack's own categories (Meds, Books, Household...), food under
 /// the game's food kinds (Staple Food, Meat, Fruit...), so a list of two thousand dishes splits into shelves a player
-/// knows. Meds come first, food last, then by the game's own order.
+/// knows. Meds come first, food last, then by the game's order.
 /// </summary>
 public static class PickerGroups
 {

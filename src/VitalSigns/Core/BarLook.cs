@@ -2,7 +2,7 @@ using System;
 
 namespace VitalSigns.Core;
 
-/// <summary>How the stat bars are drawn: the game's own look, flat (no frame or shadow), or split into tenths.</summary>
+/// <summary>How the stat bars are drawn: the game's look, flat (no frame or shadow), or split into tenths.</summary>
 public static class BarLook
 {
     public const string Game = "Game";

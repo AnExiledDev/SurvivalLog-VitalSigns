@@ -60,7 +60,7 @@ public static class Limits
     public static bool IsOne(double multiplier) => Math.Abs(multiplier - 1) < Same;
 }
 
-/// <summary>Which buffs the mod touches: the ones the player sees that have a timer. Hidden and untimed buffs keep the game's own times.</summary>
+/// <summary>Which buffs the mod touches: the ones the player sees that have a timer. Hidden and untimed buffs keep the game's times.</summary>
 public static class Scope
 {
     public static bool IsTimedVisible(bool isHidden, float baseSeconds) => !isHidden && baseSeconds > 0 && !float.IsInfinity(baseSeconds);
