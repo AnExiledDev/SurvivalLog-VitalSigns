@@ -25,11 +25,11 @@ namespace VitalSigns;
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.vitalsigns";
-    private const string Version = "0.12.0";
+    private const string Version = "0.12.1";
 
     /// <summary>Exiled's Toolkit: its shared helpers, toasts, live settings and typing check all come from it.</summary>
     private const string ToolkitGuid = "com.dev.survivallog.exiledtoolkit";
-    private const string ToolkitVersion = ">=0.19.0";
+    private const string ToolkitVersion = ">=0.20.0";
     private const string FitnessBarGuid = "com.dev.survivallog.fitnessbar";
     private const string ModManagerGuid = "com.dev.survivallog.modmanager";
     private const string TimersFileName = "VitalSigns.Timers.json";

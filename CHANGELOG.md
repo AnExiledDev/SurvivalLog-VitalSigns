@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.12.1
+
+- Now needs Exiled's Toolkit 0.20.0 or newer.
+- Made for Survival Log 1.1.20719.
+
 ## 0.12.0
 
 - The lists on the Mods screen mark what you have. Food, Morale and Life items show how many you have anywhere: in your bag, in any container at home or in the vehicle. Morale actions and beds your house has say "In your house". What you have comes first under each heading, and the list's window gets a "You have" group of only those. This needs Mod Manager 0.17.0 or newer; older ones show the lists without the marks.

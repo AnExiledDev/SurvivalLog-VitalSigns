@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using ExiledToolkit.Game;
 using ExiledToolkit.Kit;
+using ExiledToolkit.Web;
 using GameCore.HotUpdate;
 using GameCore.HotUpdate.Battle.Logic;
 using GameCore.HotUpdate.ReduxUI;
@@ -231,29 +232,18 @@ internal sealed class VsPage
     /// <summary>Sends the call; returns a line for the log when it could not leave.</summary>
     private string? Run(string javaScript, double now)
     {
-        var webView = GameSingleton.Existing<ReduxUISystem>()?.GetWebUILayer()?.canvasWebViewPrefab?.WebView;
+        if (WebUi.TryRun(javaScript, _replies, out var failure)) return null;
 
-        if (webView == null)
+        if (failure == null)
         {
             _held.Answered(PageAnswer.NoWebView);
 
             return _watch.NotSent(now);
         }
 
-        var call = _replies.Open();
+        _held.Answered(PageAnswer.RunFailedPrefix + failure.Message);
 
-        try
-        {
-            webView.ExecuteJavaScript(javaScript, (Action<string>)(result => _replies.Offer(call, result ?? "")));
-
-            return null;
-        }
-        catch (Exception ex)
-        {
-            _held.Answered(PageAnswer.RunFailedPrefix + ex.Message);
-
-            return _watch.RunFailed(now, ex.Message);
-        }
+        return _watch.RunFailed(now, failure.Message);
     }
 
     /// <summary>The bag's numbers once per session, raw, so the page's kilogram reading can be checked against them.</summary>

@@ -64,12 +64,12 @@ Vital Signs was originally inspired by [Stats UI](https://www.nexusmods.com/surv
 - Survival Log 1.1.20719. Built and tested on this version; a game update can break it until the mod is updated.
 - The [BepInEx Pack for Survival Log](https://www.nexusmods.com/survivallog/mods/12), the BepInEx 6 (IL2CPP) build for the game.
 - Optional: [Mod Manager](https://www.nexusmods.com/survivallog/mods/73) 0.15.0 or newer. Its Mods screen lets you pick the food, items, furniture actions, beds and buffs for the list settings from the game's. Without it, type their IDs in the config file.
-- [Exiled's Toolkit](https://www.nexusmods.com/survivallog/mods/61) 0.19.0 or newer. Vital Signs does not load without it. The low stat warnings are its pop-ups, settings changed on the Mod Manager's Mods screen take effect at once through it, and the colours that match the HUD style come from it.
+- [Exiled's Toolkit](https://www.nexusmods.com/survivallog/mods/61) 0.20.0 or newer. Vital Signs does not load without it. The low stat warnings are its pop-ups, settings changed on the Mod Manager's Mods screen take effect at once through it, and the colours that match the HUD style come from it.
 
 ## Install
 
 1. Install the [BepInEx Pack for Survival Log](https://www.nexusmods.com/survivallog/mods/12) (if no other mods were installed before, start the game once so BepInEx finishes setup, then quit).
-2. Install [Exiled's Toolkit](https://www.nexusmods.com/survivallog/mods/61) 0.19.0 or newer.
+2. Install [Exiled's Toolkit](https://www.nexusmods.com/survivallog/mods/61) 0.20.0 or newer.
 3. Optional, to pick from lists: install [Mod Manager](https://www.nexusmods.com/survivallog/mods/73) 0.15.0 or newer the same way.
 4. Download `VitalSigns-x.y.z.zip` from the [latest release](https://github.com/AnExiledDev/SurvivalLog-VitalSigns/releases/latest) or from [Nexus Mods](https://www.nexusmods.com/survivallog/mods/133).
 5. Extract the zip into the game folder (the folder with `SurvivalLog.exe`). It holds a `BepInEx` folder, so the DLL lands in the right place. When asked, merge the folders. The result should be:
@@ -91,7 +91,7 @@ For buff times, set the good, bad and category multipliers under Timers and Time
 
 Tested on Survival Log 1.1.20719 with BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.12.0 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
+Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.12.1 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
 
 Once a game has loaded, look for `page script sent to CoreUI1 (install 1): the stat bars show the readings`. A line ending `no stat bars on the HUD right now` means the mod could not find the stat bars.
 
@@ -111,6 +111,7 @@ To reach me directly, message `exiled.dev` on Discord; you can find me in the [o
 
 ## Changelog
 
+- **0.12.1**: Now needs Exiled's Toolkit 0.20.0 or newer.
 - **0.12.0**: The lists on the Mods screen mark what you have, and the food, Morale and Life lists take whole kinds of item, such as Any Cooked Dish. A click on Satiety no longer eats fertilizer.
 - **0.11.0**: The Wooden Bed and Iron Single Bed work with a click on Stamina, the bed list shows the beds you can have with their pictures, and the lists are filed under the game's categories.
 - **0.10.0**: The food to skip, the Morale routine, the Life items, the bed modes, the pinned buffs and single buff timers are picked from lists on the Mods screen. The Actions and Timers tabs are gone, single buff timers are a setting now, and the layout editor opens from the pause menu.
