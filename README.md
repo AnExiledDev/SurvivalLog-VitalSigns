@@ -25,9 +25,9 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 - **Light on the game**: the mod reads your stats every couple of seconds and only sends them to the HUD when something changed.
 - **Settings apply at once**: every setting changed on the Mod Manager's Mods screen takes effect right away, with no restart. Turning the mod off takes away everything it draws and puts every buff back on the game's time.
 - **Log file**: the mod writes what it did at startup and what the HUD answered to `BepInEx\vital-signs.log`.
-- **Click a bar to act**: click Satiety to eat, Stamina to sleep in the best bed at home, Morale to do something that raises it, or Life to use the items you chose. The actions go into the game's queue. Satiety eats to the maximum, to Well Fed or a set percent past it, and never past the maximum. Morale does the action that also raises another stat first, then the biggest gain; a second click while it is queued takes the next one. Or set a routine, and a click queues all of it in order. A toast says what was queued, or why nothing was.
+- **Click a bar to act**: click Satiety to eat, Stamina to sleep in the best bed at home, Morale to do something that raises it, or Life to use the items you chose. The actions go into the game's queue. Satiety eats to the maximum, to Well Fed or a set percent past it, and never past the maximum. Morale does the action that also raises another stat first, then the biggest gain; a second click while it is queued takes the next one. Or set a routine, and a click queues all of it in order. A toast says what was queued, or why nothing was. Turn it on with `ClickBars` under Hud.
 - **Pick from lists**: on the Mod Manager's Mods screen, the food to skip, the Morale routine, the Life items, how each bed type is used (Auto, Sleep, Nap or Skip), the pinned buffs and single buff timers are picked from the game's items, furniture actions, beds and buffs. Each shows its picture and name, with what it gives or how long it lasts. What you have (in your bag, any container at home or the vehicle) is marked and comes first, and the food, Morale and Life lists also take a whole kind of item, such as Any Cooked Dish, which uses the best one of that kind you have.
-- **Click a debuff to cure it**: a debuff with a cure in your bag or home storage is marked. Click it to queue the cure, from the bag first.
+- **Click a debuff to cure it**: a debuff with a cure in your bag or home storage is marked. Click it to queue the cure, from the bag first. Turn it on with `ClickCures` under Hud.
 - **Compact HUD**: a bar can hide while it is full, or above a level you set, and come back as soon as the stat drops. Bars with buffs next to them can stay.
 - **Warning pulse**: a bar pulses once it drops to the warning line, before the game turns it red.
 - **Queue projection**: each bar marks where the stat will be once the actions in the queue are done.
@@ -83,7 +83,7 @@ Delete `VitalSigns.dll` from the `BepInEx\plugins` folder. For a clean slate, al
 
 Settings live in `BepInEx\config\com.dev.survivallog.vitalsigns.cfg`, created the first time the game starts with the mod. Change them in game on the Mod Manager's Mods screen, or edit the file while the game is closed. Changes made on the Mods screen take effect at once. Each setting in the cfg file is explained in English and Simplified Chinese. Each part (the Fitness bar, the weight, the timer stripes, the hover box details, the game's stat text and the cure lists) can be turned off, and `BarSize`, `BuffSize` and `BarTooltipSize` set how big the bars, the buffs and the bars' hover boxes are drawn. `HeaviestItems`, `TrendArrows`, `MatchHudStyle`, `BarLook` and `ColourBlind` set the heaviest items list, the arrows and the look. Under Alerts, each low stat warning can be turned off, `LowAt` sets how low a stat gets before it warns, and `BuffEndingPulse`, `BuffEndingMinutes` and `BuffEndingDebuffs` set which buffs pulse before they end, and how soon. Under Hud are the compact HUD, the warning pulse, the buff order and pins, the layout, the exploring bars, the queue projection and the clicks on bars and debuffs. Under Actions is what each click does, and under Difficulty how fast each stat falls and rises. See [CONFIG.md](CONFIG.md) for every setting.
 
-To set up the clicks, open the Mods screen, go to Vital Signs and find the Actions section. Add food to skip, the Morale routine and the Life items with ADD, and pick each bed's mode on its row.
+The clicks are off until you turn on `ClickBars` and `ClickCures` under Hud. To set up the clicks, open the Mods screen, go to Vital Signs and find the Actions section. Add food to skip, the Morale routine and the Life items with ADD, and pick each bed's mode on its row.
 
 For buff times, set the good, bad and category multipliers under Timers and TimerCategories, and add single buffs to `Buffs` under Timers. The changes take effect at once, on buffs already running too.
 
@@ -111,6 +111,7 @@ To reach me directly, message `exiled.dev` on Discord; you can find me in the [o
 
 ## Changelog
 
+- **0.12.2**: Clicks on the stat bars and debuffs are off for a new install. Turn them on with `ClickBars` and `ClickCures` under Hud.
 - **0.12.1**: Now needs Exiled's Toolkit 0.20.0 or newer.
 - **0.12.0**: The lists on the Mods screen mark what you have, and the food, Morale and Life lists take whole kinds of item, such as Any Cooked Dish. A click on Satiety no longer eats fertilizer.
 - **0.11.0**: The Wooden Bed and Iron Single Bed work with a click on Stamina, the bed list shows the beds you can have with their pictures, and the lists are filed under the game's categories.

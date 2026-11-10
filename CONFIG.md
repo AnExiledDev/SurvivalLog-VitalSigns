@@ -63,8 +63,8 @@ A warning pops up once when a stat drops past its line, and again only after the
 | `ExploreBars` | `TopRight` | Shows small Satiety, Morale, Stamina and Life bars in a corner of the screen while you explore, where the game hides its own: `TopLeft`, `TopRight`, `BottomLeft` or `BottomRight`. `Off` hides them. |
 | `ExploreBarsSize` | `100` | How big the exploring bars are drawn, in percent, from 50 to 150. |
 | `QueueProjection` | `true` | Marks on each bar where the stat will be once the actions in the queue are done. |
-| `ClickBars` | `true` | A click on a stat bar queues what raises it. What each click does is set under Actions. |
-| `ClickCures` | `true` | A click on a debuff queues its cure: one in the bag first, then one in the home storage. A debuff with a cure at hand is marked. |
+| `ClickBars` | `false` | A click on a stat bar queues what raises it. What each click does is set under Actions. |
+| `ClickCures` | `false` | A click on a debuff queues its cure: one in the bag first, then one in the home storage. A debuff with a cure at hand is marked. |
 | `EditLayoutKey` | `None` | The key that opens and closes the layout editor. `None`: open it with the 「Edit HUD layout」 button in the pause menu. Ignored while you type in a text box. |
 
 ### The layout editor
@@ -73,7 +73,7 @@ Open it with the 「Edit HUD layout」 button in the pause menu, or with `EditLa
 
 ## Actions
 
-What a click on each stat bar queues.
+What a click on each stat bar queues. The clicks work only while `ClickBars` under Hud is on.
 
 A click adds the same actions you could queue by hand. Furniture and beds come from your home, and items in the home storage are used only while you are at home.
 

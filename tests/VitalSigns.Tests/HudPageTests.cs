@@ -264,7 +264,7 @@ public class HudPageTests
         var page = PageScript.On();
         var reading = new HudReading(CanAct: new[] { true, true, true, true }, Tips: new[] { "a", "b", "c", "d" });
 
-        page.Apply(0, Readings.Data(hud: new HudOptions(), reading: reading));
+        page.Apply(0, Readings.Data(hud: new HudOptions(ClickBars: true), reading: reading));
         page.Text("window.__slvitals.edit(true)");
         page.Run($"click({Bar(Satiety)});");
 

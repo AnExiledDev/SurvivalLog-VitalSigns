@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.12.2
+
+- Clicks on the stat bars and debuffs are now off for a new install. Turn them on with ClickBars and ClickCures under Hud, in the config or on the Mod Manager's Mods screen. A setting you already saved is kept.
+- Made for Survival Log 1.1.20719.
+
 ## 0.12.1
 
 - Now needs Exiled's Toolkit 0.20.0 or newer.

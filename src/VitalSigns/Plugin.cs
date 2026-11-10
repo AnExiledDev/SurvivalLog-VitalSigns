@@ -25,7 +25,7 @@ namespace VitalSigns;
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.vitalsigns";
-    private const string Version = "0.12.1";
+    private const string Version = "0.12.2";
 
     /// <summary>Exiled's Toolkit: its shared helpers, toasts, live settings and typing check all come from it.</summary>
     private const string ToolkitGuid = "com.dev.survivallog.exiledtoolkit";
@@ -400,10 +400,10 @@ public sealed class Plugin : BasePlugin
         var projection = Config.Bind("Hud", "QueueProjection", true, new ConfigDescription(
             "Mark on each bar where the stat will be once the actions in the queue are done.\n" +
             "在属性条上标出行动队列全部完成后属性会到达的位置。"));
-        var clickBars = Config.Bind("Hud", "ClickBars", true, new ConfigDescription(
+        var clickBars = Config.Bind("Hud", "ClickBars", false, new ConfigDescription(
             "Click a stat bar to queue what raises it: eat, do something for Morale, sleep in the best bed, or use a Life item. What each click does is set in the Actions section.\n" +
             "点击属性条，把提升它的行动加入队列：吃东西、做提升心情的事、在最好的床上睡觉，或使用恢复生命的物品。每次点击做什么，在 Actions 部分设置。"));
-        var cures = Config.Bind("Hud", "ClickCures", true, new ConfigDescription(
+        var cures = Config.Bind("Hud", "ClickCures", false, new ConfigDescription(
             "Click a debuff to queue its cure: one in the bag first, then one in the home storage. A debuff with a cure at hand is marked.\n" +
             "点击负面状态，把它的解药加入队列：先用背包里的，再用家中储物里的。身边有解药的负面状态会有标记。"));
         var editKey = Config.Bind("Hud", "EditLayoutKey", KeyCode.None, new ConfigDescription(

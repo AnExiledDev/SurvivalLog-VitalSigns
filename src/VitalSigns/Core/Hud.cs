@@ -18,7 +18,7 @@ namespace VitalSigns.Core;
 public sealed record HudOptions(bool HideFull = false, int HideAbove = 100, bool KeepWithBuffs = true, bool WarnPulse = true, int WarnAt = 0,
     string Sort = HudChoices.SortGame, string Group = HudChoices.GroupMixed, IReadOnlyList<int>? Favourites = null, int FavouriteSize = HudChoices.DefaultFavouriteSize,
     bool Collapse = false, HudLayout? Layout = null, string Tray = HudChoices.TrayLeft, string Explore = HudChoices.CornerTopRight, int ExploreSize = 100,
-    bool Projection = true, bool ClickBars = true, bool Cure = true);
+    bool Projection = true, bool ClickBars = false, bool Cure = false);
 
 /// <summary>The values the HUD's choice settings take, and the number the page reads for each.</summary>
 public static class HudChoices

@@ -24,9 +24,9 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 [*][b]Settings apply at once[/b]: every setting changed on the Mod Manager's Mods screen takes effect right away, with no restart.[/*]
 [*][b]English or Chinese[/b]: follows the game's language.[/*]
 [*][b]Light on the game[/b]: reads your stats every couple of seconds and only redraws when something changed.[/*]
-[*][b]Click a bar to act[/b]: click Satiety to eat, Stamina to sleep in the best bed at home, Morale to do something that raises it, or Life to use the items you chose. The actions go into the game's queue. Satiety eats to the maximum, to Well Fed or a set percent past it, never past the maximum. Morale does the action that also raises another stat first, then the biggest gain; click again for the next one, or set a routine and a click queues all of it.[/*]
+[*][b]Click a bar to act[/b]: click Satiety to eat, Stamina to sleep in the best bed at home, Morale to do something that raises it, or Life to use the items you chose. The actions go into the game's queue. Satiety eats to the maximum, to Well Fed or a set percent past it, never past the maximum. Morale does the action that also raises another stat first, then the biggest gain; click again for the next one, or set a routine and a click queues all of it. Turn it on with ClickBars under Hud.[/*]
 [*][b]Pick from lists[/b]: on the Mod Manager's Mods screen, choose food to skip, build the Morale routine, pick the Life items, set each bed type to Auto, Sleep, Nap or Skip, pin buffs and give single buffs their own timer, all from the game's items, furniture actions, beds and buffs. Each shows its picture and name, with what it gives or how long it lasts. What you have is marked and comes first, and the food, Morale and Life lists also take a whole kind of item, such as Any Cooked Dish.[/*]
-[*][b]Click a debuff to cure it[/b]: a debuff with a cure in your bag or home storage is marked. Click it to queue the cure, from the bag first.[/*]
+[*][b]Click a debuff to cure it[/b]: a debuff with a cure in your bag or home storage is marked. Click it to queue the cure, from the bag first. Turn it on with ClickCures under Hud.[/*]
 [*][b]Compact HUD[/b]: a bar can hide while it is full, or above a level you set, and come back as soon as the stat drops.[/*]
 [*][b]Warning pulse[/b]: a bar pulses once it drops to the warning line, before the game turns it red.[/*]
 [*][b]Queue projection[/b]: each bar marks where the stat will be once the actions in the queue are done.[/*]
@@ -74,7 +74,7 @@ Delete [font=Courier New]VitalSigns.dll[/font] from the [font=Courier New]BepInE
 [size=5]Configuration[/size]
 Settings are in [font=Courier New]BepInEx\config\com.dev.survivallog.vitalsigns.cfg[/font] or on the Mod Manager's Mods screen, and take effect at once. [font=Courier New]Enabled[/font] turns the mod on or off. Under Display you can turn off the Fitness bar, the weight, the timer stripes, the hover box details, the game's stat text and the cure lists. BarSize, BuffSize and BarTooltipSize set how big the bars, the buffs and the bars' hover boxes are drawn (80% of the game's size by default). HeaviestItems, TrendArrows, MatchHudStyle, BarLook and ColourBlind set the heaviest items list, the arrows and the look. Under Alerts you can turn off each warning, and LowAt sets how low a stat gets before it warns (20% by default). BuffEndingPulse, BuffEndingMinutes and BuffEndingDebuffs set which buffs pulse before they end, and how soon. Under Hud are the compact HUD, the warning pulse, the buff order and pins, the layout, the exploring bars, the queue projection and the clicks on bars and debuffs. Under Actions is what each click does, and under Difficulty how fast each stat falls and rises.
 
-To set up the clicks, open the Mods screen, go to Vital Signs and find the Actions section. Add food to skip, the Morale routine and the Life items with ADD, and pick each bed's mode on its row. To move the bars, press [b]Edit HUD layout[/b] in the pause menu, or set EditLayoutKey.
+The clicks are off until you turn on ClickBars and ClickCures under Hud. To set up the clicks, open the Mods screen, go to Vital Signs and find the Actions section. Add food to skip, the Morale routine and the Life items with ADD, and pick each bed's mode on its row. To move the bars, press [b]Edit HUD layout[/b] in the pause menu, or set EditLayoutKey.
 
 For buff times, set the good, bad and category multipliers under Timers and TimerCategories, and add single buffs to Buffs under Timers. The changes take effect at once, on buffs already running too. See [url=https://github.com/AnExiledDev/SurvivalLog-VitalSigns/blob/main/CONFIG.md]CONFIG.md[/url] for every setting.
 
@@ -108,9 +108,9 @@ Open source under MIT: [url=https://github.com/AnExiledDev/SurvivalLog-VitalSign
 [*][b]设置立即生效[/b]：在 Mod Manager 的「模组」界面修改任何设置都会立即生效，无需重启。[/*]
 [*][b]中英文[/b]：跟随游戏语言。[/*]
 [*][b]不拖慢游戏[/b]：每隔几秒读取一次属性，只有变化时才重新绘制。[/*]
-[*][b]点击属性条执行行动[/b]：点击「饱腹」吃东西，点击「体力」在家中最好的床上休息，点击「心情」做能提升它的事，点击「生命」使用你选好的物品。这些行动会加入游戏自己的行动队列。「饱腹」可以吃到上限、吃到「饱腹富余」或超过它一个设定的百分比，绝不会超过上限。「心情」优先选择同时提升其他属性的行动，然后是提升最多的；再点一次换下一个，也可以设置一套流程，点一次全部加入。[/*]
+[*][b]点击属性条执行行动[/b]：点击「饱腹」吃东西，点击「体力」在家中最好的床上休息，点击「心情」做能提升它的事，点击「生命」使用你选好的物品。这些行动会加入游戏自己的行动队列。「饱腹」可以吃到上限、吃到「饱腹富余」或超过它一个设定的百分比，绝不会超过上限。「心情」优先选择同时提升其他属性的行动，然后是提升最多的；再点一次换下一个，也可以设置一套流程，点一次全部加入。在 Hud 分组里打开 ClickBars 即可使用。[/*]
 [*][b]从列表中挑选[/b]：在 Mod Manager 的「模组」界面，可以从游戏自己的物品、家具行动、床和状态中选择不吃的食物、编排「心情」流程、挑选「生命」物品、把每种床设为「自动」「睡觉」「小睡」或「不用」、固定状态，以及给单个状态设置计时。每一项都显示图片和名称，以及它的效果或持续时间。你拥有的会被标出并排在前面；食物、「心情」和「生命」列表还可以选整类物品，例如「任意料理」。[/*]
-[*][b]点击减益来治疗[/b]：背包或家中储物里有治疗物品的减益会有标记。点击它即可把治疗加入队列，优先使用背包里的。[/*]
+[*][b]点击减益来治疗[/b]：背包或家中储物里有治疗物品的减益会有标记。点击它即可把治疗加入队列，优先使用背包里的。在 Hud 分组里打开 ClickCures 即可使用。[/*]
 [*][b]精简界面[/b]：属性条满了或高于你设定的数值时可以隐藏，属性一下降就会重新出现。[/*]
 [*][b]提醒闪烁[/b]：属性降到提醒线时属性条会闪烁，比游戏把它变红更早。[/*]
 [*][b]队列预估[/b]：每个属性条上标出队列里的行动完成后属性会到哪里。[/*]
@@ -157,7 +157,7 @@ Vital Signs 最初的灵感来自 ivmakk0 的 [url=https://www.nexusmods.com/sur
 [size=5]配置[/size]
 设置位于 [font=Courier New]BepInEx\config\com.dev.survivallog.vitalsigns.cfg[/font]，也可以在 Mod Manager 的「模组」界面修改，修改后立即生效。[font=Courier New]Enabled[/font] 用于开关模组。在 Display 分组里可以分别关闭健康条、负重显示、计时条、悬停提示详情、游戏自带的属性说明和治疗物品列表。BarSize、BuffSize 和 BarTooltipSize 分别设置属性条、状态和属性条悬停提示的显示大小（默认均为游戏原尺寸的 80%）。HeaviestItems、TrendArrows、MatchHudStyle、BarLook 和 ColourBlind 分别设置最重物品列表、趋势箭头和外观。在 Alerts 分组里可以分别关闭每项提醒，LowAt 设置属性降到多少时提醒（默认 20%）。BuffEndingPulse、BuffEndingMinutes 和 BuffEndingDebuffs 设置哪些状态在结束前闪烁，以及提前多久。Hud 分组里有精简界面、提醒闪烁、状态排序和固定、布局、探索时的属性条、队列预估，以及点击属性条和减益。Actions 分组设置每次点击做什么，Difficulty 分组设置每项属性下降和上升的速度。
 
-设置点击行为：打开「模组」界面，进入 Vital Signs，找到 Actions 分组。从选择器中添加不吃的食物、「心情」流程和「生命」物品，点击床的方式即可切换。要移动属性条，在暂停菜单中点「编辑界面布局」，或设置 EditLayoutKey。
+点击属性条和减益默认关闭，在 Hud 分组里打开 ClickBars 和 ClickCures 后才能使用。设置点击行为：打开「模组」界面，进入 Vital Signs，找到 Actions 分组。从选择器中添加不吃的食物、「心情」流程和「生命」物品，点击床的方式即可切换。要移动属性条，在暂停菜单中点「编辑界面布局」，或设置 EditLayoutKey。
 
 状态持续时间：在 Timers 和 TimerCategories 分组中设置增益、负面和各类别的倍数，在 Timers 分组的 Buffs 中添加单个状态。改动立即生效，正在生效的状态也会改变。完整说明见 [url=https://github.com/AnExiledDev/SurvivalLog-VitalSigns/blob/main/CONFIG.md]CONFIG.md[/url]（英文）。
 

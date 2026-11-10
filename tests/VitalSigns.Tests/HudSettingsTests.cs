@@ -3,7 +3,7 @@ using Xunit;
 
 namespace VitalSigns.Tests;
 
-/// <summary>The stat difficulty's scaling, the saved HUD layout and the pinned buff list.</summary>
+/// <summary>The stat difficulty's scaling, the saved HUD layout, the pinned buff list and the HUD defaults.</summary>
 public class HudSettingsTests
 {
     private const int Satiety = 0;
@@ -97,5 +97,18 @@ public class HudSettingsTests
     public void Pinned_ids_skip_anything_that_is_not_a_positive_whole_number_and_repeats()
     {
         Assert.Equal(new[] { 12, 7 }, HudChoices.Ids("12; x, -3 7 12 0"));
+    }
+
+    // ===== Defaults =====
+
+    [Fact]
+    public void Clicks_on_bars_and_debuffs_start_off_so_a_click_queues_nothing_until_the_player_turns_them_on()
+    {
+        var hud = new HudOptions();
+
+        Assert.False(hud.ClickBars);
+        Assert.False(hud.Cure);
+        Assert.True(hud.Projection);
+        Assert.True(hud.WarnPulse);
     }
 }
