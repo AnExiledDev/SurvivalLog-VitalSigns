@@ -155,7 +155,7 @@ Vital Signs 最初的灵感来自 ivmakk0 的 [url=https://www.nexusmods.com/sur
 从 [font=Courier New]BepInEx\plugins[/font] 文件夹中删除 [font=Courier New]VitalSigns.dll[/font]。
 
 [size=5]配置[/size]
-设置位于 [font=Courier New]BepInEx\config\com.dev.survivallog.vitalsigns.cfg[/font]，也可以在 Mod Manager 的「模组」界面修改，修改后立即生效。[font=Courier New]Enabled[/font] 用于开关模组。在 Display 分组里可以分别关闭健康条、负重显示、计时条、悬停提示详情、游戏自带的属性说明和治疗物品列表。BarSize、BuffSize 和 BarTooltipSize 分别设置属性条、状态和属性条悬停提示的显示大小（默认均为游戏原尺寸的 80%）。HeaviestItems、TrendArrows、MatchHudStyle、BarLook 和 ColourBlind 分别设置最重物品列表、趋势箭头和外观。在 Alerts 分组里可以分别关闭每项提醒，LowAt 设置属性降到多少时提醒（默认 20%）。BuffEndingPulse、BuffEndingMinutes 和 BuffEndingDebuffs 设置哪些状态在结束前闪烁，以及提前多久。Hud 分组里有精简界面、提醒闪烁、状态排序和固定、布局、探索时的属性条、队列预估，以及点击属性条和减益。Actions 分组设置每次点击做什么，Difficulty 分组设置每项属性下降和上升的速度。
+设置位于 [font=Courier New]BepInEx\config\com.dev.survivallog.vitalsigns.cfg[/font]，也可以在 Mod Manager 的「模组」界面修改，修改后立即生效。[font=Courier New]Enabled[/font] 用于开关模组。在 Display 分组里可以分别关闭健康条、负重显示、计时条、悬停提示详情、游戏原本的属性说明和治疗物品列表。BarSize、BuffSize 和 BarTooltipSize 分别设置属性条、状态和属性条悬停提示的显示大小（默认均为游戏原尺寸的 80%）。HeaviestItems、TrendArrows、MatchHudStyle、BarLook 和 ColourBlind 分别设置最重物品列表、趋势箭头和外观。在 Alerts 分组里可以分别关闭每项提醒，LowAt 设置属性降到多少时提醒（默认 20%）。BuffEndingPulse、BuffEndingMinutes 和 BuffEndingDebuffs 设置哪些状态在结束前闪烁，以及提前多久。Hud 分组里有精简界面、提醒闪烁、状态排序和固定、布局、探索时的属性条、队列预估，以及点击属性条和减益。Actions 分组设置每次点击做什么，Difficulty 分组设置每项属性下降和上升的速度。
 
 点击属性条和减益默认关闭，在 Hud 分组里打开 ClickBars 和 ClickCures 后才能使用。设置点击行为：打开「模组」界面，进入 Vital Signs，找到 Actions 分组。从选择器中添加不吃的食物、「心情」流程和「生命」物品，点击床的方式即可切换。要移动属性条，在暂停菜单中点「编辑界面布局」，或设置 EditLayoutKey。
 
