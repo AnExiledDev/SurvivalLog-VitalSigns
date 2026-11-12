@@ -346,7 +346,7 @@
         '.vs-wfill{position:absolute;left:0;top:0;bottom:0;background:var(--vs-wfill)}',
         '.vs-wbar.vs-near .vs-wfill{background:var(--vs-warn)}',
         '.vs-wbar.vs-over .vs-wfill{background:var(--vs-bad)}',
-        '.vs-wgap{position:absolute;top:-1px;bottom:-1px;width:2px;margin-left:-1px;background:#111}',
+        '.vs-wgap{position:absolute;top:0;bottom:-1px;width:2px;margin-left:-1px;background:#111}',
         '.vs-weight-tip{margin-top:6px;padding-top:5px;border-top:1px solid var(--vs-edge)}'
     ].join('\n');
 
