@@ -55,18 +55,18 @@ public static class ActTexts
         return why switch
         {
             ActWhy.Off => isChinese ? "已在 Vital Signs 的 Actions 设置中关闭" : "turned off in the Vital Signs Actions settings",
-            ActWhy.Scanning => isChinese ? "正在查看家中物品..." : "looking around the base...",
+            ActWhy.Scanning => isChinese ? "正在查看家中物品..." : "checking what you have at home...",
             ActWhy.NoPlayer => isChinese ? "现在无法行动" : "nothing can be done right now",
             ActWhy.Full => isChinese ? "「" + name + "」已满" : name + " is full",
             ActWhy.AtGoal => isChinese ? "已达到目标" : "already at your goal",
             ActWhy.NoFood => isChinese ? "身边没有可吃的食物" : "no food at hand",
-            ActWhy.TooBig => isChinese ? "现有食物都会超出上限" : "every food at hand would go past the maximum",
+            ActWhy.TooBig => isChinese ? "现有食物都会超出上限" : "all the food at hand would go past the maximum",
             ActWhy.NoMorale => isChinese ? "现在没有能提升心情的行动" : "nothing at hand raises Morale now",
             ActWhy.RoutineEmpty => isChinese ? "请先在 Vital Signs 的 MoraleRoutine 设置中安排日常" : "set up a routine in the Vital Signs MoraleRoutine setting first",
-            ActWhy.RoutineNotReady => isChinese ? "日常安排中的行动现在都不可用" : "no action of your routine can be done now",
+            ActWhy.RoutineNotReady => isChinese ? "日常安排中的行动现在都不可用" : "nothing in your routine can be done now",
             ActWhy.NoBed => isChinese ? "家中没有可用的床" : "no bed at home to use",
             ActWhy.BedNotReady => isChinese ? "现在没有床可以使用" : "no bed can be used right now",
-            ActWhy.NoLifeItems => isChinese ? "身边没有选定的恢复生命物品" : "none of your Life items at hand",
+            ActWhy.NoLifeItems => isChinese ? "身边没有选定的恢复生命物品" : "none of your Life items are at hand",
             ActWhy.QueueBusy => isChinese ? "当前行动无法打断" : "the current action cannot be interrupted",
             _ => "",
         };

@@ -25,7 +25,7 @@ namespace VitalSigns;
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.vitalsigns";
-    private const string Version = "0.12.4";
+    private const string Version = "0.12.5";
 
     /// <summary>Exiled's Toolkit: its shared helpers, toasts, live settings and typing check all come from it.</summary>
     private const string ToolkitGuid = "com.dev.survivallog.exiledtoolkit";
@@ -50,8 +50,8 @@ public sealed class Plugin : BasePlugin
     public override void Load()
     {
         var enabled = Config.Bind("VitalSigns", "Enabled", true, new ConfigDescription(
-            "Show more on the HUD: how each stat's gains and losses are scaled, shading for the losses still to come, the Well Fed lines on the Satiety bar, a timer stripe on each buff that ends, buff effects and cures in the tooltips, the weight you carry on the Inventory button and a Fitness bar under the Life bar. Also applies the buff time multipliers and shows the low stat warnings. Off: everything the mod draws goes away, no warnings show and every buff goes back to the game's time.\n" +
-            "在屏幕上显示更多信息：各项属性的增减倍率、即将扣除数值的阴影、「饱腹」条上的「饱腹富余」界线、每个有时限的状态上的计时条、提示中的状态效果与解药，「背包」按钮上的当前负重，以及「生命」条下方的健康条。同时应用状态持续时间倍数并显示属性偏低提醒。关闭后本模组显示的内容全部消失，不再提醒，所有状态恢复游戏原本的时间。"));
+            "Show more on the HUD: how each stat's gains and losses are scaled, shading for the losses still to come, the Well Fed lines on the Satiety bar, a timer stripe on each buff that ends, buff effects and cures in the hover boxes, the weight you carry on the Inventory button and a Fitness bar under the Life bar. Also applies the buff time and stat difficulty multipliers and shows the low stat warnings. Off: everything the mod draws goes away, no warnings show, and buff times and stats go back to normal.\n" +
+            "在屏幕上显示更多信息：各项属性的增减倍率、即将扣除数值的阴影、「饱腹」条上的「饱腹富余」界线、每个有时限的状态上的计时条、悬停提示里的状态效果与治疗物品、「背包」按钮上的当前负重，以及「生命」条下方的健康条。同时应用状态持续时间倍数和属性难度倍数，并显示属性偏低提醒。关闭后本模组显示的内容全部消失，不再提醒，状态时间和属性变化都恢复正常。"));
         var log = new ModLog(Log, "vital-signs.log");
 
         log.Write($"===== Vital Signs {Version} started" + (enabled.Value ? "" : ": off, VitalSigns/Enabled is false"));
@@ -288,14 +288,14 @@ public sealed class Plugin : BasePlugin
             "Show a stripe under each buff that ends, shrinking as its time runs out. It turns amber in the last 15%.",
             "在每个有时限的状态下方显示计时条，随剩余时间缩短，最后15%变为琥珀色。");
         var tooltips = Bind("ExtendedTooltips",
-            "Add details to the stat and buff tooltips: effect values, time left, layers, modifiers, food modifiers and the losses still to come.",
-            "在属性和状态的提示中加入详细信息：效果数值、剩余时间、层数、倍率、食物倍率以及即将扣除的数值。");
+            "Add details to the stat and buff hover boxes: effect values, time left, layers, scaled gains and losses, food modifiers and the losses still to come.",
+            "在属性和状态的悬停提示中加入详细信息：效果数值、剩余时间、层数、增减倍率、食物倍率以及即将扣除的数值。");
         var gameText = Bind("StatTooltipGameText",
-            "Keep the game's description at the bottom of the stat tooltips. Only applies when ExtendedTooltips is on.",
-            "在属性提示底部保留游戏原有的说明。仅在开启 ExtendedTooltips 时生效。");
+            "Keep the game's description at the bottom of the stat hover boxes. Only applies when ExtendedTooltips is on.",
+            "在属性的悬停提示底部保留游戏原有的说明。仅在开启 ExtendedTooltips 时生效。");
         var cures = Bind("CuresInTooltips",
-            "List the items that cure or suppress a debuff in its tooltip, with how many of each you have. Only applies when ExtendedTooltips is on.",
-            "在负面状态的提示中列出可以治愈或压制它的物品，以及你拥有的数量。仅在开启 ExtendedTooltips 时生效。");
+            "List the items that cure or suppress a debuff in its hover box, with how many of each you have. Only applies when ExtendedTooltips is on.",
+            "在负面状态的悬停提示中列出可以治愈或压制它的物品，以及你拥有的数量。仅在开启 ExtendedTooltips 时生效。");
         var fitness = Bind("FitnessBar",
             "Show a Fitness bar under the Life bar, with a hover box that says what Fitness does and how close you are to Weakened.",
             "在「生命」条下方显示健康条，悬停提示说明健康的作用以及距离「亚健康」还有多远。");
@@ -305,11 +305,11 @@ public sealed class Plugin : BasePlugin
             "「饱腹」「心情」「体力」「生命」和健康条的显示大小，为游戏原尺寸的百分比，范围 50 到 150。100 为游戏原尺寸。属性条的悬停提示大小由 BarTooltipSize 单独设置。",
             new AcceptableValueRange<int>(Core.BarSize.Min, Core.BarSize.Max)));
         var buffSize = Config.Bind("Display", "BuffSize", Core.BarSize.Default, new ConfigDescription(
-            "How big the buffs next to the bars are drawn, in percent of the game's size, from 50 to 150. Their hover boxes grow and shrink with them. At the same number as BarSize they sit in proportion to the bars. 100 is the game's size.\n" +
-            "属性条旁状态的显示大小，为游戏原尺寸的百分比，范围 50 到 150。状态的悬停提示会一起缩放。与 BarSize 数值相同时，状态与属性条比例协调。100 为游戏原尺寸。",
+            "How big the buffs next to the bars are drawn, in percent of the game's size, from 50 to 150. Their hover boxes grow and shrink with them. Set it to the same number as BarSize to keep the buffs in proportion to the bars. 100 is the game's size.\n" +
+            "属性条旁状态的显示大小，为游戏原尺寸的百分比，范围 50 到 150。状态的悬停提示会一起缩放。设成与 BarSize 相同的数值，状态和属性条的比例就会协调。100 为游戏原尺寸。",
             new AcceptableValueRange<int>(Core.BarSize.Min, Core.BarSize.Max)));
         var tooltipSize = Config.Bind("Display", "BarTooltipSize", Core.BarSize.TooltipDefault, new ConfigDescription(
-            "How big the hover boxes of the Satiety, Morale, Stamina, Life and Fitness bars are drawn, in percent of the game's size, from 50 to 150, whatever BarSize is. 100 is the game's size.\n" +
+            "How big the hover boxes of the Satiety, Morale, Stamina, Life and Fitness bars are drawn, in percent of the game's size, from 50 to 150. 100 is the game's size. BarSize doesn't change it.\n" +
             "「饱腹」「心情」「体力」「生命」和健康条悬停提示的显示大小，为游戏原尺寸的百分比，范围 50 到 150，不受 BarSize 影响。100 为游戏原尺寸。",
             new AcceptableValueRange<int>(Core.BarSize.Min, Core.BarSize.Max)));
 
@@ -321,8 +321,8 @@ public sealed class Plugin : BasePlugin
             "Show an arrow on each stat bar when the stat has risen or fallen over the last game hour.",
             "属性在过去一小时（游戏时间）内上升或下降时，在属性条上显示箭头。");
         var matchHud = Bind("MatchHudStyle",
-            "Draw the hover boxes, the multiplier chips and the bar frames in the colours of the HUD style chosen in Exiled's Toolkit (HudStyle). With the classic style they keep this mod's own colours.",
-            "按照 Exiled's Toolkit 中选择的界面风格（HudStyle）的配色绘制悬停提示、倍率标签和属性条边框。使用经典风格时，保持本模组自己的配色。");
+            "Draw the hover boxes, the multiplier chips and the bar frames in the colours of the HUD style chosen in Exiled's Toolkit (HudStyle). With the classic style they keep the colours Vital Signs uses.",
+            "按照 Exiled's Toolkit 中选择的界面风格（HudStyle）的配色绘制悬停提示、倍率标签和属性条边框。使用经典风格时，保持 Vital Signs 的配色。");
         var barLook = Config.Bind("Display", "BarLook", BarLook.Game, new ConfigDescription(
             "How the stat bars are drawn. Game: the game's look. Flat: no frame or shadow. Segmented: split into tenths, so you can read the level at a glance.\n" +
             "属性条的样式。Game：游戏原本的样式。Flat：无边框、无阴影。Segmented：分成十格，一眼就能看出数值。",
@@ -352,17 +352,17 @@ public sealed class Plugin : BasePlugin
     private HudSettings HudEntries()
     {
         var hideFull = Config.Bind("Hud", "HideFullBars", false, new ConfigDescription(
-            "Hide a stat bar while it is full, or above HideAbove, so the HUD only shows what needs you. It comes back as soon as the stat drops.\n" +
-            "属性条满了（或高于 HideAbove）时隐藏，界面上只留需要注意的。属性一下降就重新出现。"));
+            "Hide a stat bar while it is full, or above HideAbove, so the HUD only shows the stats that need attention. The bar comes back as soon as the stat drops.\n" +
+            "属性条满了（或高于 HideAbove）时隐藏，界面上只留需要注意的属性。属性一下降，属性条就重新出现。"));
         var hideAbove = Config.Bind("Hud", "HideAbove", HudChoices.MaxHideAbove, new ConfigDescription(
-            "Above what level, in percent of the maximum, a bar hides, from 50 to 100. 100 hides only a full bar. Only applies when HideFullBars is on.\n" +
-            "属性高于上限的多少百分比时隐藏，范围 50 到 100。100 为只在满时隐藏。仅在开启 HideFullBars 时生效。",
+            "A bar hides while its stat is above this level, in percent of the maximum, from 50 to 100. 100 hides only a full bar. Only applies when HideFullBars is on.\n" +
+            "属性高于上限的这个百分比时隐藏属性条，范围 50 到 100。100 为只在满时隐藏。仅在开启 HideFullBars 时生效。",
             new AcceptableValueRange<int>(HudChoices.MinHideAbove, HudChoices.MaxHideAbove)));
         var keepWithBuffs = Config.Bind("Hud", "KeepBarsWithBuffs", true, new ConfigDescription(
             "Keep a full bar showing while it has buffs next to it, so they stay where you look for them. Only applies when HideFullBars is on.\n" +
             "属性条旁有状态时，即使满了也保持显示，让状态留在原来的位置。仅在开启 HideFullBars 时生效。"));
         var warnPulse = Config.Bind("Hud", "WarnPulse", true, new ConfigDescription(
-            "Make a stat bar pulse once it drops to the warning line (Alerts LowAt), before the game turns it red.\n" +
+            "Make a stat bar pulse once it drops to the warning line (LowAt under Alerts), before the game turns it red.\n" +
             "属性降到提醒线（Alerts 中的 LowAt）时，属性条开始闪烁，早于游戏把它变红。"));
         var sort = Config.Bind("Hud", "BuffSort", HudChoices.SortGame, new ConfigDescription(
             "The order of the buffs next to the bars. Game: the game's order. EndingFirst: the one that ends soonest first. LongestFirst: the one with the most time left first. Buffs without a timer go last.\n" +
@@ -380,13 +380,13 @@ public sealed class Plugin : BasePlugin
             "固定状态的显示大小，为其他状态的百分比，范围 100 到 200。",
             new AcceptableValueRange<int>(HudChoices.MinFavouriteSize, HudChoices.MaxFavouriteSize)));
         var collapse = Config.Bind("Hud", "CollapseBuffs", false, new ConfigDescription(
-            "Fold each row's buffs into one badge with their count; hover over it to see them all. Pinned buffs stay out.\n" +
+            "Fold each row's buffs into one badge with their count. Hover over it to see them all. Pinned buffs are not folded in.\n" +
             "把每行的状态收成一个带数量的徽标，悬停即可看到全部。固定的状态仍单独显示。"));
         var layout = Config.Bind("Hud", "Layout", "", new ConfigDescription(
-            "Where each bar sits and how big, as the layout editor saves it. Open the editor with the 「Edit HUD layout」 button in the pause menu, or EditLayoutKey. Empty: the game's places.\n" +
+            "Where each bar sits and how big it is, as the layout editor saves it. Open the editor with the \"Edit HUD layout\" button in the pause menu, or with EditLayoutKey. Empty keeps the bars where the game puts them.\n" +
             "各属性条的位置和大小，由布局编辑器保存。用暂停菜单中的「编辑界面布局」按钮或 EditLayoutKey 打开编辑器。留空为游戏原本的位置。"));
         var tray = Config.Bind("Hud", "BuffTray", HudChoices.TrayLeft, new ConfigDescription(
-            "Which side of the bars the buffs sit on. Left is the game's place. Right, Above and Below move them.\n" +
+            "Which side of the bars the buffs sit on. Left is where the game puts them. Right, Above and Below move them.\n" +
             "状态显示在属性条的哪一侧。Left 为游戏原本的位置。Right、Above、Below 分别移到右侧、上方、下方。",
             new AcceptableValueList<string>(HudChoices.Trays)));
         var explore = Config.Bind("Hud", "ExploreBars", HudChoices.CornerTopRight, new ConfigDescription(
@@ -394,7 +394,7 @@ public sealed class Plugin : BasePlugin
             "外出探索时（游戏会隐藏属性条），在屏幕一角显示小号的「饱腹」「心情」「体力」「生命」条。Off 为不显示。",
             new AcceptableValueList<string>(HudChoices.Corners)));
         var exploreSize = Config.Bind("Hud", "ExploreBarsSize", 100, new ConfigDescription(
-            "How big the exploring bars are drawn, in percent, from 50 to 150.\n" +
+            "How big the bars shown while you explore are drawn, in percent, from 50 to 150.\n" +
             "探索时属性条的显示大小，为百分比，范围 50 到 150。",
             new AcceptableValueRange<int>(HudChoices.MinExploreSize, HudChoices.MaxExploreSize)));
         var projection = Config.Bind("Hud", "QueueProjection", true, new ConfigDescription(
@@ -405,9 +405,9 @@ public sealed class Plugin : BasePlugin
             "点击属性条，把提升它的行动加入队列：吃东西、做提升心情的事、在最好的床上睡觉，或使用恢复生命的物品。每次点击做什么，在 Actions 部分设置。"));
         var cures = Config.Bind("Hud", "ClickCures", false, new ConfigDescription(
             "Click a debuff to queue its cure: one in the bag first, then one in the home storage. A debuff with a cure at hand is marked.\n" +
-            "点击负面状态，把它的解药加入队列：先用背包里的，再用家中储物里的。身边有解药的负面状态会有标记。"));
+            "点击负面状态，把治疗它的物品加入队列：先用背包里的，再用家中储物里的。身边有治疗物品的负面状态会有标记。"));
         var editKey = Config.Bind("Hud", "EditLayoutKey", KeyCode.None, new ConfigDescription(
-            "The key that opens and closes the HUD layout editor. None: open it with the 「Edit HUD layout」 button in the pause menu. Ignored while you type in a text box.\n" +
+            "The key that opens and closes the HUD layout editor. None: open it with the \"Edit HUD layout\" button in the pause menu. Ignored while you type in a text box.\n" +
             "打开和关闭界面布局编辑器的按键。None 为不设按键，用暂停菜单中的「编辑界面布局」按钮打开。在文本框中输入时无效。"));
 
         return new HudSettings(hideFull, hideAbove, keepWithBuffs, warnPulse, sort, group, favourites, favouriteSize, collapse, layout, tray, explore, exploreSize,
@@ -430,34 +430,34 @@ public sealed class Plugin : BasePlugin
             "Say in a toast what a click queued, or why it queued nothing.",
             "用提示说明点击加入了什么，或为什么没有加入。");
         var foodGoal = Choice("FoodGoal", FoodPlan.GoalMax, FoodPlan.Goals,
-            "How far a click on Satiety eats. Max: to the maximum. WellFed: to Well Fed. AboveWellFed: FoodAbovePercent past Well Fed. Food that would go past the maximum is never eaten.",
-            "点击「饱腹」吃到多少。Max：吃到最满。WellFed：吃到「饱食」。AboveWellFed：比「饱食」再高 FoodAbovePercent。会超出上限的食物不会吃。");
+            "How much a click on Satiety eats. Max: up to the maximum. WellFed: up to Well Fed. AboveWellFed: FoodAbovePercent past Well Fed. Food that would go past the maximum is never eaten.",
+            "点击「饱腹」吃到多少。Max：吃到上限。WellFed：吃到「饱腹富余」。AboveWellFed：比「饱腹富余」再多吃 FoodAbovePercent。会超出上限的食物不会吃。");
         var foodAbove = Whole("FoodAbovePercent", FoodPlan.DefaultAbove, FoodPlan.MinAbove, FoodPlan.MaxAbove,
-            "How far past Well Fed AboveWellFed eats, in percent of the maximum, from 0 to 100.",
-            "AboveWellFed 比「饱食」再高多少，为上限的百分比，范围 0 到 100。");
+            "With FoodGoal on AboveWellFed, how far past Well Fed a click eats, in percent of the maximum, from 0 to 100.",
+            "FoodGoal 为 AboveWellFed 时，比「饱腹富余」再多吃多少，为上限的百分比，范围 0 到 100。");
         var foodMost = Whole("FoodMostItems", FoodPlan.DefaultMostItems, FoodPlan.MinMostItems, FoodPlan.MaxMostItems,
             "The most food one click on Satiety eats, from 1 to 10.",
             "每次点击「饱腹」最多吃几件食物，范围 1 到 10。");
         var foodSkip = Keys("FoodSkip",
-            "Food a click never eats, as i and an item id, or g and a kind of food for all of that kind, split by commas (i1203,g1002).",
-            "点击时不吃的食物，填写 i 加物品编号，或 g 加食物种类表示这一类全部，用逗号分隔（如 i1203,g1002）。");
+            "Food a click never eats, split by commas (i1203,g1002). Write i and an item id for one food, or g and a food kind for every food of that kind.",
+            "点击时不吃的食物，用逗号分隔（如 i1203,g1002）。填写 i 加物品编号表示一种食物，或 g 加食物种类表示这一类全部。");
         var foodAvoid = Flag("FoodAvoidMoraleLoss", false,
             "Leave out food that lowers Morale.",
             "不吃会降低心情的食物。");
         var bedModes = Config.Bind("Actions", "BedModes", "", new ConfigDescription(
-            "How a click on Stamina uses each bed type, as type:mode split by commas (20001:Sleep). Auto naps when only NapBelow percent or less is missing and sleeps otherwise; Sleep and Nap always do that; Skip never uses that bed. A bed type not listed is Auto.\n" +
-            "点击「体力」时如何使用每种床，格式为 类型:方式，用逗号分隔（如 20001:Sleep）。Auto：只缺 NapBelow 百分比或更少时小睡，否则睡觉；Sleep 和 Nap 总是睡觉或小睡；Skip 不用这种床。未列出的床为 Auto。",
+            "How a click on Stamina uses each bed type, as type:mode split by commas (20001:Sleep). Auto naps when NapBelow percent or less of your Stamina is missing, and sleeps otherwise. Sleep always sleeps and Nap always naps. Skip never uses that bed. A bed type that isn't listed is on Auto.\n" +
+            "点击「体力」时如何使用每种床，格式为 类型:方式，用逗号分隔（如 20001:Sleep）。Auto：体力只缺 NapBelow 百分比或更少时小睡，否则睡觉。Sleep 总是睡觉，Nap 总是小睡。Skip 不用这种床。未列出的床为 Auto。",
             null, ListTag, "ModManager.EntryChoices=" + string.Join("|", SleepPlan.Modes), "ModManager.ChoiceZh=Auto=自动", "ModManager.ChoiceZh=Sleep=睡觉",
             "ModManager.ChoiceZh=Nap=小睡", "ModManager.ChoiceZh=Skip=不用"));
         var napBelow = Whole("NapBelow", SleepPlan.DefaultNapBelow, SleepPlan.MinNapBelow, SleepPlan.MaxNapBelow,
-            "With a bed on Auto, nap when this much Stamina or less is missing, in percent of the maximum, from 0 to 100; sleep when more is.",
+            "With a bed on Auto, a click naps when this much Stamina or less is missing, and sleeps when more is missing. In percent of the maximum, from 0 to 100.",
             "床为 Auto 时，缺少的体力不超过上限的这个百分比就小睡，否则睡觉，范围 0 到 100。");
         var moraleMode = Choice("MoraleMode", MoralePlan.ModeBest, MoralePlan.Modes,
-            "What a click on Morale queues. Best: one action, those that raise another stat too first, then the biggest gain; clicking again while it is queued takes the next one. Routine: every action of MoraleRoutine that can be done now, in that order.",
-            "点击「心情」加入什么。Best：一个行动，同时提升其他属性的优先，然后是提升最多的；已在队列中时再次点击选下一个。Routine：按顺序加入 MoraleRoutine 中现在能做的全部行动。");
+            "What a click on Morale queues. Best: one action. Actions that also raise another stat come first, then the one with the biggest gain. Clicking again while it is queued picks the next one. Routine: every action in MoraleRoutine that can be done now, in order.",
+            "点击「心情」加入什么。Best：一个行动，优先选同时提升其他属性的，其次是提升最多的。已在队列中时再点一次会选下一个。Routine：按顺序加入 MoraleRoutine 中现在能做的全部行动。");
         var routine = Keys("MoraleRoutine",
-            "Your Morale routine, in order: f and a furniture action id, i and an item id, or g and a kind of item for the one of that kind you have that gives the most Morale, split by commas (f12,i1203,g3).",
-            "你的心情日常安排，按顺序：f 加家具行动编号，i 加物品编号，或 g 加物品种类表示你拥有的这一类中提升心情最多的一个，用逗号分隔（如 f12,i1203,g3）。");
+            "Your Morale routine, in order, split by commas (f12,i1203,g3). Write f and a furniture action id, i and an item id, or g and an item kind to use the item of that kind you have that gives the most Morale.",
+            "你的心情日常安排，按顺序，用逗号分隔（如 f12,i1203,g3）。填写 f 加家具行动编号、i 加物品编号，或 g 加物品种类，表示使用你拥有的这一类中提升心情最多的一个。");
         var moraleItems = Flag("MoraleItems", false,
             "Let Best use items that raise Morale too, not only furniture.",
             "Best 也可以使用提升心情的物品，而不只是家具。");
@@ -465,8 +465,8 @@ public sealed class Plugin : BasePlugin
             "Leave out Morale actions that cost Life.",
             "不做会减少生命的心情行动。");
         var lifeItems = Keys("LifeItems",
-            "The items a click on Life uses, in order, as i and an item id, or g and a kind of item for every one of that kind you have, the most Life first, split by commas (i1203,g900). Empty: any item that restores Life, smallest first.",
-            "点击「生命」时使用的物品，按顺序填写 i 加物品编号，或 g 加物品种类表示你拥有的这一类全部、恢复生命多的先用，用逗号分隔（如 i1203,g900）。留空为使用任何恢复生命的物品，先用小的。");
+            "The items a click on Life uses, in order, split by commas (i1203,g900). Write i and an item id, or g and an item kind to use every item of that kind you have, the one that restores the most Life first. Empty: any item that restores Life, the one that restores the least first.",
+            "点击「生命」时使用的物品，按顺序，用逗号分隔（如 i1203,g900）。填写 i 加物品编号，或 g 加物品种类表示你拥有的这一类全部，恢复生命多的先用。留空为使用任何恢复生命的物品，恢复少的先用。");
         var lifeMost = Whole("LifeMostItems", LifePlan.DefaultMostItems, LifePlan.MinMostItems, LifePlan.MaxMostItems,
             "The most items one click on Life uses, from 1 to 10. It stops once Life is full.",
             "每次点击「生命」最多使用几件物品，范围 1 到 10。生命满了就停止。");
@@ -511,14 +511,14 @@ public sealed class Plugin : BasePlugin
         var drain = stats.Select(s => Bind(s.Item1 + "Drain", "every loss of " + s.Item1, $"「{s.Item2}」的每次减少",
             "2 makes it fall twice as fast, 0 stops it falling", "2 为减少速度翻倍，0 为不再减少")).ToArray();
         var gain = stats.Select(s => Bind(s.Item1 + "Gain", "every gain of " + s.Item1, $"「{s.Item2}」的每次增加",
-            "2 makes food, rest and the rest raise it twice as much, 0 stops it rising", "2 为食物、休息等的提升翻倍，0 为不再增加")).ToArray();
+            "2 makes it rise twice as much, 0 stops it rising", "2 为增加量翻倍，0 为不再增加")).ToArray();
 
         return new DifficultySettings(drain, gain);
 
         ConfigEntry<float> Bind(string key, string english, string chinese, string englishExample, string chineseExample) =>
             Config.Bind("Difficulty", key, (float)Difficulty.Default, new ConfigDescription(
-                $"Multiplies {english} you get, from 0 to 5: the slow change over time, food, rest, buffs and furniture alike. 1 is the game's; {englishExample}. Only you, not other characters.\n" +
-                $"玩家{chinese}乘以这个倍数，范围 0 到 5，包括随时间的变化、食物、休息、状态和家具。1 为游戏原本的数值；{chineseExample}。只影响你自己，不影响其他角色。",
+                $"Multiplies {english}, from 0 to 5. That covers the slow change over time, food, rest, buffs and furniture. 1 changes nothing, {englishExample}. Only your character is changed. Other characters stay as they are.\n" +
+                $"玩家{chinese}乘以这个倍数，范围 0 到 5，包括随时间的变化、食物、休息、状态和家具。1 为不改变，{chineseExample}。只影响你自己，其他角色不变。",
                 new AcceptableValueRange<float>((float)Difficulty.Min, (float)Difficulty.Max)));
     }
 
@@ -532,8 +532,8 @@ public sealed class Plugin : BasePlugin
             "Show a warning when Fitness drops below 40, close to Weakened, and again below 30, where you become Weakened.\n" +
             "健康降到40以下（接近「亚健康」）时提醒，降到30以下（陷入「亚健康」）时再次提醒。"));
         var lowAt = Config.Bind("Alerts", "LowAt", AlertOptions.DefaultLowAt, new ConfigDescription(
-            "How low Satiety, Morale, Stamina or Life gets before it warns, in percent of the stat's maximum, from 5 to 90. 20 is where the game turns the bar red. A stat warns again only after it climbs 5 back over this.\n" +
-            "「饱腹」「心情」「体力」或「生命」降到多少时提醒，为该属性上限的百分比，范围 5 到 90。20 是游戏把属性条变红的位置。属性回升超过这个值 5 以上后才会再次提醒。",
+            "How low Satiety, Morale, Stamina or Life gets before it warns, in percent of the stat's maximum, from 5 to 90. 20 is where the game turns the bar red. After a warning, the stat has to climb 5 above this before it warns again.\n" +
+            "「饱腹」「心情」「体力」或「生命」降到多少时提醒，为该属性上限的百分比，范围 5 到 90。20 是游戏把属性条变红的位置。提醒过后，属性要回升到比这个值高 5 以上才会再次提醒。",
             new AcceptableValueRange<int>(AlertOptions.MinLowAt, AlertOptions.MaxLowAt)));
 
         return new AlertSettings(satiety, morale, stamina, life, fitness, lowAt);

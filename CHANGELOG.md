@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.12.5
+
+- Clearer wording in the settings and on screen.
+- Made for Survival Log 1.1.20719.
+
 ## 0.12.4
 
 - Fixed: the weight on the Inventory button no longer covers the bag icon. It now sits under the icon.
@@ -24,7 +29,7 @@
 
 ## 0.12.0
 
-- The lists on the Mods screen mark what you have. Food, Morale and Life items show how many you have anywhere: in your bag, in any container at home or in the vehicle. Morale actions and beds your house has say "In your house". What you have comes first under each heading, and the list's window gets a "You have" group of only those. This needs Mod Manager 0.17.0 or newer; older ones show the lists without the marks.
+- The lists on the Mods screen mark what you have. Food, Morale and Life items show how many you have anywhere: in your bag, in any container at home or in the vehicle. Morale actions and beds your house has say "In your house". What you have comes first under each heading, and the list's window gets a "You have" group of only those. This needs Mod Manager 0.17.0 or newer. Older ones show the lists without the marks.
 - The food, Morale and Life lists offer an "Any ..." entry for each kind of item: Any Cooked Dish, Any Meat, Any Meds, Any Books and the rest. In LifeItems it uses every item of that kind you have, the one that restores the most Life first. In MoraleRoutine it uses the one of that kind that gives the most Morale. In FoodSkip a click never eats anything of that kind.
 - A click on Satiety no longer eats fertilizer, and fertilizer is gone from the food list. The game gives fertilizer Satiety for the plants it feeds, not for you.
 - Made for Survival Log 1.1.20719.
@@ -42,7 +47,7 @@
 
 - The list settings are picked from lists on the Mods screen, with Mod Manager 0.15.0 or newer: FoodSkip, MoraleRoutine and LifeItems from the game's items and furniture actions, BedModes from its beds with Auto, Sleep, Nap or Skip on each, and FavouriteBuffs from its buffs. Each entry shows its picture and name, and the picker says what it gives.
 - Single buff timers are a setting now, Buffs under Timers, picked from every buff with a timer and stepped on the Mods screen. The ones set in VitalSigns.Timers.json move into it on the first start, and the file is kept as VitalSigns.Timers.json.old.
-- The Actions and Timers tabs are gone; their settings are all on the Mods screen.
+- The Actions and Timers tabs are gone. Their settings are all on the Mods screen.
 - The Edit HUD layout button is in the pause menu now. It closes the menu and opens the layout editor.
 - LifeItems set to none uses no items. Left blank, it still uses every item that restores Life, smallest first.
 - Made for Survival Log 1.1.20719.
@@ -62,7 +67,7 @@
 
 ## 0.9.0
 
-- Click a stat bar to queue what raises it. Satiety eats to the maximum, to Well Fed, or a set percent past it. Stamina sleeps or naps in the best bed at home. Morale does the action that also raises another stat first, then the biggest gain, and a second click takes the next one; or set a routine and a click runs all of it. Life uses the items you choose. Turn each bar off with ClickSatiety, ClickMorale, ClickStamina and ClickLife.
+- Click a stat bar to queue what raises it. Satiety eats to the maximum, to Well Fed, or a set percent past it. Stamina sleeps or naps in the best bed at home. Morale does the action that also raises another stat first, then the biggest gain, and a second click takes the next one. You can also set a routine, and then a click runs all of it. Life uses the items you choose. Turn each bar off with ClickSatiety, ClickMorale, ClickStamina and ClickLife.
 - A new Actions tab on Vital Signs' page in the Mod Manager sets up the clicks. It lists every furniture action and item each click can use, greys out the ones your base or bag lacks, shows what each click would queue now, and has every setting behind it.
 - Set how a click uses each bed type: Auto, Sleep, Nap or Skip. Auto naps when only NapBelow percent or less of Stamina is missing.
 - Click a debuff to queue its cure, from the bag first, then from the home storage. A debuff with a cure at hand is marked. Turn it off with ClickCures.
@@ -71,7 +76,7 @@
 - Each bar marks where the stat will be once the actions in the queue are done. Turn it off with QueueProjection.
 - Small Satiety, Morale, Stamina and Life bars show in a corner while you explore, where the game hides its own. Set the corner and size with ExploreBars and ExploreBarsSize.
 - Sort the buffs by time left, keep good buffs and debuffs apart, move them to another side of the bars, or fold each row into one badge. Shift-click a buff to pin it to the front and draw it larger.
-- A layout editor moves and resizes each bar and the buffs. Open it with the 「Edit HUD layout」 button in the Actions tab, or set EditLayoutKey.
+- A layout editor moves and resizes each bar and the buffs. Open it with the "Edit HUD layout" button in the Actions tab, or set EditLayoutKey.
 - Difficulty multiplies how fast each stat falls and how much it rises, from 0 to 5, for your character only.
 - Made for Survival Log 1.1.20151.
 
@@ -124,7 +129,7 @@
 
 ## 0.6.0
 
-- New: a Fitness bar under the Life bar. Fitness is a stat the game keeps but never shows; it lowers your chance of getting sick, and below 30 you become Weakened.
+- New: a Fitness bar under the Life bar. Fitness is a stat the game keeps but never shows. It lowers your chance of getting sick, and below 30 you become Weakened.
 - The Fitness bar is green when fine, amber within 10 of Weakened and red below 30. Its hover box says what Fitness does and how close you are to Weakened.
 - This replaces the Fitness Bar mod. Remove `FitnessBar.dll` if you have it, or you get two bars. The new FitnessBar setting turns it off.
 - New: the BarTooltipSize setting sets how big the bars' hover boxes are drawn, from 50% to 150%, apart from BarSize. It starts at 100%, the game's size, so the hover box text is bigger than before.

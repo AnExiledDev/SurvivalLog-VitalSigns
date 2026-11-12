@@ -1,5 +1,5 @@
 Name: Vital Signs
-Summary: Shows more about your stats on the HUD, adds a Fitness bar and low stat warnings, and lets you click a bar to eat, sleep, raise Morale or heal. Bars get gain multipliers, loss shading, Well Fed lines and queue marks; buffs get timer stripes, cures on click and pins. Set buff times from 0.1x to 100x, stat difficulty and the HUD layout too.
+Summary: Shows more about your stats on the HUD, adds a Fitness bar and low stat warnings, and lets you click a bar to eat, sleep, raise Morale or heal. Bars get gain multipliers, loss shading, Well Fed lines and queue marks. Buffs get timer stripes, cures on click and pins. Set buff times from 0.1x to 100x, stat difficulty and the HUD layout too.
 
 Description (BBCode):
 [center][img]https://sldb.core-directive.com/media/save/1-save-safe.png[/img][/center]
@@ -14,17 +14,17 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 [*][b]Buff hover boxes[/b]: a compact box with the name and time left on one line, then what a buff or debuff does to each stat and how many layers you have. Debuffs list the items that cure or suppress them, with how many you have.[/*]
 [*][b]Well Fed lines on the Satiety bar[/b]: one line where Well Fed starts and a fainter one where it ends, read from the game's rule.[/*]
 [*][b]Timer stripe on buffs[/b]: every buff or debuff that runs out gets a thin stripe that shrinks as its time runs down and turns amber near the end.[/*]
-[*][b]Fitness bar[/b]: a bar under Life shows your Fitness, a stat the game keeps but never shows. Green when fine, amber close to Weakened and red below 30. Its hover box says what Fitness does and how close you are to Weakened. This replaces the Fitness Bar mod, which turns itself off when Vital Signs is installed.[/*]
+[*][b]Fitness bar[/b]: a bar under Life shows your Fitness, a stat the game keeps but never shows. Green when fine, amber close to Weakened and red below 30. Its hover box says what Fitness does and how close you are to Weakened. This replaces the Fitness Bar mod. Fitness Bar 0.1.2 and newer turn themselves off when Vital Signs is installed.[/*]
 [*][b]Low stat warnings[/b]: a pop-up when Satiety, Morale, Stamina or Life drops to 20% of its maximum, and when Fitness drops below 40 and below 30, where you become Weakened. Each warns once per drop. Set the line or turn each one off.[/*]
 [*][b]Weight on the Inventory button[/b]: the kilograms you carry, amber when you are close to Overweight and red past it. Hover the button for how much room you have left and the heaviest items in your bag.[/*]
 [*][b]Trend arrows[/b]: a small arrow up or down by a stat's value when it rose or fell over the last game hour.[/*]
 [*][b]Buffs about to end pulse[/b]: a good buff pulses when it has an hour or less left, so you can renew it in time. Set how soon, or make debuffs pulse too.[/*]
 [*][b]Styles[/b]: the hover boxes, chips and bar frames take the colours of the HUD style chosen in Exiled's Toolkit. Bars can be drawn flat or split into tenths, and a colour-blind setting uses blue and orange in place of green and red.[/*]
-[*][b]Sizes[/b]: the bars and the buffs next to them are drawn at 80% of the game's size by default, and the bars' hover boxes at the game's size. Set each one from 50% to 150%.[/*]
+[*][b]Sizes[/b]: the bars and the buffs next to them are drawn at 80% of the game's size by default, and so are the bars' hover boxes. Set each one from 50% to 150%.[/*]
 [*][b]Settings apply at once[/b]: every setting changed on the Mod Manager's Mods screen takes effect right away, with no restart.[/*]
 [*][b]English or Chinese[/b]: follows the game's language.[/*]
 [*][b]Light on the game[/b]: reads your stats every couple of seconds and only redraws when something changed.[/*]
-[*][b]Click a bar to act[/b]: click Satiety to eat, Stamina to sleep in the best bed at home, Morale to do something that raises it, or Life to use the items you chose. The actions go into the game's queue. Satiety eats to the maximum, to Well Fed or a set percent past it, never past the maximum. Morale does the action that also raises another stat first, then the biggest gain; click again for the next one, or set a routine and a click queues all of it. Turn it on with ClickBars under Hud.[/*]
+[*][b]Click a bar to act[/b]: click Satiety to eat, Stamina to sleep in the best bed at home, Morale to do something that raises it, or Life to use the items you chose. The actions go into the game's queue. Satiety eats to the maximum, to Well Fed or a set percent past it, and never past the maximum. Morale picks an action that also raises another stat first, then the one with the biggest gain, and a second click picks the next one. You can also set a routine, and then a click queues all of it. Turn it on with ClickBars under Hud.[/*]
 [*][b]Pick from lists[/b]: on the Mod Manager's Mods screen, choose food to skip, build the Morale routine, pick the Life items, set each bed type to Auto, Sleep, Nap or Skip, pin buffs and give single buffs their own timer, all from the game's items, furniture actions, beds and buffs. Each shows its picture and name, with what it gives or how long it lasts. What you have is marked and comes first, and the food, Morale and Life lists also take a whole kind of item, such as Any Cooked Dish.[/*]
 [*][b]Click a debuff to cure it[/b]: a debuff with a cure in your bag or home storage is marked. Click it to queue the cure, from the bag first. Turn it on with ClickCures under Hud.[/*]
 [*][b]Compact HUD[/b]: a bar can hide while it is full, or above a level you set, and come back as soon as the stat drops.[/*]
@@ -38,14 +38,14 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 [*][b]Running buffs too[/b]: a buff that is already running gets its remaining time changed when you change its multiplier.[/*]
 [*][b]Talents still count[/b]: talents that make buffs last longer are multiplied along with the buff.[/*]
 [/list]
-Only buffs you can see on your character and that have a timer get a new time. Hidden buffs and buffs that last until something removes them keep the game's behavior. No buff can be given more than 500 game days.
+Only buffs you can see on your character and that have a timer get a new time. Hidden buffs and buffs that last until something removes them keep their normal time. No buff can be given more than 500 game days.
 
-The HUD part only reads your stats and draws them. With every multiplier at 1, the default, no buff time changes either. Vital Signs adds nothing to your save and does not edit game files. A save keeps the end time of each running buff, so after you remove the mod, buffs already running finish at the time they had, and new buffs use the game's times.
+The HUD part only reads your stats and draws them. With every multiplier at 1, the default, no buff time changes either. Vital Signs adds nothing to your save and does not edit game files. A save keeps the end time of each running buff, so after you remove the mod, buffs already running finish at the time they had, and new buffs use their normal times.
 
 Vital Signs was originally inspired by [url=https://www.nexusmods.com/survivallog/mods/27]Stats UI[/url] by ivmakk0, and has since grown well past it, with UI size settings, a Fitness bar, low stat warnings, settings that apply live, and buff duration multipliers.
 
 [size=5]Known issues[/size]
-Values are read every couple of seconds, so a change can take that long to show. The loss shading counts only the debuffs running now, not natural drain or anything you eat. Stats UI and Vital Signs only conflict in what they draw on screen. If you don't need the extra features, Stats UI works just as well. Fitness Bar 0.1.2 and newer turn themselves off beside Vital Signs; an older Fitness Bar draws a second bar, and the Fitness hover box then says to remove or update it. Loading a save with a stat already low does not warn. A buff made to last a very long time shows a large hour count in its hover box, such as [font=Courier New]12000:00[/font] for 500 days. Multipliers changed while the game is closed apply to new buffs only. A click on a bar uses only what you could queue by hand: furniture at home, and the home storage only while you are at home. The queue projection counts what each queued action gives, not the losses over time while the queue runs. With a Difficulty multiplier at 0, game effects that react to that stat rising or falling no longer react, since the change they see is 0.
+Values are read every couple of seconds, so a change can take that long to show. The loss shading counts only the debuffs running now. Natural drain and anything you eat are not in it. Stats UI and Vital Signs only conflict in what they draw on screen. If you don't need the extra features, Stats UI works just as well. Fitness Bar 0.1.2 and newer turn themselves off when Vital Signs is installed. An older Fitness Bar draws a second bar, and the Fitness hover box says to remove or update it. Loading a save with a stat already low does not warn. A buff made to last a very long time shows a large hour count in its hover box, such as [font=Courier New]12000:00[/font] for 500 days. Multipliers changed while the game is closed apply to new buffs only. A click on a bar uses only what you could queue by hand: furniture at home, and the home storage only while you are at home. The queue projection counts what each queued action gives. Losses over time while the queue runs are not in it. With a Difficulty multiplier at 0, game effects that react to that stat rising or falling no longer react, since the change they see is 0.
 
 [center][img]https://sldb.core-directive.com/img/mods-banner.jpg[/img]
 [size=4][url=https://www.nexusmods.com/survivallog/mods/73]Get Mod Manager[/url] to set up all your mods in game  |  [url=https://sldb.core-directive.com/en/]Open the Survival Log wiki[/url] for items, recipes and maps[/size][/center]
@@ -54,7 +54,7 @@ Values are read every couple of seconds, so a change can take that long to show.
 [list]
 [*]Survival Log 1.1.20719. A game update can break it until the mod is updated.[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/12]BepInEx for Survival Log[/url]. Install it first.[/*]
-[*]Optional: [url=https://www.nexusmods.com/survivallog/mods/73]Mod Manager[/url] 0.15.0 or newer. Its Mods screen lets you pick the food, items, furniture actions, beds and buffs for the list settings from the game's. Without it, type their IDs in the config file.[/*]
+[*]Optional: [url=https://www.nexusmods.com/survivallog/mods/73]Mod Manager[/url] 0.15.0 or newer. Its Mods screen lets you pick the food, items, furniture actions, beds and buffs for the list settings from lists. Without it, type their IDs in the config file.[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/61]Exiled's Toolkit[/url] 0.20.0 or newer. Vital Signs does not load without it. The warnings are its pop-ups, settings take effect at once through it, and the colours that match its HUD style come from it.[/*]
 [/list]
 
@@ -80,7 +80,7 @@ For buff times, set the good, bad and category multipliers under Timers and Time
 
 [size=5]Feedback[/size]
 Found a bug or have an idea? Come say hi on the [url=https://discord.gg/trTsyxUFqg]Core Directive Discord[/url], or post in this page's Posts tab. For bugs, please include [font=Courier New]BepInEx\LogOutput.log[/font] and [font=Courier New]BepInEx\vital-signs.log[/font].
-To reach me directly, message [b]exiled.dev[/b] on Discord; you can find me in the [url=https://discord.gg/MZGg4gQAUe]official Survival Log Discord[/url]. I'm also on X as [url=https://x.com/AnExiledDev]@AnExiledDev[/url].
+To reach me directly, message [b]exiled.dev[/b] on Discord. You can find me in the [url=https://discord.gg/MZGg4gQAUe]official Survival Log Discord[/url]. I'm also on X as [url=https://x.com/AnExiledDev]@AnExiledDev[/url].
 
 [size=5]Source and license[/size]
 Open source under MIT: [url=https://github.com/AnExiledDev/SurvivalLog-VitalSigns]github.com/AnExiledDev/SurvivalLog-VitalSigns[/url]
@@ -96,25 +96,25 @@ Open source under MIT: [url=https://github.com/AnExiledDev/SurvivalLog-VitalSign
 [*][b]属性条上的即将扣除量[/b]：正在生效的减益在结束前还会扣掉的部分会以阴影标出，一眼就能看到属性会降到哪里。[/*]
 [*][b]悬停提示里的更多信息[/b]：精确数值、所有被改变的倍率（以百分比显示）、你的食物倍率，以及每一项即将扣除的数值和所需时间。[/*]
 [*][b]状态悬停提示[/b]：紧凑的提示框，名称和剩余时间在同一行，下面是增益或减益对每项属性的影响和当前层数。减益还会列出可以治愈或压制它的物品，以及你拥有的数量。[/*]
-[*][b]「饱腹」条上的「饱腹富余」界线[/b]：一条线标出获得「饱腹富余」的位置，另一条较淡的线标出失去它的位置，数值来自游戏自身的规则。[/*]
+[*][b]「饱腹」条上的「饱腹富余」界线[/b]：一条线标出获得「饱腹富余」的位置，另一条较淡的线标出失去它的位置，数值来自游戏的规则。[/*]
 [*][b]状态计时条[/b]：每个会结束的增益或减益底部都有一条细条，随剩余时间缩短，快结束时变成琥珀色。[/*]
-[*][b]健康条[/b]：「生命」条下方显示你的健康，这是游戏记录却从不显示的属性。正常时为绿色，接近「亚健康」时为琥珀色，低于30时为红色。悬停提示说明健康的作用以及距离「亚健康」还有多远。本功能取代了 Fitness Bar 模组；安装了 Vital Signs 时，Fitness Bar 会自动关闭。[/*]
+[*][b]健康条[/b]：「生命」条下方显示你的健康，这是游戏记录却从不显示的属性。正常时为绿色，接近「亚健康」时为琥珀色，低于30时为红色。悬停提示说明健康的作用以及距离「亚健康」还有多远。本功能取代了 Fitness Bar 模组。安装了 Vital Signs 时，Fitness Bar 0.1.2 及更高版本会自动关闭。[/*]
 [*][b]属性偏低提醒[/b]：「饱腹」「心情」「体力」或「生命」降到上限的 20% 时弹出提醒，健康降到40以下和30以下（陷入「亚健康」）时也会提醒。每次下降只提醒一次。可以设置提醒的位置，或分别关闭。[/*]
 [*][b]「背包」按钮上的负重[/b]：显示当前负重（千克），接近「超重」时变成琥珀色，超过后变成红色。鼠标悬停可查看距离「超重」还有多少余量，以及背包里最重的物品。[/*]
 [*][b]趋势箭头[/b]：属性在过去一小时（游戏时间）内上升或下降时，数值旁会显示一个小箭头。[/*]
 [*][b]即将结束的状态会闪烁[/b]：增益状态剩余一小时或更少时会闪烁，方便及时续上。可以设置提前多久，也可以让负面状态一起闪烁。[/*]
-[*][b]样式[/b]：悬停提示、倍率标签和属性条边框会采用 Exiled's Toolkit 中所选界面风格的配色。属性条可以无边框显示，或分成十格；色盲模式用蓝色和橙色代替绿色和红色。[/*]
-[*][b]大小[/b]：属性条和旁边的状态默认按游戏原尺寸的 80% 显示，属性条的悬停提示按游戏原尺寸显示。三者可分别在 50% 到 150% 之间设置。[/*]
+[*][b]样式[/b]：悬停提示、倍率标签和属性条边框会采用 Exiled's Toolkit 中所选界面风格的配色。属性条可以无边框显示，或分成十格。色盲模式用蓝色和橙色代替绿色和红色。[/*]
+[*][b]大小[/b]：属性条和旁边的状态默认按游戏原尺寸的 80% 显示，属性条的悬停提示也是 80%。三者可分别在 50% 到 150% 之间设置。[/*]
 [*][b]设置立即生效[/b]：在 Mod Manager 的「模组」界面修改任何设置都会立即生效，无需重启。[/*]
 [*][b]中英文[/b]：跟随游戏语言。[/*]
 [*][b]不拖慢游戏[/b]：每隔几秒读取一次属性，只有变化时才重新绘制。[/*]
-[*][b]点击属性条执行行动[/b]：点击「饱腹」吃东西，点击「体力」在家中最好的床上休息，点击「心情」做能提升它的事，点击「生命」使用你选好的物品。这些行动会加入游戏自己的行动队列。「饱腹」可以吃到上限、吃到「饱腹富余」或超过它一个设定的百分比，绝不会超过上限。「心情」优先选择同时提升其他属性的行动，然后是提升最多的；再点一次换下一个，也可以设置一套流程，点一次全部加入。在 Hud 分组里打开 ClickBars 即可使用。[/*]
-[*][b]从列表中挑选[/b]：在 Mod Manager 的「模组」界面，可以从游戏自己的物品、家具行动、床和状态中选择不吃的食物、编排「心情」流程、挑选「生命」物品、把每种床设为「自动」「睡觉」「小睡」或「不用」、固定状态，以及给单个状态设置计时。每一项都显示图片和名称，以及它的效果或持续时间。你拥有的会被标出并排在前面；食物、「心情」和「生命」列表还可以选整类物品，例如「任意料理」。[/*]
+[*][b]点击属性条执行行动[/b]：点击「饱腹」吃东西，点击「体力」在家中最好的床上休息，点击「心情」做能提升它的事，点击「生命」使用你选好的物品。这些行动会加入游戏的行动队列。「饱腹」可以吃到上限、吃到「饱腹富余」或超过它一个设定的百分比，绝不会超过上限。「心情」优先选择同时提升其他属性的行动，其次是提升最多的，再点一次换下一个。也可以设置一套流程，点一次全部加入。在 Hud 分组里打开 ClickBars 即可使用。[/*]
+[*][b]从列表中挑选[/b]：在 Mod Manager 的「模组」界面，可以从游戏中的物品、家具行动、床和状态中选择不吃的食物、编排「心情」流程、挑选「生命」物品、把每种床设为「自动」「睡觉」「小睡」或「不用」、固定状态，以及给单个状态设置计时。每一项都显示图片和名称，以及它的效果或持续时间。你拥有的会被标出并排在前面。食物、「心情」和「生命」列表还可以选整类物品，例如「任意料理」。[/*]
 [*][b]点击减益来治疗[/b]：背包或家中储物里有治疗物品的减益会有标记。点击它即可把治疗加入队列，优先使用背包里的。在 Hud 分组里打开 ClickCures 即可使用。[/*]
 [*][b]精简界面[/b]：属性条满了或高于你设定的数值时可以隐藏，属性一下降就会重新出现。[/*]
 [*][b]提醒闪烁[/b]：属性降到提醒线时属性条会闪烁，比游戏把它变红更早。[/*]
 [*][b]队列预估[/b]：每个属性条上标出队列里的行动完成后属性会到哪里。[/*]
-[*][b]探索时的属性条[/b]：探索时游戏会隐藏自己的属性条，这时屏幕一角会显示小的「饱腹」「心情」「体力」和「生命」条。[/*]
+[*][b]探索时的属性条[/b]：探索时游戏会隐藏原本的属性条，这时屏幕一角会显示小的「饱腹」「心情」「体力」和「生命」条。[/*]
 [*][b]状态栏[/b]：按剩余时间排列状态，把增益和减益分开，移到属性条的另一侧，或把每一行折叠成一个徽标。按住 Shift 点击状态可以把它固定在最前面并放大显示。[/*]
 [*][b]布局编辑器[/b]：把每个属性条和状态拖到你想要的位置，用鼠标滚轮调整大小。从暂停菜单打开。[/*]
 [*][b]属性难度[/b]：让每项属性下降得更快或更慢、上升得更多或更少，范围 0 到 5 倍，只影响你自己的角色。[/*]
@@ -122,14 +122,14 @@ Open source under MIT: [url=https://github.com/AnExiledDev/SurvivalLog-VitalSign
 [*][b]正在生效的状态也会变[/b]：改变倍数时，正在生效的状态的剩余时间也会随之改变。[/*]
 [*][b]天赋照样有效[/b]：延长状态时间的天赋会和状态一起乘以倍数。[/*]
 [/list]
-只改变角色身上看得见、并且有计时的状态。隐藏的状态和要等某件事才会消失的状态保持游戏原样。任何状态最多持续 500 个游戏日。
+只改变角色身上看得见、并且有计时的状态。隐藏的状态和要等某件事才会消失的状态保持原本的时间。任何状态最多持续 500 个游戏日。
 
 屏幕显示部分只读取并显示你的属性。所有倍数保持默认的 1 时，状态时间也不会改变。Vital Signs 不会往存档里写入任何内容，也不会修改游戏文件。存档会记下每个正在生效的状态的结束时间，所以移除模组后，正在生效的状态按原来的时间结束，新的状态使用游戏原本的时间。
 
 Vital Signs 最初的灵感来自 ivmakk0 的 [url=https://www.nexusmods.com/survivallog/mods/27]Stats UI[/url]，之后加入了更多功能：界面大小设置、健康条、属性偏低提醒、即时生效的设置和状态持续时间倍数。
 
 [size=5]已知问题[/size]
-数值每隔几秒读取一次，所以变化可能要等这么久才会显示。阴影只计算当前正在生效的减益，不包括自然消耗和你吃下或使用的东西。Stats UI 和 Vital Signs 只在界面显示上冲突。如果不需要这些额外功能，用 Stats UI 也完全可以。Fitness Bar 0.1.2 及更高版本在安装了 Vital Signs 时会自动关闭；旧版 Fitness Bar 会显示第二个健康条，这时健康条的悬停提示会提醒你删除或更新它。读取存档时如果属性已经偏低，不会提醒。持续时间很长的状态，提示框里会显示很大的小时数，例如 500 天显示为 [font=Courier New]12000:00[/font]。在游戏关闭时修改的倍数只对新的状态生效。点击属性条只会加入你手动也能加入的行动：家具要在家里，家中储物只在你在家时才会使用。队列预估只计算每个排队行动带来的变化，不包括队列进行期间随时间的消耗。难度倍数设为 0 时，游戏里对该属性升降做出反应的效果不再触发，因为它们看到的变化是 0。
+数值每隔几秒读取一次，所以变化可能要等这么久才会显示。阴影只计算当前正在生效的减益，不包括自然消耗和你吃下或使用的东西。Stats UI 和 Vital Signs 只在界面显示上冲突。如果不需要这些额外功能，用 Stats UI 也完全可以。Fitness Bar 0.1.2 及更高版本在安装了 Vital Signs 时会自动关闭。旧版 Fitness Bar 会显示第二个健康条，这时健康条的悬停提示会提醒你删除或更新它。读取存档时如果属性已经偏低，不会提醒。持续时间很长的状态，提示框里会显示很大的小时数，例如 500 天显示为 [font=Courier New]12000:00[/font]。在游戏关闭时修改的倍数只对新的状态生效。点击属性条只会加入你手动也能加入的行动：家具要在家里，家中储物只在你在家时才会使用。队列预估只计算每个排队行动带来的变化，不包括队列进行期间随时间的消耗。难度倍数设为 0 时，游戏里对该属性升降做出反应的效果不再触发，因为它们看到的变化是 0。
 
 [url=https://www.nexusmods.com/survivallog/mods/73]获取 Mod Manager[/url]，在游戏里设置所有模组。[url=https://sldb.core-directive.com/zh/]打开 Survival Log 维基[/url]，物品、配方、地图一查就有。
 
@@ -137,7 +137,7 @@ Vital Signs 最初的灵感来自 ivmakk0 的 [url=https://www.nexusmods.com/sur
 [list]
 [*]Survival Log 1.1.20719。游戏更新后模组可能暂时失效，直到模组更新为止。[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/12]BepInEx for Survival Log[/url]，请先安装。[/*]
-[*]可选：[url=https://www.nexusmods.com/survivallog/mods/73]Mod Manager[/url] 0.15.0 或更高版本。在它的「模组」界面，可以从游戏自己的物品、家具行动、床和状态中挑选列表设置的内容。没装的话，请在配置文件中填写编号。[/*]
+[*]可选：[url=https://www.nexusmods.com/survivallog/mods/73]Mod Manager[/url] 0.15.0 或更高版本。在它的「模组」界面，可以从游戏中的物品、家具行动、床和状态中挑选列表设置的内容。没装的话，请在配置文件中填写编号。[/*]
 [*][url=https://www.nexusmods.com/survivallog/mods/61]Exiled's Toolkit[/url] 0.20.0 或更新版本。没有它本模组不会加载。提醒弹窗由它显示，设置也通过它立即生效，跟随其界面风格的配色也来自它。[/*]
 [/list]
 

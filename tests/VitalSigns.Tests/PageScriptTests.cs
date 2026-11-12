@@ -274,7 +274,7 @@ public class PageScriptTests
 
         Assert.Equal("66.67%", page.Text($"childWith(maskOf({Satiety}), 'vs-mark-from').style.left"));
         Assert.Equal("50.00%", page.Text($"childWith(maskOf({Satiety}), 'vs-mark-until').style.left"));
-        Assert.Equal("Well Fed at 80 or more, lost below 60.", page.Text($"blockText(tipOf({Satiety}), 'vs-st')"));
+        Assert.Equal("You get Well Fed at 80 or more and lose it below 60.", page.Text($"blockText(tipOf({Satiety}), 'vs-st')"));
         Assert.Equal(0, page.Number($"maskOf({Morale}).querySelectorAll('.vs-mark').length"));
     }
 
@@ -616,7 +616,7 @@ public class PageScriptTests
             details: Readings.DetailsOf(new[] { Cut }, Coming(0, new LossLine(1111, 6.666, 7500)), foods: new[] { "Meat", "Fruit" },
                 foodMods: new[] { new FoodMod(0, 2, -0.25), new FoodMod(1, 1, 0.5) }, max: new double[] { 120, 100, 100, 100 })));
 
-        Assert.Equal("Value 72 / 120\nLosses +10%\nFruit -25%\nCut: -6.7 over 2h 5m\nWell Fed at 80 or more, lost below 60.",
+        Assert.Equal("Value 72 / 120\nLosses +10%\nFruit -25%\nCut: -6.7 over 2h 5m\nYou get Well Fed at 80 or more and lose it below 60.",
             page.Text($"blockText(tipOf({Satiety}), 'vs-st')"));
         Assert.Contains("Meat +50%", page.Text($"blockText(tipOf({Morale}), 'vs-st')"));
         Assert.True(page.Is($"childWith(tipOf({Satiety}), 'vs-st').classList.contains('vs-bad') || childWith(tipOf({Satiety}), 'vs-st').children[2].classList.contains('vs-bad')"));
@@ -1012,7 +1012,7 @@ public class PageScriptTests
 
         page.Apply(2, Fit(39));
         Assert.True(page.Is($"{fill}.classList.contains('bar-yellow') && !{fill}.classList.contains('bar-green') && !{FitBar}.classList.contains('is-low')"));
-        Assert.Equal("Close to Weakened: 10 more lost and it drops below 30.", page.Text($"blockText({FitTip}, 'vs-st')"));
+        Assert.Equal("Close to Weakened: lose 10 more and it drops below 30.", page.Text($"blockText({FitTip}, 'vs-st')"));
         Assert.True(page.Is($"childWith({FitTip}, 'vs-st').children[0].classList.contains('vs-warn')"));
 
         page.Apply(4, Fit(29));

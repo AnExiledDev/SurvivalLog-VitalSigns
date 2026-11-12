@@ -18,7 +18,7 @@ public static class DevCheats
     {
         if (Clicks() is not { } acts) return "Vital Signs is not running";
 
-        if (acts.IsScanning) return "still looking around the base; turn a bar click on, then try again";
+        if (acts.IsScanning) return "still checking what you have at home. Turn a bar click on, then try again.";
 
         var view = acts.View;
         var text = new StringBuilder();
@@ -50,8 +50,8 @@ public static class DevCheats
         return string.Join("\n", lines);
     }
 
-    [DisplayName("Look again\n重新查看")]
-    [Description("Reads the base and the action queue again at once, instead of waiting for the next look.\n立即重新读取家中物品和行动队列，不用等下一次。")]
+    [DisplayName("Refresh\n刷新")]
+    [Description("Reads what you have at home and the action queue again right away.\n立即重新读取家中物品和行动队列。")]
     public static string LookAgain()
     {
         if (Clicks() is not { } acts) return "Vital Signs is not running";
@@ -75,7 +75,7 @@ public static class DevCheats
     }
 
     [DisplayName("Open the layout editor\n打开布局编辑器")]
-    [Description("Opens the HUD layout editor, like the 「Edit HUD layout」 button in the pause menu.\n打开界面布局编辑器，与暂停菜单中的「编辑界面布局」按钮相同。")]
+    [Description("Opens the HUD layout editor, like the \"Edit HUD layout\" button in the pause menu.\n打开界面布局编辑器，与暂停菜单中的「编辑界面布局」按钮相同。")]
     public static string OpenLayoutEditor()
     {
         if (VsTicker.Page is not { } page) return "Vital Signs is not running";
@@ -84,7 +84,7 @@ public static class DevCheats
 
         page.Edit(true);
 
-        return "asked the HUD to open the layout editor; close Cheat Menu to see it";
+        return "asked the HUD to open the layout editor. Close Cheat Menu to see it.";
     }
 
     private static HudActs? Clicks() => VsTicker.Page?.Clicks;
