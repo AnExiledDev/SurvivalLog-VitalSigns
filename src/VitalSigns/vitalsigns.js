@@ -87,17 +87,18 @@
             days: 'd',
             hours: 'h',
             minutes: 'm',
-            carrying: function (carried, max) { return 'Carrying ' + carried + ' / ' + max + ' kg'; },
-            line: function (name, at) { return name + ' above ' + at + ' kg'; },
-            left: function (name, left) { return left + ' kg left before ' + name; },
-            over: function (name, over) { return name + ': ' + over + ' kg over'; },
+            carrying: 'Carrying',
+            load: function (carried, max) { return carried + ' / ' + max + ' kg'; },
+            room: function (name) { return 'Room before ' + name; },
+            over: function (over) { return over + ' kg over'; },
             fitness: 'Fitness',
             fitAbout: 'High Fitness lowers your chance of getting sick. Below 30 you become Weakened. Staying Hungry or Fatigued for too long lowers it. Food that gives Fitness raises it.',
             weakened: 'Below 30, so you are Weakened.',
             nearWeakened: function (left) { return 'Close to Weakened: ' + left + ' more lost and it drops below 30.'; },
             aboveWeakened: function (above) { return above + ' above 30, where Weakened starts.'; },
-            heaviest: 'Heaviest:',
-            heavy: function (name, count, kg) { return name + (count > 1 ? ' x' + count : '') + ': ' + kg + ' kg'; },
+            heaviest: 'Heaviest items',
+            heavy: function (name, count) { return name + (count > 1 ? ' x' + count : ''); },
+            kg: function (kg) { return kg + ' kg'; },
             otherFitnessBar: 'An old Fitness Bar mod is also installed, so you see two Fitness bars. Remove FitnessBar.dll from BepInEx/plugins, or update it to 0.1.2 or newer.',
             afterQueue: function (value, max) { return 'After the queue ' + value + ' / ' + max; },
             click: function (what) { return 'Click: ' + what; },
@@ -141,17 +142,18 @@
             days: '天',
             hours: '小时',
             minutes: '分',
-            carrying: function (carried, max) { return '负重 ' + carried + ' / ' + max + ' 千克'; },
-            line: function (name, at) { return '超过 ' + at + ' 千克即「' + name + '」'; },
-            left: function (name, left) { return '距离「' + name + '」还有 ' + left + ' 千克'; },
-            over: function (name, over) { return '「' + name + '」：已超出 ' + over + ' 千克'; },
+            carrying: '负重',
+            load: function (carried, max) { return carried + ' / ' + max + ' 千克'; },
+            room: function (name) { return '距离「' + name + '」还有'; },
+            over: function (over) { return '超出 ' + over + ' 千克'; },
             fitness: '健康',
             fitAbout: '良好的健康可以降低生病的概率。低于30会陷入「亚健康」。长期「饥饿」或「疲劳」会降低健康。食用带有健康加成的食物可以提高健康。',
             weakened: '低于30，你处于「亚健康」状态。',
             nearWeakened: function (left) { return '接近「亚健康」：再降低 ' + left + ' 点就会低于30。'; },
             aboveWeakened: function (above) { return '比「亚健康」的界线30高 ' + above + ' 点。'; },
-            heaviest: '最重的物品：',
-            heavy: function (name, count, kg) { return name + (count > 1 ? ' x' + count : '') + '：' + kg + ' 千克'; },
+            heaviest: '最重的物品',
+            heavy: function (name, count) { return name + (count > 1 ? ' x' + count : ''); },
+            kg: function (kg) { return kg + ' 千克'; },
             otherFitnessBar: '同时安装了旧版 Fitness Bar 模组，所以会显示两个健康条。请从 BepInEx/plugins 中删除 FitnessBar.dll，或将其更新到 0.1.2 或更高版本。',
             afterQueue: function (value, max) { return '队列完成后 ' + value + ' / ' + max; },
             click: function (what) { return '点击：' + what; },
@@ -320,13 +322,14 @@
         '[data-vs-tip] > .vs-bd{order:3;flex:0 0 100%;margin-top:6px;padding-top:5px;border-top:1px solid var(--vs-edge)}',
         '.vs-bd .vs-row{font-size:10.5px;line-height:1.45;color:var(--vs-faint)}',
         '.vs-bd .vs-row + .vs-row{margin-top:3px}',
-        '.vs-bt .vs-row{font-size:10.5px;line-height:1.45}',
+        '.vs-bt .vs-row,.vs-weight-tip .vs-row{font-size:10.5px;line-height:1.45}',
         '.vs-kv{display:flex;justify-content:space-between;align-items:baseline;gap:8px}',
         '.vs-kv .vs-k{min-width:0;color:var(--vs-key)}',
         '.vs-kv .vs-v{flex-shrink:0;font-family:Consolas,monospace;font-weight:bold;color:var(--vs-text)}',
         '.vs-kv.vs-good .vs-v{color:var(--vs-good)}',
         '.vs-kv.vs-bad .vs-v{color:var(--vs-bad)}',
-        '.vs-bt .vs-head{margin-top:5px;font-size:9.5px;line-height:1.4;letter-spacing:.4px;text-transform:uppercase;color:var(--vs-head)}',
+        '.vs-kv.vs-warn .vs-v{color:var(--vs-warn)}',
+        '.vs-bt .vs-head,.vs-weight-tip .vs-head{margin-top:5px;font-size:9.5px;line-height:1.4;letter-spacing:.4px;text-transform:uppercase;color:var(--vs-head)}',
         '.vs-tbar{height:2px;margin:4px 0;background:rgba(255,255,255,.15)}',
         '.vs-tfill{height:100%;background:rgba(255,255,255,.75)}',
         '.vs-tbar.vs-timer-low .vs-tfill{background:var(--vs-warn)}',
@@ -334,7 +337,9 @@
         '.vs-item img{width:13px;height:13px;object-fit:contain;flex-shrink:0}',
         '.vs-item .vs-count{margin-left:auto;font-family:Consolas,monospace;font-size:10px;color:var(--vs-text)}',
         '.vs-item.vs-none{opacity:.45}',
-        '.vs-weight{position:absolute;left:0;right:0;bottom:4px;font-size:9px;line-height:10px;text-align:center;color:#cfd3d5;pointer-events:none;font-variant-numeric:tabular-nums}',
+        // The weight sits under the bag icon. The game's button is 45px with a 1px border and centres a 20px icon, so the
+        // icon ends 31.5px down the 43px inside; the label's line starts at 32px and ends where the weight bar starts.
+        '.vs-weight{position:absolute;left:0;right:0;bottom:3px;font-size:9px;line-height:8px;text-align:center;color:#cfd3d5;pointer-events:none;font-variant-numeric:tabular-nums}',
         '.vs-weight.vs-near{color:var(--vs-warn)}',
         '.vs-weight.vs-over{color:var(--vs-bad)}',
         '.vs-wbar{position:absolute;left:4px;right:4px;bottom:1px;height:2px;background:rgba(255,255,255,.18);pointer-events:none}',
@@ -342,7 +347,7 @@
         '.vs-wbar.vs-near .vs-wfill{background:var(--vs-warn)}',
         '.vs-wbar.vs-over .vs-wfill{background:var(--vs-bad)}',
         '.vs-wgap{position:absolute;top:-1px;bottom:-1px;width:2px;margin-left:-1px;background:#111}',
-        '.vs-weight-tip{margin-top:4px;white-space:pre-line}'
+        '.vs-weight-tip{margin-top:6px;padding-top:5px;border-top:1px solid var(--vs-edge)}'
     ].join('\n');
 
     var held;
@@ -2045,30 +2050,16 @@
         if (!weight) {
             if (label) button.removeChild(label);
             if (bar) button.removeChild(bar);
-            if (tip) setOwnText(tip, 'vs-weight-tip', 'div', 'entry-tip-body vs-weight-tip', '');
+            if (tip) drawBlock(tip, 'vs-weight-tip', 'div', 'vs-weight-tip', []);
 
             return;
         }
 
-        var text = say();
-        var name = data.names.overweight;
         var carried = weight[0];
         var max = weight[1];
         var line = weight[2];
         var isOver = line > 0 && carried > line;
         var isNear = !isOver && line > 0 && carried >= line * NEAR_OVERWEIGHT;
-        var lines = [text.carrying(kgUp(carried), kgDown(max))];
-
-        if (line > 0) {
-            lines.push(text.line(name, kgDown(line)));
-            lines.push(isOver ? text.over(name, kgUp(carried - line)) : text.left(name, kgDown(line - carried)));
-        }
-
-        var heavy = data.heavy || [];
-
-        if (heavy.length) lines.push(text.heaviest);
-
-        for (var h = 0; h < heavy.length; h++) lines.push(text.heavy(heavy[h][0], heavy[h][2], kgUp(heavy[h][1])));
 
         if (!label) label = button.appendChild(element('span', 'vs-weight'));
 
@@ -2093,7 +2084,25 @@
 
         if (isGapShown) setStyle(gap, 'left', percent(line / max));
 
-        if (tip) setOwnText(tip, 'vs-weight-tip', 'div', 'entry-tip-body vs-weight-tip', lines.join('\n'));
+        if (tip) drawBlock(tip, 'vs-weight-tip', 'div', 'vs-weight-tip', weightRows(weight, data.names.overweight, data.heavy || [], isOver, isNear));
+    }
+
+    // The Inventory hover box: what you carry against the most you can carry, then the room left before Overweight or
+    // how far past it you are, then the heaviest items, each name with its weight on the right.
+    function weightRows(weight, name, heavy, isOver, isNear) {
+        var text = say();
+        var carried = weight[0];
+        var line = weight[2];
+        var rows = [{ k: text.carrying, v: text.load(kgUp(carried), kgDown(weight[1])) }];
+
+        if (isOver) rows.push({ k: name, v: text.over(kgUp(carried - line)), c: 'vs-bad' });
+        else if (line > 0) rows.push({ k: text.room(name), v: text.kg(kgDown(line - carried)), c: isNear ? 'vs-warn' : '' });
+
+        if (heavy.length) rows.push([text.heaviest, 'vs-head']);
+
+        for (var h = 0; h < heavy.length; h++) rows.push({ k: text.heavy(heavy[h][0], heavy[h][2]), v: text.kg(kgUp(heavy[h][1])) });
+
+        return rows;
     }
 
     // The Inventory button: the HUD tool whose hover title is the game's word for the bag.

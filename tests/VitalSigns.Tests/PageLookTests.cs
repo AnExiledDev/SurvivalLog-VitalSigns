@@ -9,7 +9,8 @@ public class PageLookTests
     private const string Satiety = "page.rows[0]";
     private const string Morale = "page.rows[1]";
     private const string Root = "document.documentElement";
-    private const string WeightTip = "childWith(page.bag.querySelector('.entry-tip'), 'vs-weight-tip').textContent";
+    private const string WeightTip = "blockText(page.bag.querySelector('.entry-tip'), 'vs-weight-tip')";
+    private const string WeightRows = "childWith(page.bag.querySelector('.entry-tip'), 'vs-weight-tip').children";
 
     private static readonly CarryWeight Weight = new(12_340, 20_000, 16_000);
 
@@ -220,7 +221,31 @@ public class PageLookTests
 
         page.Apply(0, Readings.Data(weight: Weight, heavy: new[] { new HeavyItem("Iron bar", 4000, 2), new HeavyItem("Rope", 500, 1) }));
 
-        Assert.Equal("Carrying 12.4 / 20.0 kg\nOverweight above 16.0 kg\n3.6 kg left before Overweight\nHeaviest:\nIron bar x2: 4.0 kg\nRope: 0.5 kg", page.Text(WeightTip));
+        Assert.Equal("Carrying 12.4 / 20.0 kg\nRoom before Overweight 3.6 kg\nHeaviest items\nIron bar x2 4.0 kg\nRope 0.5 kg", page.Text(WeightTip));
+    }
+
+    /// <summary>The heading reads as a heading and each item is a name on the left with its weight on the right, so the weights line up.</summary>
+    [Fact]
+    public void Each_heavy_item_puts_its_name_left_and_its_weight_right_under_a_heading()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Readings.Data(weight: Weight, heavy: new[] { new HeavyItem("Iron bar", 4000, 2), new HeavyItem("Rope", 500, 1) }));
+
+        Assert.True(page.Is($"{WeightRows}[2].classList.contains('vs-head')"));
+        Assert.True(page.Is($"{WeightRows}[3].classList.contains('vs-kv') && {WeightRows}[4].classList.contains('vs-kv')"));
+        Assert.Equal("Iron bar x2", page.Text($"childWith({WeightRows}[3], 'vs-k').textContent"));
+        Assert.Equal("4.0 kg", page.Text($"childWith({WeightRows}[3], 'vs-v').textContent"));
+    }
+
+    [Fact]
+    public void Past_Overweight_the_heaviest_items_follow_the_Overweight_line()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Readings.Data(weight: new CarryWeight(17_050, 20_000, 16_000), heavy: new[] { new HeavyItem("Iron bar", 4000, 2) }));
+
+        Assert.Equal("Carrying 17.1 / 20.0 kg\nOverweight 1.1 kg over\nHeaviest items\nIron bar x2 4.0 kg", page.Text(WeightTip));
     }
 
     [Fact]
@@ -230,7 +255,7 @@ public class PageLookTests
 
         page.Apply(0, Readings.Data(weight: Weight, isChinese: true, names: new GameNames("饱腹富余", "超重"), heavy: new[] { new HeavyItem("铁锭", 4000, 2) }));
 
-        Assert.EndsWith("\n最重的物品：\n铁锭 x2：4.0 千克", page.Text(WeightTip));
+        Assert.EndsWith("\n最重的物品\n铁锭 x2 4.0 千克", page.Text(WeightTip));
     }
 
     [Fact]
@@ -240,7 +265,7 @@ public class PageLookTests
 
         page.Apply(0, Readings.Data(weight: Weight, heavy: System.Array.Empty<HeavyItem>()));
 
-        Assert.DoesNotContain("Heaviest", page.Text(WeightTip));
+        Assert.Equal("Carrying 12.4 / 20.0 kg\nRoom before Overweight 3.6 kg", page.Text(WeightTip));
     }
 
     // ===== Taken away =====

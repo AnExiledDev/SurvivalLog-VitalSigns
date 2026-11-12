@@ -400,6 +400,9 @@ public class PageScriptTests
 
     // ===== Carried weight =====
 
+    private const string WeightTip = "blockText(page.bag.querySelector('.entry-tip'), 'vs-weight-tip')";
+    private const string WeightRows = "childWith(page.bag.querySelector('.entry-tip'), 'vs-weight-tip').children";
+
     [Fact]
     public void The_Inventory_button_shows_the_weight_and_its_hover_box_the_room_left()
     {
@@ -408,10 +411,26 @@ public class PageScriptTests
         page.Apply(0, Readings.Data(weight: new CarryWeight(12_340, 20_000, 16_000)));
 
         Assert.Equal("12.4", page.Text("childWith(page.bag, 'vs-weight').textContent"));
-        Assert.Equal("Carrying 12.4 / 20.0 kg\nOverweight above 16.0 kg\n3.6 kg left before Overweight",
-            page.Text("childWith(page.bag.querySelector('.entry-tip'), 'vs-weight-tip').textContent"));
+        Assert.Equal("Carrying 12.4 / 20.0 kg\nRoom before Overweight 3.6 kg", page.Text(WeightTip));
         Assert.False(page.Is("childWith(page.phone, 'vs-weight')"));
         Assert.False(page.Is("childWith(page.bag, 'vs-weight').classList.contains('vs-near')"));
+        Assert.False(page.Is($"{WeightRows}[1].classList.contains('vs-warn')"));
+    }
+
+    /// <summary>Each line is a name on the left and its number on the right, so the numbers line up down the box.</summary>
+    [Fact]
+    public void Each_weight_line_puts_its_name_left_and_its_number_right()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Readings.Data(weight: new CarryWeight(12_340, 20_000, 16_000)));
+
+        Assert.Equal(2, page.Number($"{WeightRows}.length"));
+        Assert.True(page.Is($"{WeightRows}[0].classList.contains('vs-kv') && {WeightRows}[1].classList.contains('vs-kv')"));
+        Assert.Equal("Carrying", page.Text($"childWith({WeightRows}[0], 'vs-k').textContent"));
+        Assert.Equal("12.4 / 20.0 kg", page.Text($"childWith({WeightRows}[0], 'vs-v').textContent"));
+        Assert.Equal("Room before Overweight", page.Text($"childWith({WeightRows}[1], 'vs-k').textContent"));
+        Assert.Equal("3.6 kg", page.Text($"childWith({WeightRows}[1], 'vs-v').textContent"));
     }
 
     [Theory]
@@ -427,13 +446,36 @@ public class PageScriptTests
     }
 
     [Fact]
-    public void Past_Overweight_the_hover_box_says_by_how_much()
+    public void Close_to_Overweight_the_room_left_turns_amber()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Readings.Data(weight: new CarryWeight(14_400, 20_000, 16_000)));
+
+        Assert.Equal("Carrying 14.4 / 20.0 kg\nRoom before Overweight 1.6 kg", page.Text(WeightTip));
+        Assert.True(page.Is($"{WeightRows}[1].classList.contains('vs-warn')"));
+    }
+
+    /// <summary>Past the line the room left is gone and an Overweight line in red says by how much.</summary>
+    [Fact]
+    public void Past_Overweight_the_hover_box_says_by_how_much_in_place_of_the_room_left()
     {
         var page = PageScript.On();
 
         page.Apply(0, Readings.Data(weight: new CarryWeight(17_050, 20_000, 16_000)));
 
-        Assert.EndsWith("Overweight: 1.1 kg over", page.Text("childWith(page.bag.querySelector('.entry-tip'), 'vs-weight-tip').textContent"));
+        Assert.Equal("Carrying 17.1 / 20.0 kg\nOverweight 1.1 kg over", page.Text(WeightTip));
+        Assert.True(page.Is($"{WeightRows}[1].classList.contains('vs-bad')"));
+    }
+
+    [Fact]
+    public void A_bag_with_no_Overweight_line_shows_only_what_is_carried()
+    {
+        var page = PageScript.On();
+
+        page.Apply(0, Readings.Data(weight: new CarryWeight(5000, 20_000, 0)));
+
+        Assert.Equal("Carrying 5.0 / 20.0 kg", page.Text(WeightTip));
     }
 
     [Fact]
@@ -444,8 +486,60 @@ public class PageScriptTests
         page.Apply(0, Readings.Data(weight: new CarryWeight(5000, 20_000, 16_000), isChinese: true, names: new GameNames("饱腹富余", "超重")));
 
         Assert.Equal("5.0", page.Text("childWith(page.bag, 'vs-weight').textContent"));
-        Assert.Equal("负重 5.0 / 20.0 千克\n超过 16.0 千克即「超重」\n距离「超重」还有 11.0 千克",
-            page.Text("childWith(page.bag.querySelector('.entry-tip'), 'vs-weight-tip').textContent"));
+        Assert.Equal("负重 5.0 / 20.0 千克\n距离「超重」还有 11.0 千克", page.Text(WeightTip));
+    }
+
+    [Fact]
+    public void Past_Overweight_a_Chinese_game_says_by_how_much()
+    {
+        var page = PageScript.On("{bagName:'背包'}");
+
+        page.Apply(0, Readings.Data(weight: new CarryWeight(17_050, 20_000, 16_000), isChinese: true, names: new GameNames("饱腹富余", "超重")));
+
+        Assert.Equal("负重 17.1 / 20.0 千克\n超重 超出 1.1 千克", page.Text(WeightTip));
+    }
+
+    /// <summary>
+    /// The game's bag button (CoreUI1 .icon-sq) is 45px with a 1px border and centres its 20px icon (.icon-svg, 1em of
+    /// the button's 20px) in the 43px inside, so the icon ends 31.5px down. The weight must sit below that and above the
+    /// weight bar, or it covers the icon. The game scales its whole page with one zoom, so this holds at every UI size.
+    /// </summary>
+    [Fact]
+    public void The_weight_sits_under_the_bag_icon_and_above_the_weight_bar()
+    {
+        const double inside = 43;
+        const double iconBottom = (inside + 20) / 2;
+        var page = PageScript.On();
+
+        page.Apply(0, Readings.Data(weight: new CarryWeight(5000, 20_000, 16_000)));
+
+        var css = page.Text("document.getElementById('vs-style').textContent");
+        var label = CssRule(css, ".vs-weight");
+        var bar = CssRule(css, ".vs-wbar");
+        var labelBottom = inside - Px(label, "bottom");
+        var labelTop = labelBottom - Px(label, "line-height");
+        var barTop = inside - Px(bar, "bottom") - Px(bar, "height");
+
+        Assert.True(labelTop >= iconBottom, $"the weight starts {labelTop}px down, over the icon that ends at {iconBottom}px");
+        Assert.True(labelBottom <= barTop, $"the weight ends {labelBottom}px down, over the weight bar that starts at {barTop}px");
+    }
+
+    private static string CssRule(string css, string selector)
+    {
+        var match = System.Text.RegularExpressions.Regex.Match(css, "(?m)^" + System.Text.RegularExpressions.Regex.Escape(selector) + "\\{([^}]*)\\}");
+
+        Assert.True(match.Success, selector + " has no rule");
+
+        return match.Groups[1].Value;
+    }
+
+    private static double Px(string rule, string property)
+    {
+        var match = System.Text.RegularExpressions.Regex.Match(rule, "(?:^|;)" + property + ":([\\d.]+)px");
+
+        Assert.True(match.Success, property + " is not set in px in " + rule);
+
+        return double.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
     }
 
     [Fact]

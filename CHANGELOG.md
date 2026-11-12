@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.12.4
+
+- Fixed: the weight on the Inventory button no longer covers the bag icon. It now sits under the icon.
+- The Inventory button's hover box is easier to read. The first line shows what you carry and the most you can carry. The next line shows how much room you have before Overweight, or how far over you are once you pass it. The heaviest items are listed below with their weights lined up on the right.
+- Made for Survival Log 1.1.20719.
+
 ## 0.12.3
 
 - Fixed: clicking a stat bar always said "Nothing to do", even with food, drinks or a bed right there. Vital Signs read every bar's maximum as 0.

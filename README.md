@@ -14,7 +14,7 @@ The game's stat bars show a value and nothing else. Food, buffs and debuffs quie
 - **Timer stripe on buffs**: every buff or debuff that runs out gets a thin stripe along its bottom edge that shrinks as its time runs down and turns amber near the end. Buffs that last until something removes them get none.
 - **Fitness bar**: a bar under Life shows your Fitness, a stat the game keeps but never shows. It is green when fine, amber within 10 of Weakened and red below 30, where Weakened starts. Its hover box says what Fitness does and how close you are to Weakened. This replaces the Fitness Bar mod: from Fitness Bar 0.1.2 on, it turns itself off when Vital Signs is installed, so only one Fitness bar shows. An older Fitness Bar still draws its own, and the Fitness hover box then says to remove or update it.
 - **Low stat warnings**: a pop-up when Satiety, Morale, Stamina or Life drops to 20% of its maximum, where the game turns the bar red, and when Fitness drops below 40, close to Weakened, and below 30, where you become Weakened. Each warns once per drop, and again only after the stat climbs a little back. Set the line and turn each one off in the Alerts settings.
-- **Weight on the Inventory button**: the kilograms you carry and a bar with a mark where Overweight starts, amber when you are close to Overweight and red past it. Hover the button to see your carried weight, the most you can carry, where Overweight starts, how much room you have left and the 5 heaviest items in your bag (set how many, or none).
+- **Weight on the Inventory button**: the kilograms you carry and a bar with a mark where Overweight starts, amber when you are close to Overweight and red past it. Hover the button to see what you carry and the most you can carry, how much room you have before Overweight or how far over you are, and the 5 heaviest items in your bag with their weights (set how many, or none).
 - **Trend arrows**: a small green arrow up or red arrow down by a stat's value when it rose or fell over the last game hour.
 - **Buffs about to end pulse**: a good buff pulses when it has an hour of game time or less left, so you can renew it before it runs out. Set how soon, or make debuffs pulse too.
 - **Styles**: the hover boxes, the multiplier chips and the bar frames take the colours of the HUD style chosen in Exiled's Toolkit. The stat bars can be drawn flat or split into tenths, and a colour-blind setting uses blue and orange in place of green and red.
@@ -91,7 +91,7 @@ For buff times, set the good, bad and category multipliers under Timers and Time
 
 Tested on Survival Log 1.1.20719 with BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.12.1 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
+Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.12.4 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
 
 Once a game has loaded, look for `page script sent to CoreUI1 (install 1): the stat bars show the readings`. A line ending `no stat bars on the HUD right now` means the mod could not find the stat bars.
 
@@ -111,6 +111,7 @@ To reach me directly, message `exiled.dev` on Discord; you can find me in the [o
 
 ## Changelog
 
+- **0.12.4**: The weight on the Inventory button sits under the bag icon instead of over it, and the button's hover box is easier to read, with the weights lined up on the right.
 - **0.12.2**: Clicks on the stat bars and debuffs are off for a new install. Turn them on with `ClickBars` and `ClickCures` under Hud.
 - **0.12.1**: Now needs Exiled's Toolkit 0.20.0 or newer.
 - **0.12.0**: The lists on the Mods screen mark what you have, and the food, Morale and Life lists take whole kinds of item, such as Any Cooked Dish. A click on Satiety no longer eats fertilizer.
