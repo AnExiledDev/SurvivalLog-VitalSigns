@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.12.6
+
+- When a click on a stat bar has nothing to do, `vital-signs.log` now says why, along with how many items, furniture and beds it found at home. The same click with the same reason is logged once.
+- Made for Survival Log 1.1.20719.
+
 ## 0.12.5
 
 - Clearer wording in the settings and on screen.

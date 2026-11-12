@@ -91,7 +91,7 @@ For buff times, set the good, bad and category multipliers under Timers and Time
 
 Tested on Survival Log 1.1.20719 with BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.12.5 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
+Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.12.6 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
 
 Once a game has loaded, look for `page script sent to CoreUI1 (install 1): the stat bars show the readings`. A line ending `no stat bars on the HUD right now` means the mod could not find the stat bars.
 
@@ -111,6 +111,7 @@ To reach me directly, message `exiled.dev` on Discord. You can find me in the [o
 
 ## Changelog
 
+- **0.12.6**: When a click on a stat bar has nothing to do, the log now says why.
 - **0.12.5**: Clearer wording in the settings and on screen.
 - **0.12.4**: The weight on the Inventory button sits under the bag icon instead of over it, and the button's hover box is easier to read, with the weights lined up on the right.
 - **0.12.3**: Fixed: clicking a stat bar always said "Nothing to do", even with food, drinks or a bed right there.

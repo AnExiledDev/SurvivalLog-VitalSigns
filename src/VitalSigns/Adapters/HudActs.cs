@@ -23,6 +23,7 @@ internal sealed class HudActs
     private readonly Action<string> _log;
     private readonly HashSet<string> _moraleSkip = new();
     private readonly BarPlan[] _plans = new BarPlan[StatDelta.Stats];
+    private readonly RefusedClicks _refused = new();
     private double _nextPlanAt;
     private (int, int, int) _loggedCounts = (-1, -1, -1);
 
@@ -89,6 +90,8 @@ internal sealed class HudActs
 
         if (!plan.CanAct)
         {
+            if (_refused.Line(stat, plan.Why, View.Items.Count, View.Funcs.Count, View.Beds.Count) is { } line) _log(line);
+
             Toast(acts, ActTexts.NothingTitle(stat, isChinese), plan.Tip, plan.Why is ActWhy.Off or ActWhy.Full or ActWhy.AtGoal ? Kind.Info : Kind.Warning, "act" + stat);
 
             return;
@@ -168,6 +171,7 @@ internal sealed class HudActs
         Reading = null;
         View = BaseView.Empty;
         _moraleSkip.Clear();
+        _refused.Clear();
         Array.Clear(_plans, 0, _plans.Length);
     }
 
