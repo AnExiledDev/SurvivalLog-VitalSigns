@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.12.3
+
+- Fixed: clicking a stat bar always said "Nothing to do", even with food, drinks or a bed right there. Vital Signs read every bar's maximum as 0.
+- Fixed by the same change: clicking a debuff to cure it, the low stat warnings, the marker for where a bar ends up after your queue, and the maximums in the hover box.
+- Made for Survival Log 1.1.20719.
+
 ## 0.12.2
 
 - Clicks on the stat bars and debuffs are now off for a new install. Turn them on with ClickBars and ClickCures under Hud, in the config or on the Mod Manager's Mods screen. A setting you already saved is kept.

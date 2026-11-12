@@ -24,7 +24,7 @@ internal sealed class HudActs
     private readonly HashSet<string> _moraleSkip = new();
     private readonly BarPlan[] _plans = new BarPlan[StatDelta.Stats];
     private double _nextPlanAt;
-    private bool _wasScanning;
+    private (int, int, int) _loggedCounts = (-1, -1, -1);
 
     public HudActs(Action<string> log)
     {
@@ -198,11 +198,13 @@ internal sealed class HudActs
             tips[stat] = plan.Tip;
         }
 
-        if (scanning != _wasScanning)
-        {
-            _wasScanning = scanning;
+        // Logged whenever the counts change, so the log shows the scan inside a save and not only the empty one at the menu.
+        var counts = (View.Items.Count, View.Funcs.Count, View.Beds.Count);
 
-            if (!scanning) _log($"base scan ready: {View.Items.Count} items, {View.Funcs.Count} furniture actions, {View.Beds.Count} beds");
+        if (!scanning && counts != _loggedCounts)
+        {
+            _loggedCounts = counts;
+            _log($"base scan ready: {counts.Item1} items, {counts.Item2} furniture actions, {counts.Item3} beds");
         }
 
         var projected = hud.Projection && levels != null ? Projection.Of(Pairs(levels), queued) : null;

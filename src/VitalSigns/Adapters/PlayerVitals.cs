@@ -25,7 +25,6 @@ internal static class PlayerVitals
         (AttrName.VitalityAdd_Ratio, AttrName.VitalityDel_Ratio, AttrName.VitalityAutoAdd_Ratio, AttrName.VitalityAutoDel_Ratio)
     };
 
-    private static readonly AttrName[] MaxRows = { AttrName.MaxSatiety, AttrName.MaxMorale, AttrName.MaxStamina, AttrName.MaxVitality };
     private static readonly Dictionary<int, int> Counts = new();
     private static readonly System.Diagnostics.Stopwatch SinceCount = new();
 
@@ -106,22 +105,9 @@ internal static class PlayerVitals
         return _heavy;
     }
 
-    private static readonly AttrName[] ValueRows = { AttrName.Satiety, AttrName.Morale, AttrName.Stamina, AttrName.Vitality };
-
-    /// <summary>Each stat's value and maximum, for the warnings. A stat the player lacks reads 0 of 0, which never warns.</summary>
-    private static List<StatLevel> Levels(AttributeComponent attributes)
-    {
-        var levels = new List<StatLevel>(ValueRows.Length);
-
-        for (var i = 0; i < ValueRows.Length; i++)
-        {
-            var hasStat = attributes.AttrDict.ContainsKey(ValueRows[i]) && attributes.AttrDict.ContainsKey(MaxRows[i]);
-
-            levels.Add(hasStat ? new StatLevel(attributes.GetTotalValue_Float(ValueRows[i]), attributes.GetTotalValue_Float(MaxRows[i])) : new StatLevel(0, 0));
-        }
-
-        return levels;
-    }
+    /// <summary>Each stat's value and maximum, for the warnings and the bar clicks. A stat the player lacks reads 0 of 0, which never warns.</summary>
+    private static List<StatLevel> Levels(AttributeComponent attributes) =>
+        StatReads.Levels(id => attributes.AttrDict.ContainsKey((AttrName)id), id => attributes.GetTotalValue_Float((AttrName)id), id => attributes.GetTotalValue_Int((AttrName)id));
 
     /// <summary>Fitness the way the game reads its own bars (LeadingRole.SyncAttr2UI): the value rounded from its float total, the maximum a whole number.</summary>
     private static FitnessReading? Fitness(AttributeComponent attributes)
@@ -178,9 +164,7 @@ internal static class PlayerVitals
 
         for (var i = 0; i < losses.Length; i++) losses[i] = stats[i].Loss;
 
-        var max = new double[BuffRule.Stats];
-
-        for (var i = 0; i < max.Length; i++) max[i] = attributes.AttrDict.ContainsKey(MaxRows[i]) ? attributes.GetTotalValue_Float(MaxRows[i]) : 100;
+        var max = StatReads.Maxes(id => attributes.AttrDict.ContainsKey((AttrName)id), id => attributes.GetTotalValue_Int((AttrName)id), 100);
 
         return new Details(max, ComingLoss.Of(now, buffs, rules, cold, losses), options.Tooltips ? ruleList : Array.Empty<BuffRule>(), cold,
             options.Tooltips && options.Cures ? Items(world, config, ruleList, isChinese) : Array.Empty<ItemCount>(), string.Join(" / ", suppressedBy),
