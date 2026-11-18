@@ -79,8 +79,8 @@ The clicks are off until you turn on ClickBars and ClickCures under Hud. To set 
 For buff times, set the good, bad and category multipliers under Timers and TimerCategories, and add single buffs to Buffs under Timers. The changes take effect at once, on buffs already running too. See [url=https://github.com/AnExiledDev/SurvivalLog-VitalSigns/blob/main/CONFIG.md]CONFIG.md[/url] for every setting.
 
 [size=5]Feedback[/size]
-Found a bug or have an idea? Come say hi on the [url=https://discord.gg/trTsyxUFqg]Core Directive Discord[/url], or post in this page's Posts tab. For bugs, please include [font=Courier New]BepInEx\LogOutput.log[/font] and [font=Courier New]BepInEx\vital-signs.log[/font].
-To reach me directly, message [b]exiled.dev[/b] on Discord. You can find me in the [url=https://discord.gg/MZGg4gQAUe]official Survival Log Discord[/url]. I'm also on X as [url=https://x.com/AnExiledDev]@AnExiledDev[/url].
+Found a bug or have an idea? Come say hi in the [url=https://discord.gg/pDrQtqbZgb]unofficial modding Discord for Survival Log[/url], or post in this page's Posts tab. For bugs, please include [font=Courier New]BepInEx\LogOutput.log[/font] and [font=Courier New]BepInEx\vital-signs.log[/font].
+To reach me directly, message [b]exiled.dev[/b] on Discord. You can find me in the [url=https://discord.gg/pDrQtqbZgb]unofficial modding Discord[/url] and the [url=https://discord.gg/MZGg4gQAUe]official Survival Log Discord[/url]. I'm also on X as [url=https://x.com/AnExiledDev]@AnExiledDev[/url].
 
 [size=5]Source and license[/size]
 Open source under MIT: [url=https://github.com/AnExiledDev/SurvivalLog-VitalSigns]github.com/AnExiledDev/SurvivalLog-VitalSigns[/url]
@@ -162,8 +162,8 @@ Vital Signs 最初的灵感来自 ivmakk0 的 [url=https://www.nexusmods.com/sur
 状态持续时间：在 Timers 和 TimerCategories 分组中设置增益、负面和各类别的倍数，在 Timers 分组的 Buffs 中添加单个状态。改动立即生效，正在生效的状态也会改变。完整说明见 [url=https://github.com/AnExiledDev/SurvivalLog-VitalSigns/blob/main/CONFIG.md]CONFIG.md[/url]（英文）。
 
 [size=5]反馈[/size]
-发现 bug 或有好点子？欢迎来 [url=https://discord.gg/trTsyxUFqg]Core Directive Discord[/url] 打个招呼，或在本页的「Posts」标签里发帖。报告 bug 时，请附上 [font=Courier New]BepInEx\LogOutput.log[/font] 和 [font=Courier New]BepInEx\vital-signs.log[/font]。
-想直接联系我，可以在 Discord 上给 [b]exiled.dev[/b] 发消息，我在 [url=https://discord.gg/MZGg4gQAUe]Survival Log 官方 Discord[/url] 里。也可以在 X 上找我：[url=https://x.com/AnExiledDev]@AnExiledDev[/url]。
+发现 bug 或有好点子？欢迎来 [url=https://discord.gg/pDrQtqbZgb]Survival Log 非官方模组 Discord[/url] 打个招呼，或在本页的「Posts」标签里发帖。报告 bug 时，请附上 [font=Courier New]BepInEx\LogOutput.log[/font] 和 [font=Courier New]BepInEx\vital-signs.log[/font]。
+想直接联系我，可以在 Discord 上给 [b]exiled.dev[/b] 发消息，我在 [url=https://discord.gg/pDrQtqbZgb]Survival Log 非官方模组 Discord[/url] 和 [url=https://discord.gg/MZGg4gQAUe]Survival Log 官方 Discord[/url] 里。也可以在 X 上找我：[url=https://x.com/AnExiledDev]@AnExiledDev[/url]。
 
 [size=5]源代码与许可[/size]
 基于 MIT 许可开源：[url=https://github.com/AnExiledDev/SurvivalLog-VitalSigns]github.com/AnExiledDev/SurvivalLog-VitalSigns[/url]
