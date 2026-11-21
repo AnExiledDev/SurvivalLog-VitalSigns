@@ -22,6 +22,20 @@ internal static class ActionQueue
     /// interrupted, when the steps go on the end instead. Uses already waiting in the queue are taken off a stack's
     /// count first (reserved: item instance id to uses). How many actions went in, 0 when none did.
     /// </summary>
+    /// <summary>
+    /// Whether queued steps will go on the end of the queue: always with append on, and with it off while what the
+    /// character is doing now can't be interrupted. A plan made for the end of the queue has to count what is waiting.
+    /// </summary>
+    public static bool WillAppend(bool append)
+    {
+        if (append) return true;
+
+        var world = GameSingleton.Existing<BattleLogicWorld>();
+        var role = world?._AgentManager?.GetLeadingRole();
+
+        return world != null && role != null && !world.IsCurrentBehaviorInterruptible(role);
+    }
+
     public static int Queue(IReadOnlyList<PlanStep> steps, bool append, IReadOnlyDictionary<long, int> reserved, Action<string> log)
     {
         var world = GameSingleton.Existing<BattleLogicWorld>();
@@ -48,7 +62,7 @@ internal static class ActionQueue
             {
                 added += step.Option.Kind == ActKind.Furniture
                     ? AddFurniture(world, config, cache, step.Option)
-                    : AddItem(config, agents, cache, step.Option, step.Count, reserved, used);
+                    : AddItem(config, agents, world._ItemManager, cache, step.Option, step.Count, reserved, used);
             }
 
             if (added == 0)
@@ -117,8 +131,8 @@ internal static class ActionQueue
         return added;
     }
 
-    /// <summary>Uses of an item kind, the bag's stacks first, each stack used as far as its count less what is already queued from it.</summary>
-    private static int AddItem(ConfigManager config, AgentManager agents, ActionCacheComponent cache, ActOption option, int uses, IReadOnlyDictionary<long, int> reserved,
+    /// <summary>Uses of an item kind, the bag's stacks first, each stack used as far as its count now less what is already queued from it.</summary>
+    private static int AddItem(ConfigManager config, AgentManager agents, ItemManager? items, ActionCacheComponent cache, ActOption option, int uses, IReadOnlyDictionary<long, int> reserved,
         Dictionary<long, int> used)
     {
         if (GameCatalog.Item(option.Id) is not { } kind || uses <= 0) return 0;
@@ -135,7 +149,10 @@ internal static class ActionQueue
             used.TryGetValue(stack.InstanceId, out var already);
             reserved.TryGetValue(stack.InstanceId, out var waiting);
 
-            var left = stack.Count - already - waiting;
+            // The scan can be a few seconds old, so the count is read again: a stack eaten or moved since is skipped.
+            var live = items?.GetItemData(stack.InstanceId);
+            var count = live != null && live.ItemCount > 0 && live.OwnerId == stack.Owner ? live.ItemCount : 0;
+            var left = count - already - waiting;
 
             while (left > 0 && uses > 0)
             {

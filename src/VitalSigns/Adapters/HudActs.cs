@@ -82,9 +82,11 @@ internal sealed class HudActs
 
         var isChinese = GameLanguage.IsChinese();
 
+        var append = ActionQueue.WillAppend(acts.AddToQueue);
+
         QueueReader.Refresh();
         QueueReader.Tick(now);
-        Plan(vitals, hud, acts, true, isChinese);
+        Plan(vitals, hud, append ? acts with { AddToQueue = true } : acts, true, isChinese);
 
         var plan = _plans[stat] ?? BarPlan.Nothing(stat, ActWhy.Scanning, isChinese);
 
@@ -97,7 +99,7 @@ internal sealed class HudActs
             return;
         }
 
-        var added = ActionQueue.Queue(plan.Steps, acts.AddToQueue, acts.AddToQueue ? QueueReader.Reserved : NoneReserved, _log);
+        var added = ActionQueue.Queue(plan.Steps, append, append ? QueueReader.Reserved : NoneReserved, _log);
 
         if (added == 0)
         {
@@ -127,9 +129,11 @@ internal sealed class HudActs
 
         if (rule == null || rule.IsGood) return;
 
+        var append = ActionQueue.WillAppend(acts.AddToQueue);
+
         QueueReader.Refresh();
         QueueReader.Tick(now);
-        Plan(vitals, hud, acts, true, isChinese);
+        Plan(vitals, hud, append ? acts with { AddToQueue = true } : acts, true, isChinese);
 
         var cure = IsScanning ? null : ActPlanner.Cure(rule.Cures, View, acts.UseHome);
 
@@ -141,7 +145,7 @@ internal sealed class HudActs
         }
 
         var steps = new[] { new PlanStep(cure, 1) };
-        var added = ActionQueue.Queue(steps, acts.AddToQueue, acts.AddToQueue ? QueueReader.Reserved : NoneReserved, _log);
+        var added = ActionQueue.Queue(steps, append, append ? QueueReader.Reserved : NoneReserved, _log);
 
         if (added == 0)
         {

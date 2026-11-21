@@ -84,7 +84,7 @@ A click adds the same actions you could queue by hand. Furniture and beds come f
 | `ClickStamina` | `true` | A click on the Stamina bar rests in the best bed at home, as `BedModes` says. |
 | `ClickLife` | `true` | A click on the Life bar uses the items in `LifeItems`. |
 | `UseHomeStorage` | `true` | Lets clicks use items from the home storage too while you are at home, not only the bag. |
-| `AddToQueue` | `true` | Adds a click's actions after the ones already queued. `false`: they replace the queue. |
+| `AddToQueue` | `true` | Adds a click's actions after the ones already queued. `false`: they replace the queue, unless what you are doing now can't be stopped. Then they still go after it. |
 | `Toasts` | `true` | Says in a toast what a click queued, or why it queued nothing. |
 | `FoodGoal` | `Max` | How much a click on Satiety eats. `Max`: up to the maximum. `WellFed`: up to Well Fed. `AboveWellFed`: `FoodAbovePercent` past Well Fed. Food that would go past the maximum is never eaten. |
 | `FoodAbovePercent` | `10` | With `FoodGoal` on `AboveWellFed`, how far past Well Fed a click eats, in percent of the maximum, from 0 to 100. |
@@ -96,7 +96,7 @@ A click adds the same actions you could queue by hand. Furniture and beds come f
 | `MoraleMode` | `Best` | What a click on Morale queues. `Best`: one action. Actions that also raise another stat come first, then the one with the biggest gain. Clicking again while it is queued picks the next one. `Routine`: every action in `MoraleRoutine` that can be done now, in order. |
 | `MoraleRoutine` | empty | Your Morale routine, in order, split by commas, such as `f12,i3001,g3`. Write `f` and a furniture action ID, `i` and an item ID, or `g` and an item kind to use the item of that kind you have that gives the most Morale. |
 | `MoraleItems` | `false` | Lets `Best` use items that raise Morale too, not only furniture. |
-| `AvoidLifeLoss` | `true` | Leaves out Morale actions that cost Life. |
+| `AvoidLifeLoss` | `true` | Leaves out Morale actions and food that cost Life. |
 | `LifeItems` | empty | The items a click on Life uses, in order, split by commas, such as `i1203,g900`. Write `i` and an item ID, or `g` and an item kind to use every item of that kind you have, the one that restores the most Life first. Empty: any item that restores Life, the one that restores the least first. |
 | `LifeMostItems` | `1` | The most items one click on Life uses, from 1 to 10. It stops once Life is full. |
 

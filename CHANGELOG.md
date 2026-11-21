@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.12.7
+
+- Fixed: with `AddToQueue` off, a click while you are doing something that can't be stopped now counts what is already queued. Before, a click on Satiety could queue too much food.
+- Fixed: a click no longer tries to use food or items you ate or moved a few seconds earlier.
+- Fixed: right after a save loads, clicks find what you have within a second. Before, they could say there was nothing to use for several seconds.
+- The `AvoidLifeLoss` description now says it leaves out food that costs Life too, which it already did.
+- Made for Survival Log 1.1.21671.
+
 ## 0.12.6
 
 - When a click on a stat bar has nothing to do, `vital-signs.log` now says why, along with how many items, furniture and beds it found at home. The same click with the same reason is logged once.

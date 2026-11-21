@@ -25,7 +25,7 @@ namespace VitalSigns;
 public sealed class Plugin : BasePlugin
 {
     private const string Guid = "com.dev.survivallog.vitalsigns";
-    private const string Version = "0.12.6";
+    private const string Version = "0.12.7";
 
     /// <summary>Exiled's Toolkit: its shared helpers, toasts, live settings and typing check all come from it.</summary>
     private const string ToolkitGuid = "com.dev.survivallog.exiledtoolkit";
@@ -183,10 +183,14 @@ public sealed class Plugin : BasePlugin
 
             foreach (var problem in read.Problems) log("per-buff file: " + problem);
 
-            if (buffs.Value.Trim().Length == 0 && read.Buffs.Count > 0) buffs.Value = BuffList.Format(read.Buffs);
+            var moved = buffs.Value.Trim().Length == 0 && read.Buffs.Count > 0;
+
+            if (moved) buffs.Value = BuffList.Format(read.Buffs);
 
             File.Move(path, path + ".old", overwrite: true);
-            log($"moved {read.Buffs.Count} per-buff multipliers from {TimersFileName} into Timers Buffs; the file is kept as {TimersFileName}.old");
+            log(moved
+                ? $"moved {read.Buffs.Count} per-buff multipliers from {TimersFileName} into Timers Buffs; the file is kept as {TimersFileName}.old"
+                : $"Timers Buffs is already set, so nothing was moved from {TimersFileName}; the file is kept as {TimersFileName}.old");
         }
         catch (Exception ex)
         {
@@ -424,8 +428,8 @@ public sealed class Plugin : BasePlugin
             "Let clicks use items from the home storage too while you are at home, not only the bag.",
             "在家时，点击也可以使用家中储物里的物品，而不只是背包里的。");
         var addToQueue = Flag("AddToQueue", true,
-            "Add a click's actions after the ones already queued. Off: they replace the queue.",
-            "点击的行动排在已有行动之后。关闭后会替换整个队列。");
+            "Add a click's actions after the ones already queued. Off: they replace the queue, unless what you are doing now can't be stopped. Then they still go after it.",
+            "点击的行动排在已有行动之后。关闭后会替换整个队列，但如果当前的行动不能打断，仍会排在后面。");
         var toasts = Flag("Toasts", true,
             "Say in a toast what a click queued, or why it queued nothing.",
             "用提示说明点击加入了什么，或为什么没有加入。");
@@ -462,8 +466,8 @@ public sealed class Plugin : BasePlugin
             "Let Best use items that raise Morale too, not only furniture.",
             "Best 也可以使用提升心情的物品，而不只是家具。");
         var avoidLife = Flag("AvoidLifeLoss", true,
-            "Leave out Morale actions that cost Life.",
-            "不做会减少生命的心情行动。");
+            "Leave out Morale actions and food that cost Life.",
+            "不做会减少生命的心情行动，也不吃会减少生命的食物。");
         var lifeItems = Keys("LifeItems",
             "The items a click on Life uses, in order, split by commas (i1203,g900). Write i and an item id, or g and an item kind to use every item of that kind you have, the one that restores the most Life first. Empty: any item that restores Life, the one that restores the least first.",
             "点击「生命」时使用的物品，按顺序，用逗号分隔（如 i1203,g900）。填写 i 加物品编号，或 g 加物品种类表示你拥有的这一类全部，恢复生命多的先用。留空为使用任何恢复生命的物品，恢复少的先用。");

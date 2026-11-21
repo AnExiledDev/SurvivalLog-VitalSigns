@@ -61,7 +61,7 @@ Vital Signs was originally inspired by [Stats UI](https://www.nexusmods.com/surv
 
 ## Requirements
 
-- Survival Log 1.1.20719. Built and tested on this version. A game update can break it until the mod is updated.
+- Survival Log 1.1.21671. Built and tested on this version. A game update can break it until the mod is updated.
 - The [BepInEx Pack for Survival Log](https://www.nexusmods.com/survivallog/mods/12), the BepInEx 6 (IL2CPP) build for the game.
 - Optional: [Mod Manager](https://www.nexusmods.com/survivallog/mods/73) 0.15.0 or newer. Its Mods screen lets you pick the food, items, furniture actions, beds and buffs for the list settings from lists. Without it, type their IDs in the config file.
 - [Exiled's Toolkit](https://www.nexusmods.com/survivallog/mods/61) 0.20.0 or newer. Vital Signs does not load without it. The low stat warnings are its pop-ups, settings changed on the Mod Manager's Mods screen take effect at once through it, and the colours that match the HUD style come from it.
@@ -89,9 +89,9 @@ For buff times, set the good, bad and category multipliers under Timers and Time
 
 ## Troubleshooting
 
-Tested on Survival Log 1.1.20719 with BepInEx `6.0.0-be.788`.
+Tested on Survival Log 1.1.21671 with BepInEx `6.0.0-be.788`.
 
-Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.12.6 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
+Check `BepInEx\LogOutput.log` for `===== Vital Signs 0.12.7 started`. With `Enabled` set to `false` the line ends `off, VitalSigns/Enabled is false`.
 
 Once a game has loaded, look for `page script sent to CoreUI1 (install 1): the stat bars show the readings`. A line ending `no stat bars on the HUD right now` means the mod could not find the stat bars.
 
@@ -111,6 +111,7 @@ To reach me directly, message `exiled.dev` on Discord. You can find me in the [u
 
 ## Changelog
 
+- **0.12.7**: Fixed clicks that could queue too much food or food you no longer have, and clicks that found nothing right after a save loads.
 - **0.12.6**: When a click on a stat bar has nothing to do, the log now says why.
 - **0.12.5**: Clearer wording in the settings and on screen.
 - **0.12.4**: The weight on the Inventory button sits under the bag icon instead of over it, and the button's hover box is easier to read, with the weights lined up on the right.

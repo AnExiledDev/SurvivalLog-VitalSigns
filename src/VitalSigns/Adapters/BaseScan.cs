@@ -25,12 +25,17 @@ internal static class BaseScan
     private const double SliceMs = 2;
     private const double EverySeconds = 8;
 
+    // Before a save is loaded there is nothing to look at, so the next look comes sooner, and a click soon after the
+    // load finds the base.
+    private const double NotReadySeconds = 1;
+
     private static readonly Stopwatch Slice = new();
     private static readonly Dictionary<int, List<ItemStack>> Stacks = new();
     private static readonly Func<bool> IsSliceSpent = () => Slice.Elapsed.TotalMilliseconds >= SliceMs;
 
     private static SlicedJob? _job;
     private static double _nextAt;
+    private static bool _wasNotReady;
     private static bool _isChinese;
     private static int _version;
     private static Action<string>? _log;
@@ -85,7 +90,12 @@ internal static class BaseScan
                 _job = new SlicedJob(Scan(config, isChinese));
             }
 
-            if (_job.Advance(IsSliceSpent)) _job = null;
+            if (_job.Advance(IsSliceSpent))
+            {
+                _job = null;
+
+                if (_wasNotReady) _nextAt = Math.Min(_nextAt, now + NotReadySeconds);
+            }
         }
         catch (Exception ex)
         {
@@ -106,10 +116,17 @@ internal static class BaseScan
 
         if (world == null || agents == null || role == null || world._GameTimeManager?.WorldStateType != WorldStateType.PostDisaster)
         {
-            Publish(new List<ActOption>(), new List<ActOption>(), new List<Bed>(), false, new Dictionary<int, List<ItemStack>>());
+            _wasNotReady = true;
+
+            if (View.Version == 0 || View.Items.Count + View.Funcs.Count + View.Beds.Count > 0)
+            {
+                Publish(new List<ActOption>(), new List<ActOption>(), new List<Bed>(), false, new Dictionary<int, List<ItemStack>>());
+            }
 
             yield break;
         }
+
+        _wasNotReady = false;
 
         var roleId = role.InstanceId;
         var atHome = IsAtHome(agents);
